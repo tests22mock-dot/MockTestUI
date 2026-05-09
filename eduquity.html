@@ -87,7 +87,6 @@
         .sc-lbl { font-size: 13px; color: #888; }
         .ic-score { background: #e1f5fe; color: #0288d1; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
         .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #e0f7fa; color: #0097a7; } .ic-acc { background: #fff3e0; color: #f57c00; }
-        
         .donut-container { display: flex; justify-content: center; margin: 20px 0; }
         .donut-chart { width: 200px; height: 200px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .donut-inner { width: 130px; height: 130px; background: #fff; border-radius: 50%; }
@@ -222,11 +221,7 @@
     <div id="analysis-screen" class="hidden">
         <div class="analysis-header"><h1 style="font-size: 18px; margin: 0 auto;">Analysis</h1></div>
         
-        <div style="padding: 16px 16px 0 16px;">
-            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 15px; background: #ff9800; color: #fff; border: none; border-radius: 8px;" onclick="forceOpenChrome()">🌐 Open in Chrome (For PDF Download)</button>
-        </div>
-
-        <div class="a-card" style="margin-top: 10px;">
+        <div class="a-card" style="margin-top: 20px;">
             <div class="sc-grid">
                 <div class="sc-item"><div class="sc-icon ic-score">🏅</div><div class="sc-val" id="res-score">0/40</div><div class="sc-lbl">Your Score</div></div>
                 <div class="sc-item"><div class="sc-icon ic-rank">🏆</div><div class="sc-val" id="res-rank">--</div><div class="sc-lbl">Rank</div></div>
@@ -247,7 +242,7 @@
                 <thead><tr><th style="border:none;"></th><th class="col-you">You</th><th class="col-top">Topper</th><th class="col-avg">Avg</th></tr></thead>
                 <tbody>
                     <tr><td class="row-lbl">Score</td><td class="sc-you" id="cmp-score">0.0</td><td class="sc-top" id="cmp-top">--</td><td class="sc-avg" id="cmp-avg">--</td></tr>
-                    <tr><td class="row-lbl">Accuracy</td><td class="ac-you" id="cmp-acc">0%</td><td class="ac-top">95%</td><td class="ac-avg">55%</td></tr>
+                    <tr><td class="row-lbl">Accuracy</td><td class="ac-you" id="cmp-acc">0%</td><td class="ac-top" id="cmp-top-a">95%</td><td class="ac-avg" id="cmp-avg-a">55%</td></tr>
                     <tr><td class="row-lbl">Correct</td><td class="cr-you" id="cmp-c">0</td><td class="cr-top" id="cmp-top-c">--</td><td class="cr-avg" id="cmp-avg-c">--</td></tr>
                     <tr><td class="row-lbl">Wrong</td><td class="wr-you" id="cmp-w">0</td><td class="wr-top" id="cmp-top-w">--</td><td class="wr-avg" id="cmp-avg-w">--</td></tr>
                 </tbody>
@@ -268,9 +263,10 @@
         </div>
         <div class="sec-title">Section Wise Stats</div>
         <div id="analysis-sections-container"></div>
+
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
             <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Solutions</button>
-            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download PDF Report</button>
+            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download / Save PDF Report</button>
         </div>
     </div>
 
@@ -436,7 +432,6 @@
         let maxMarks = totalQs * posMark;
         let acc = (tC+tI) > 0 ? ((tC / (tC+tI)) * 100).toFixed(2) : 0;
 
-        // Calculate Dummy Rank & Percentile
         let topperScore = (maxMarks * 0.90).toFixed(2);
         if(totalMarks > parseFloat(topperScore)) topperScore = totalMarks.toFixed(2);
         let avgScore = (maxMarks * 0.45).toFixed(2);
@@ -447,7 +442,6 @@
         let topC = Math.floor(totalQs * 0.9); let topW = Math.floor(totalQs * 0.05);
         let avgC = Math.floor(totalQs * 0.45); let avgW = Math.floor(totalQs * 0.25);
 
-        // UI Update
         document.getElementById('res-score').innerText = `${totalMarks.toFixed(2)}/${maxMarks.toFixed(1)}`;
         document.getElementById('res-correct').innerText = tC; 
         document.getElementById('res-incorrect').innerText = tI; 
@@ -504,31 +498,15 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // 🌟 FORCE OPEN CHROME BUTTON LOGIC 🌟
-    function forceOpenChrome() {
-        let url = window.location.href;
-        let intentUrl = "intent://" + url.replace(/^https?:\/\//, '') + "#Intent;scheme=https;package=com.android.chrome;end";
-        
-        window.location.href = intentUrl;
-        
-        setTimeout(() => {
-            navigator.clipboard.writeText(url).then(() => {
-                alert("⚠️ अगर Chrome नहीं खुला, तो लिंक कॉपी हो गया है। कृपया Chrome ब्राउज़र खोलें और लिंक पेस्ट करके टेस्ट का PDF डाउनलोड करें।");
-            }).catch(err => {
-                alert("कृपया इस लिंक को कॉपी करके Chrome में खोलें:\n" + url);
-            });
-        }, 1000);
-    }
-
-    // 📄 PDF DOWNLOAD (NOW SUPER SAFE)
+    // 📄 PDF DOWNLOAD (Native Share API / DataURI)
     function downloadPDF() {
         let btn = document.getElementById('pdf-btn');
         let oldText = btn.innerText;
-        btn.innerText = "⏳ Generating Full PDF...";
+        btn.innerText = "⏳ Generating PDF...";
 
         let printDiv = document.createElement('div');
         printDiv.id = "print-container";
-        printDiv.style.position = "absolute"; // Fix Overlap
+        printDiv.style.position = "absolute"; 
         printDiv.style.left = "-9999px";
         printDiv.style.top = "0";
         printDiv.style.width = "800px";
@@ -543,7 +521,7 @@
         
         let html = `
             <div style="text-align:center; border-bottom:2px solid #1e88e5; padding-bottom:15px; margin-bottom:25px;">
-                <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Pattern Mock Test - Full Report</h1>
+                <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Mock Test - Full Report</h1>
                 <p>Score: <b>${scoreText}</b> | Accuracy: <b>${accText}</b></p>
                 <a href="https://t.me/+N9ijRyP-zYtjNTg1" style="display:inline-block; background:#e53935; color:#fff; padding:10px 20px; border-radius:25px; text-decoration:none; font-size:14px; font-weight:bold; margin-top:10px;">📢 Join Main Channel</a>
             </div>
@@ -555,47 +533,66 @@
         allQsFlat.forEach((q) => {
             let statusColor = q.state === 'correct' ? '#4caf50' : (q.state === 'incorrect' ? '#e53935' : '#888');
             let statusText = q.state === 'correct' ? '✅ Correct' : (q.state === 'incorrect' ? '❌ Incorrect' : '➖ Unattempted');
-            
             html += `
                 <div style="margin-bottom: 30px; page-break-inside: avoid; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; border-bottom:1px dashed #ccc; padding-bottom:8px;">
-                        <b>Q${q.globalNum}. (${q.secName})</b>
-                        <b style="color:${statusColor}">${statusText}</b>
+                        <b>Q${q.globalNum}. (${q.secName})</b> <b style="color:${statusColor}">${statusText}</b>
                     </div>
                     <p style="margin-bottom:15px; font-size:15px; line-height:1.5;">${q.text}</p>
             `;
-
             q.options.forEach((opt, i) => {
                 let isCorrect = (i === q.correct);
                 let isUserAns = (i === q.userAns);
                 let optColor = "#333", optBg = "transparent", icon = "", weight = "normal";
-
                 if (isCorrect) { optColor = "#2e7d32"; optBg = "#e8f5e9"; icon = " ✔️ (Correct)"; weight = "bold"; } 
                 else if (isUserAns && !isCorrect) { optColor = "#c62828"; optBg = "#ffebee"; icon = " ❌ (Your Ans)"; weight = "bold"; }
                 html += `<div style="padding:8px 10px; margin:4px 0; color:${optColor}; background:${optBg}; border-radius:6px; font-weight:${weight}; font-size:14px;">${optPrefix[i]}. ${opt}${icon}</div>`;
             });
-
             html += `<div style="margin-top:15px; padding:12px; background:#f0f4f8; border-left:4px solid #1e88e5; border-radius:0 8px 8px 0; font-size:14px;"><b style="color:#1e88e5;">Explanation:</b><br><span style="line-height:1.5;">${q.exp}</span></div></div>`;
         });
-
         html += `</div>`;
         printDiv.innerHTML = html;
         document.body.appendChild(printDiv);
 
         const opt = {
             margin:       0.4,
-            filename:     'MockTest_Full_Report.pdf',
+            filename:     'MockTest_Report.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(printDiv).save().then(() => {
-            btn.innerText = oldText; document.body.removeChild(printDiv);
-        }).catch(err => {
-            btn.innerText = oldText; document.body.removeChild(printDiv);
-            alert("⚠️ Telegram में PDF डाउनलोड फेल! कृपया ऊपर 'Open in Chrome' वाले पीले बटन पर क्लिक करें।");
+        // 🌟 Use DataURI for Telegram WebView
+        html2pdf().set(opt).from(printDiv).output('datauristring').then(function(pdfBase64) {
+            
+            // Try Native Share API to send to Telegram
+            fetch(pdfBase64).then(res => res.blob()).then(blob => {
+                let file = new File([blob], "MockTest_Report.pdf", { type: "application/pdf" });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        title: 'Mock Test Report',
+                        files: [file]
+                    }).then(() => {
+                        btn.innerText = oldText; document.body.removeChild(printDiv);
+                    }).catch(err => {
+                        triggerDirectDownload(pdfBase64, btn, oldText, printDiv);
+                    });
+                } else {
+                    triggerDirectDownload(pdfBase64, btn, oldText, printDiv);
+                }
+            });
         });
+    }
+
+    function triggerDirectDownload(base64Data, btn, oldText, printDiv) {
+        let a = document.createElement('a');
+        a.href = base64Data;
+        a.download = "MockTest_Report.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        btn.innerText = oldText;
+        document.body.removeChild(printDiv);
     }
 </script>
 </body>
