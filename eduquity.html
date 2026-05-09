@@ -502,10 +502,11 @@
     function shareScoreTelegram() {
         let scoreText = document.getElementById('res-score').innerText;
         let accText = document.getElementById('res-acc').innerText;
-        let testUrl = window.location.href.split('?')[0] + "?id=" + testId;
+        let channelUrl = "https://t.me/+N9ijRyP-zYtjNTg1";
         
-        let text = `🎯 मैंने Mock Test में शानदार प्रदर्शन किया है!\n\n🏅 My Score: ${scoreText}\n🎯 Accuracy: ${accText}\n\n👉 आप भी टेस्ट दें: ${testUrl}`;
+        let text = `🎯 मैंने Mock Test में शानदार प्रदर्शन किया है!\n\n🏅 My Score: ${scoreText}\n🎯 Accuracy: ${accText}\n\n👉 ऐसे और फ्री टेस्ट के लिए जुड़ें: ${channelUrl}`;
         let tgUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
+        
         window.open(tgUrl, '_blank');
     }
 
@@ -520,8 +521,8 @@
             text += `*Q${q.globalNum}.* ${qText}\n✅ *Ans: (${optPrefix[q.correct]})* ${correctOptText}\n\n`;
         });
         
-        let testUrl = window.location.href.split('?')[0] + "?id=" + testId;
-        text += `👉 *Test Link:* ${testUrl}`;
+        let channelUrl = "https://t.me/+N9ijRyP-zYtjNTg1";
+        text += `👉 *डेली फ्री टेस्ट के लिए जुड़ें:* ${channelUrl}`;
         
         // Failsafe: Copy to clipboard quietly
         try { navigator.clipboard.writeText(text); } catch(e) {}
