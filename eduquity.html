@@ -11,7 +11,6 @@
         .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
 
-        /* 🌟 Naya Backup Button Style */
         .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; }
         .backup-btn:active { transform: scale(0.95); }
 
@@ -40,7 +39,6 @@
 
         .question-area { background: #fff; padding: 16px; min-height: calc(100vh - 250px); padding-bottom: 80px;}
         .q-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; margin-bottom: 16px; }
-        .report-btn { background: #e53935; color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 12px; }
         .q-number-title { font-weight: bold; margin-bottom: 15px; font-size: 14px; color: #333;}
         .question-text { font-size: 16px; margin-bottom: 24px; line-height: 1.5; color: #111;}
         .option-row { display: flex; align-items: center; padding: 14px 10px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; font-size: 15px; cursor: pointer; }
@@ -70,8 +68,6 @@
         .palette-stats { margin-bottom: 24px; }
         .p-stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px; color: #777; font-weight: 500;}
         .p-stat-num { background: #ffeb3b; color: #d32f2f; padding: 4px 8px; border-radius: 2px; font-weight: bold; font-size: 14px; }
-        .palette-footer { display: flex; justify-content: space-around; margin-top: auto; padding-top: 20px;}
-        .footer-link { color: #e65100; font-weight: bold; font-size: 13px; text-decoration: none; cursor: pointer;}
 
         #submit-screen { background: #f5f5f5; min-height: 100vh; padding: 20px; }
         .submit-header { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 12px;}
@@ -471,7 +467,7 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // --- 📄 ADVANCED PDF GENERATOR (OVERLAP FIX + TELEGRAM ALERT) ---
+    // --- 📄 ADVANCED PDF GENERATOR (NATIVE SHARE API) ---
     function downloadPDF() {
         let btn = document.getElementById('pdf-btn');
         let oldText = btn.innerText;
@@ -479,14 +475,11 @@
 
         let printDiv = document.createElement('div');
         printDiv.id = "print-container";
-        
-        // 🔴 FIX 1: स्क्रीन से पूरी तरह बाहर (Hide) कर दिया ताकि UI ख़राब न हो
         printDiv.style.position = "fixed";
-        printDiv.style.top = "200vh"; // स्क्रीन के बहुत नीचे भेज दिया
+        printDiv.style.top = "200vh"; // 🔴 UI के पीछे छिप गया
         printDiv.style.left = "0";
         printDiv.style.width = "800px";
         printDiv.style.zIndex = "-9999";
-        
         printDiv.style.padding = "30px";
         printDiv.style.background = "#fff";
         printDiv.style.color = "#000";
@@ -497,7 +490,7 @@
         
         let html = `
             <div style="text-align:center; border-bottom:2px solid #1a237e; padding-bottom:15px; margin-bottom:25px;">
-                <h1 style="margin:0; font-size:24px; color:#1a237e;">Eduquity Pattern Mock Test - Full Report</h1>
+                <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Pattern Mock Test - Full Report</h1>
                 <p>Score: <b>${scoreText}</b> | Accuracy: <b>${accText}</b></p>
                 <a href="https://t.me/+N9ijRyP-zYtjNTg1" style="display:inline-block; background:#e53935; color:#fff; padding:10px 20px; border-radius:25px; text-decoration:none; font-size:14px; font-weight:bold; margin-top:10px;">📢 Join Main Channel</a>
             </div>
@@ -506,7 +499,6 @@
         `;
 
         let optPrefix = ['A', 'B', 'C', 'D'];
-        
         allQsFlat.forEach((q) => {
             let statusColor = q.state === 'correct' ? '#4caf50' : (q.state === 'incorrect' ? '#e53935' : '#888');
             let statusText = q.state === 'correct' ? '✅ Correct' : (q.state === 'incorrect' ? '❌ Incorrect' : '➖ Unattempted');
@@ -523,31 +515,52 @@
             q.options.forEach((opt, i) => {
                 let isCorrect = (i === q.correct);
                 let isUserAns = (i === q.userAns);
-                let optColor = "#333";
-                let optBg = "transparent";
-                let icon = ""; let weight = "normal";
+                let optColor = "#333", optBg = "transparent", icon = "", weight = "normal";
 
                 if (isCorrect) { optColor = "#2e7d32"; optBg = "#e8f5e9"; icon = " ✔️ (Correct)"; weight = "bold"; } 
                 else if (isUserAns && !isCorrect) { optColor = "#c62828"; optBg = "#ffebee"; icon = " ❌ (Your Ans)"; weight = "bold"; }
                 html += `<div style="padding:8px 10px; margin:4px 0; color:${optColor}; background:${optBg}; border-radius:6px; font-weight:${weight}; font-size:14px;">${optPrefix[i]}. ${opt}${icon}</div>`;
             });
 
-            html += `<div style="margin-top:15px; padding:12px; background:#f0f4f8; border-left:4px solid #1a237e; border-radius:0 8px 8px 0; font-size:14px;"><b style="color:#1a237e;">Explanation:</b><br><span style="line-height:1.5;">${q.exp}</span></div></div>`;
+            html += `<div style="margin-top:15px; padding:12px; background:#f0f4f8; border-left:4px solid #1e88e5; border-radius:0 8px 8px 0; font-size:14px;"><b style="color:#1e88e5;">Explanation:</b><br><span style="line-height:1.5;">${q.exp}</span></div></div>`;
         });
 
-        html += `</div>`; printDiv.innerHTML = html; document.body.appendChild(printDiv);
+        html += `</div>`;
+        printDiv.innerHTML = html;
+        document.body.appendChild(printDiv);
 
-        const opt = { margin: 0.4, filename: 'MockTest_Full_Solution.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+        const opt = {
+            margin:       0.4,
+            filename:     'MockTest_Scorecard.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
 
-        // 🔴 FIX 2: Telegram WebApp अलर्ट
-        setTimeout(() => { alert("⏳ PDF तैयार हो रही है... \n\n⚠️ ध्यान दें: टेलीग्राम में डाउनलोड ब्लॉक होता है! अगर PDF डाउनलोड न हो, तो कृपया ऊपर दाईं ओर '3 डॉट्स (⋮)' पर क्लिक करें और 'Open in Chrome/Browser' चुनें।"); }, 500);
-
-        html2pdf().set(opt).from(printDiv).save().then(() => { 
-            btn.innerText = oldText; 
-            document.body.removeChild(printDiv); 
-        }).catch(err => { 
-            btn.innerText = oldText; 
-            document.body.removeChild(printDiv); 
+        html2pdf().set(opt).from(printDiv).output('blob').then(function(pdfBlob) {
+            let file = new File([pdfBlob], "MockTest_Scorecard.pdf", { type: "application/pdf" });
+            
+            // 🌟 NATIVE SHARE/SAVE MENU (TELEGRAM BLOCK BYPASS) 🌟
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    title: 'Mock Test Report',
+                    text: 'Mera Mock Test Scorecard aur Full Solutions!',
+                    files: [file]
+                }).then(() => {
+                    btn.innerText = oldText; document.body.removeChild(printDiv);
+                }).catch(err => {
+                    btn.innerText = oldText; document.body.removeChild(printDiv);
+                });
+            } else {
+                // PC / Normal Browser Fallback
+                let url = window.URL.createObjectURL(pdfBlob);
+                let a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url; a.download = "MockTest_Scorecard.pdf";
+                document.body.appendChild(a); a.click();
+                window.URL.revokeObjectURL(url);
+                btn.innerText = oldText; document.body.removeChild(printDiv);
+            }
         });
     }
 </script>
