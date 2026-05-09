@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mock Test Portal</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
@@ -94,7 +93,6 @@
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .dot { width: 14px; height: 14px; border-radius: 4px; }
         .bg-green { background: #4caf50; } .bg-red { background: #e53935; } .bg-cyan { background: #00bcd4; }
-
         .comp-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; margin-top: 10px;}
         .comp-table th, .comp-table td { padding: 10px 6px; border: 1px solid #eee; }
         .col-you { background-color: #f3e5f5; } .col-top { background-color: #e8f5e9; } .col-avg { background-color: #e3f2fd; }
@@ -104,13 +102,11 @@
         .cr-you { background: #fff3e0; } .cr-top { background: #ffe0b2; } .cr-avg { background: #fff3e0; }
         .wr-you { background: #ffebee; } .wr-top { background: #fff; } .wr-avg { background: #ffebee; }
         .tm-you { background: #fff9c4; } .tm-top { background: #fff59d; } .tm-avg { background: #fff9c4; }
-
         .time-stats-box { display: flex; gap: 10px; height: 130px; margin-top: 20px;}
         .ts-left { flex: 1.2; background: #4caf50; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
         .ts-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .ts-rt-top { flex: 0.5; background: #26c6da; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px;}
         .ts-rt-bot { flex: 1; background: #ef5350; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
-
         .sec-title { font-size: 18px; font-weight: bold; margin: 24px 16px 12px 16px; }
         .subj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .subj-name { font-size: 16px; font-weight: bold; }
@@ -263,10 +259,10 @@
         </div>
         <div class="sec-title">Section Wise Stats</div>
         <div id="analysis-sections-container"></div>
-
+        
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Solutions</button>
-            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download / Save PDF Report</button>
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Full Solutions</button>
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #1e88e5; color: white; border: none;" onclick="shareScoreTelegram()">📤 Share Score on Telegram</button>
         </div>
     </div>
 
@@ -402,7 +398,6 @@
 
     function formatTime(sec) { if(sec === 0) return "0 sec"; let m = Math.floor(sec/60), s = sec%60; return m > 0 ? `${m}m ${s}s` : `${s}s`; }
 
-    // 🌟 FULL RANK & TOPPER FIX 🌟
     function submitTest() {
         clearInterval(timerInterval); hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden');
 
@@ -498,101 +493,16 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // 📄 PDF DOWNLOAD (Native Share API / DataURI)
-    function downloadPDF() {
-        let btn = document.getElementById('pdf-btn');
-        let oldText = btn.innerText;
-        btn.innerText = "⏳ Generating PDF...";
-
-        let printDiv = document.createElement('div');
-        printDiv.id = "print-container";
-        printDiv.style.position = "absolute"; 
-        printDiv.style.left = "-9999px";
-        printDiv.style.top = "0";
-        printDiv.style.width = "800px";
-        printDiv.style.zIndex = "-1000";
-        printDiv.style.padding = "30px";
-        printDiv.style.background = "#fff";
-        printDiv.style.color = "#000";
-        printDiv.style.fontFamily = "Arial, sans-serif";
-
+    // 🌟 NATIVE TELEGRAM SHARE SCORE FEATURE
+    function shareScoreTelegram() {
         let scoreText = document.getElementById('res-score').innerText;
         let accText = document.getElementById('res-acc').innerText;
+        let testUrl = window.location.href.split('?')[0] + "?id=" + testId;
         
-        let html = `
-            <div style="text-align:center; border-bottom:2px solid #1e88e5; padding-bottom:15px; margin-bottom:25px;">
-                <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Mock Test - Full Report</h1>
-                <p>Score: <b>${scoreText}</b> | Accuracy: <b>${accText}</b></p>
-                <a href="https://t.me/+N9ijRyP-zYtjNTg1" style="display:inline-block; background:#e53935; color:#fff; padding:10px 20px; border-radius:25px; text-decoration:none; font-size:14px; font-weight:bold; margin-top:10px;">📢 Join Main Channel</a>
-            </div>
-            <h3 style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:5px;">Detailed Solutions</h3>
-            <div style="margin-top:10px;">
-        `;
-
-        let optPrefix = ['A', 'B', 'C', 'D'];
-        allQsFlat.forEach((q) => {
-            let statusColor = q.state === 'correct' ? '#4caf50' : (q.state === 'incorrect' ? '#e53935' : '#888');
-            let statusText = q.state === 'correct' ? '✅ Correct' : (q.state === 'incorrect' ? '❌ Incorrect' : '➖ Unattempted');
-            html += `
-                <div style="margin-bottom: 30px; page-break-inside: avoid; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; border-bottom:1px dashed #ccc; padding-bottom:8px;">
-                        <b>Q${q.globalNum}. (${q.secName})</b> <b style="color:${statusColor}">${statusText}</b>
-                    </div>
-                    <p style="margin-bottom:15px; font-size:15px; line-height:1.5;">${q.text}</p>
-            `;
-            q.options.forEach((opt, i) => {
-                let isCorrect = (i === q.correct);
-                let isUserAns = (i === q.userAns);
-                let optColor = "#333", optBg = "transparent", icon = "", weight = "normal";
-                if (isCorrect) { optColor = "#2e7d32"; optBg = "#e8f5e9"; icon = " ✔️ (Correct)"; weight = "bold"; } 
-                else if (isUserAns && !isCorrect) { optColor = "#c62828"; optBg = "#ffebee"; icon = " ❌ (Your Ans)"; weight = "bold"; }
-                html += `<div style="padding:8px 10px; margin:4px 0; color:${optColor}; background:${optBg}; border-radius:6px; font-weight:${weight}; font-size:14px;">${optPrefix[i]}. ${opt}${icon}</div>`;
-            });
-            html += `<div style="margin-top:15px; padding:12px; background:#f0f4f8; border-left:4px solid #1e88e5; border-radius:0 8px 8px 0; font-size:14px;"><b style="color:#1e88e5;">Explanation:</b><br><span style="line-height:1.5;">${q.exp}</span></div></div>`;
-        });
-        html += `</div>`;
-        printDiv.innerHTML = html;
-        document.body.appendChild(printDiv);
-
-        const opt = {
-            margin:       0.4,
-            filename:     'MockTest_Report.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-
-        // 🌟 Use DataURI for Telegram WebView
-        html2pdf().set(opt).from(printDiv).output('datauristring').then(function(pdfBase64) {
-            
-            // Try Native Share API to send to Telegram
-            fetch(pdfBase64).then(res => res.blob()).then(blob => {
-                let file = new File([blob], "MockTest_Report.pdf", { type: "application/pdf" });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                        title: 'Mock Test Report',
-                        files: [file]
-                    }).then(() => {
-                        btn.innerText = oldText; document.body.removeChild(printDiv);
-                    }).catch(err => {
-                        triggerDirectDownload(pdfBase64, btn, oldText, printDiv);
-                    });
-                } else {
-                    triggerDirectDownload(pdfBase64, btn, oldText, printDiv);
-                }
-            });
-        });
-    }
-
-    function triggerDirectDownload(base64Data, btn, oldText, printDiv) {
-        let a = document.createElement('a');
-        a.href = base64Data;
-        a.download = "MockTest_Report.pdf";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        btn.innerText = oldText;
-        document.body.removeChild(printDiv);
+        let text = `🎯 मैंने Mock Test में शानदार प्रदर्शन किया है!\n\n🏅 My Score: ${scoreText}\n🎯 Accuracy: ${accText}\n\n👉 आप भी टेस्ट दें: ${testUrl}`;
+        let tgUrl = `https://t.me/share/url?url=${encodeURIComponent(testUrl)}&text=${encodeURIComponent(text)}`;
+        
+        window.open(tgUrl, '_blank');
     }
 </script>
 </body>
