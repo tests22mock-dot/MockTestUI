@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD Ultimate Mock Test</title>
+    <title>SSC GD Eduquity Mock Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* --- ग्लोबल स्टाइल्स --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -21,7 +22,8 @@
 
         /* --- स्क्रीन 2: लाइव टेस्ट --- */
         .top-header { background: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-        .logo-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #e53935; display: flex; align-items: center; justify-content: center; color: #1e88e5; font-size: 10px; font-weight: bold; }
+        /* Logo Circle Updated for Backup Channel Link */
+        .logo-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #1e88e5; display: flex; align-items: center; justify-content: center; color: #1e88e5; font-size: 11px; font-weight: bold; text-decoration: none;}
         .timer-box { text-align: right; }
         .timer-box .label { font-size: 12px; font-weight: bold; color: #333;}
         .timer-box .time { background: #fff59d; color: #d32f2f; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 14px;}
@@ -51,7 +53,7 @@
         /* --- FAB Button (3 lines) --- */
         .fab-menu { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: #1e88e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100;}
         
-        /* --- Exact Clone: Question Palette (Screenshot 2) --- */
+        /* --- Question Palette --- */
         .palette-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .palette-overlay.show { opacity: 1; pointer-events: auto; }
         .palette-sheet { width: 85%; max-width: 320px; background: #fff; height: 100%; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -64,11 +66,10 @@
         .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 24px; }
         .q-box { width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; cursor: pointer; color: #fff;}
         
-        /* Standard RWA Mock Test Colors */
-        .st-not-visited { background: #0000ff; } /* Blue unvisited */
-        .st-answered { background: #4caf50; }    /* Green answered */
-        .st-not-answered { background: #e53935; }/* Red visited but not answered */
-        .st-marked { background: #9c27b0; }      /* Purple marked */
+        .st-not-visited { background: #0000ff; }
+        .st-answered { background: #4caf50; }
+        .st-not-answered { background: #e53935; }
+        .st-marked { background: #9c27b0; }
         
         .dummy-analysis-btn { background: #ccc; color: #111; font-weight: bold; font-size: 14px; padding: 14px; text-align: center; border-radius: 0; border: none; margin-bottom: 24px; cursor: pointer; width: 100%;}
         
@@ -188,7 +189,7 @@
 
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="text-align: center;">SSC GD Mock Test</h2>
+            <h2 style="text-align: center;">Eduquity Mock Test</h2>
             <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
             <div class="start-info"><span>Total Time:</span> <span>--</span></div>
             <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
@@ -198,7 +199,9 @@
 
     <div id="live-test-screen" class="hidden">
         <div class="top-header">
-            <div class="logo-circle">RWA</div>
+            <a href="https://t.me/+RQjBgn9IBrs1MDNl" style="text-decoration:none;">
+                <div class="logo-circle">JOIN</div>
+            </a>
             <div class="timer-box"><div class="label">Time Left</div><div class="time" id="timer-display">15:00</div></div>
         </div>
         <div class="section-tabs" id="section-tabs-container"></div>
@@ -310,8 +313,9 @@
         <div class="sec-title">Section Wise Stats</div>
         <div id="analysis-sections-container"></div>
 
-        <div style="padding: 16px;">
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
             <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Solutions</button>
+            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download Full Report (PDF)</button>
         </div>
     </div>
 
@@ -386,7 +390,6 @@
 
             testData = data.questions;
             
-            // 🛑 YOUR ORIGINAL UI FIX: Adding properties required by your scorecard logic
             testData.forEach(sec => {
                 sec.questions.forEach(q => {
                     q.userAns = null;
@@ -416,7 +419,6 @@
         }
     };
 
-    // --- Core Navigation ---
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
     function startTest() { hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); renderTabs(); startTimer(); loadQuestion(0, 0); }
     function startTimer() { timerInterval = setInterval(() => { timeRemaining--; let m = Math.floor(timeRemaining/60), s = timeRemaining%60; document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if(timeRemaining <= 0) submitTest(); }, 1000); }
@@ -449,7 +451,6 @@
     function markForReview() { testData[currentSecIdx].questions[currentQIdx].status = 'marked'; if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1); }
     function prevQuestion() { if(currentQIdx > 0) loadQuestion(currentSecIdx, currentQIdx - 1); }
 
-    // --- Palette Drawer Logic ---
     function togglePalette() { let modal = document.getElementById('palette-modal'); if(modal.classList.contains('show')) modal.classList.remove('show'); else { renderPalette(); modal.classList.add('show'); } }
     document.getElementById('palette-modal').addEventListener('click', function(e) { if (e.target === this) togglePalette(); });
 
@@ -465,13 +466,11 @@
         });
         document.getElementById('palette-grid').innerHTML = gridHtml;
         
-        // Update yellow boxes with double digit string (e.g. "05")
         document.getElementById('ps-ans').innerText = counts.ans.toString().padStart(2, '0'); 
-        document.getElementById('ps-not-ans').innerText = (counts.notAns + counts.notVis).toString().padStart(2, '0'); // Visual grouping of unattempted for screenshot accuracy
+        document.getElementById('ps-not-ans').innerText = (counts.notAns + counts.notVis).toString().padStart(2, '0');
     }
     function jumpToQ(qIdx) { togglePalette(); loadQuestion(currentSecIdx, qIdx); }
 
-    // --- Submit Logic ---
     function prepareSubmit() {
         updateQuestionTime(); hideAllScreens(); document.getElementById('submit-screen').classList.remove('hidden');
         let html = '';
@@ -484,7 +483,6 @@
     }
     function closeSubmit() { hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); }
 
-    // --- Analysis Dashboard ---
     function formatTime(sec) { if(sec === 0) return "0 sec"; let m = Math.floor(sec/60), s = sec%60; return m > 0 ? `${m}m ${s}s` : `${s}s`; }
 
     function submitTest() {
@@ -521,7 +519,7 @@
         });
 
         let totalMarks = Math.max(0, (tC * 2) - (tI * 0.25));
-        let totalQs = tC + tI + tU; // 20
+        let totalQs = tC + tI + tU; 
         let acc = (tC+tI) > 0 ? ((tC / (tC+tI)) * 100).toFixed(2) : 0;
 
         document.getElementById('res-score').innerText = `${totalMarks.toFixed(2)}/40.0`;
@@ -540,7 +538,6 @@
         document.getElementById('analysis-sections-container').innerHTML = secHtml;
     }
 
-    // --- Solutions List ---
     function openSolutions() { hideAllScreens(); document.getElementById('solutions-screen').classList.remove('hidden'); renderSolutions(); }
     function closeSolutions() { hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden'); }
     
@@ -575,7 +572,6 @@
         document.getElementById('sol-list-container').innerHTML = html;
     }
 
-    // --- Full Solution ---
     function openFullSolution(flatIdx) {
         currentFlatIdx = flatIdx;
         hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden');
@@ -610,6 +606,98 @@
     function nextFullSol() {
         if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); }
         else { closeFullSol(); }
+    }
+
+    // --- ADVANCED PDF Download Logic (With Full Solutions) ---
+    function downloadPDF() {
+        let btn = document.getElementById('pdf-btn');
+        let oldText = btn.innerText;
+        btn.innerText = "⏳ Generating Full PDF...";
+
+        // 1. PDF ke liye ek temporary invisible page banana
+        let printDiv = document.createElement('div');
+        printDiv.id = "print-container";
+        printDiv.style.padding = "30px";
+        printDiv.style.background = "#fff";
+        printDiv.style.color = "#000";
+        printDiv.style.fontFamily = "Arial, sans-serif";
+
+        // 2. Header aur Scorecard summary add karna
+        let scoreText = document.getElementById('res-score').innerText;
+        let accText = document.getElementById('res-acc').innerText;
+        
+        let html = `
+            <div style="text-align:center; border-bottom:2px solid #1e88e5; padding-bottom:15px; margin-bottom:25px;">
+                <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Pattern Mock Test - Full Report</h1>
+                <p>Score: <b>${scoreText}</b> | Accuracy: <b>${accText}</b></p>
+                <a href="https://t.me/+N9ijRyP-zYtjNTg1" style="display:inline-block; background:#e53935; color:#fff; padding:10px 20px; border-radius:25px; text-decoration:none; font-size:14px; font-weight:bold; margin-top:10px;">📢 Join Main Channel</a>
+            </div>
+            <h3 style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:5px;">Detailed Solutions</h3>
+            <div style="margin-top:10px;">
+        `;
+
+        // 3. Saare Questions, unka Status, Options aur Explanation loop karke add karna
+        let optPrefix = ['A', 'B', 'C', 'D'];
+        
+        allQsFlat.forEach((q) => {
+            // Check status for coloring
+            let statusColor = q.state === 'correct' ? '#4caf50' : (q.state === 'incorrect' ? '#e53935' : '#888');
+            let statusText = q.state === 'correct' ? '✅ Correct' : (q.state === 'incorrect' ? '❌ Incorrect' : '➖ Unattempted');
+            
+            html += `
+                <div style="margin-bottom: 30px; page-break-inside: avoid; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; border-bottom:1px dashed #ccc; padding-bottom:8px;">
+                        <b>Q${q.globalNum}. (${q.secName})</b>
+                        <b style="color:${statusColor}">${statusText}</b>
+                    </div>
+                    <p style="margin-bottom:15px; font-size:15px; line-height:1.5;">${q.text}</p>
+            `;
+
+            // Options checking
+            q.options.forEach((opt, i) => {
+                let isCorrect = (i === q.correct);
+                let isUserAns = (i === q.userAns);
+                let optColor = "#333";
+                let optBg = "transparent";
+                let icon = "";
+                let weight = "normal";
+
+                if (isCorrect) {
+                    optColor = "#2e7d32"; optBg = "#e8f5e9"; icon = " ✔️ (Correct)"; weight = "bold";
+                } else if (isUserAns && !isCorrect) {
+                    optColor = "#c62828"; optBg = "#ffebee"; icon = " ❌ (Your Ans)"; weight = "bold";
+                }
+
+                html += `<div style="padding:8px 10px; margin:4px 0; color:${optColor}; background:${optBg}; border-radius:6px; font-weight:${weight}; font-size:14px;">${optPrefix[i]}. ${opt}${icon}</div>`;
+            });
+
+            // Explanation Section
+            html += `
+                    <div style="margin-top:15px; padding:12px; background:#f0f4f8; border-left:4px solid #1e88e5; border-radius:0 8px 8px 0; font-size:14px;">
+                        <b style="color:#1e88e5;">Explanation:</b><br>
+                        <span style="line-height:1.5;">${q.exp}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+        printDiv.innerHTML = html;
+        document.body.appendChild(printDiv); // Page mein temporary add kiya
+
+        // 4. HTML ko PDF mein convert karna (a4 size mein)
+        const opt = {
+            margin:       0.4,
+            filename:     'MockTest_Full_Solution.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(printDiv).save().then(() => {
+            btn.innerText = oldText; // Button ka naam wapas theek kar diya
+            document.body.removeChild(printDiv); // PDF banne ke baad temporary page hata diya
+        });
     }
 </script>
 
