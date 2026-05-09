@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GK Tricks Hub - Eduquity Pattern</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #333; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .hidden { display: none !important; }
+        
+        #start-screen { background: rgba(0,0,0,0.8); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .start-card { background: #fff; width: 90%; border-radius: 12px; padding: 20px; }
+        .start-btn { width: 100%; background: #1e88e5; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+
+        .top-header { background: #fff; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .logo { width: 40px; height: 40px; background: #e53935; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px;}
+        .timer { background: #fff9c4; padding: 4px 10px; border-radius: 4px; color: #d32f2f; font-weight: bold;}
+
+        .section-tabs { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: #fff; border-bottom: 1px solid #eee; }
+        .tab { padding: 8px 15px; border-radius: 20px; background: #1e88e5; color: #fff; font-size: 12px; font-weight: bold; white-space: nowrap;}
+        .tab.active { background: #1b5e20; }
+
+        .actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #111; padding: 8px; }
+        .act-btn { background: #444; color: #fff; border: none; padding: 8px 2px; font-size: 10px; border-radius: 4px; }
+
+        .question-box { padding: 20px; background: #fff; min-height: 300px; }
+        .q-text { font-size: 16px; line-height: 1.5; margin-bottom: 20px; }
+        .opt { display: flex; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; }
+        .opt.selected { background: #e3f2fd; border-color: #1e88e5; }
+        .circle { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 50%; margin-right: 15px; }
+        .opt.selected .circle { border-color: #1e88e5; background: #1e88e5; }
+
+        .fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #1e88e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        .palette { position: fixed; top: 0; right: 0; width: 80%; height: 100%; background: #fff; transform: translateX(100%); transition: 0.3s; z-index: 100; padding: 20px; overflow-y: auto;}
+        .palette.show { transform: translateX(0); }
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
+        .box { width: 35px; height: 35px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; background: #00f; }
+        .box.ans { background: #4caf50; } .box.not-ans { background: #e53935; } .box.marked { background: #9c27b0; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="start-screen"><div class="start-card"><h2>Eduquity Mock Test</h2><p id="stats">Loading stats...</p><button class="start-btn" onclick="start()">Loading...</button></div></div>
+
+    <div id="test-screen" class="hidden">
+        <div class="top-header"><div class="logo">RWA</div><div class="timer" id="time">00:00</div></div>
+        <div class="section-tabs" id="tabs"></div>
+        <div class="actions">
+            <button class="act-btn" onclick="prev()">Previous</button>
+            <button class="act-btn" onclick="mark()">Mark for Review</button>
+            <button class="act-btn" onclick="save()">Save & Next</button>
+            <button class="act-btn" style="background:#e53935;" onclick="submit()">Submit</button>
+        </div>
+        <div class="question-box"><h4 id="qn">Q.1</h4><p class="q-text" id="qt">Loading question...</p><div id="opts"></div></div>
+        <div class="fab" onclick="toggle()">≡</div>
+        <div class="palette" id="pal"><h3>Question Palette</h3><div class="grid" id="gr"></div><button onclick="toggle()" style="margin-top:20px; width:100%; padding:10px;">Close</button></div>
+    </div>
+</div>
+
+<script>
+    let testData = []; let si = 0, qi = 0, rem = 0, iv;
+    const testId = new URLSearchParams(window.location.search).get('id');
+
+    window.onload = async () => {
+        if(!testId) return;
+        try {
+            const r = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${testId}`);
+            const d = await r.json();
+            testData = d.questions; rem = (d.time||60)*60;
+            document.getElementById('stats').innerText = `${d.total_qs} Qs | ${d.time} Mins | ${d.max_marks} Marks`;
+            document.querySelector('.start-btn').innerText = "Start Test";
+        } catch(e) {}
+    };
+
+    function start() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('test-screen').classList.remove('hidden');
+        renderTabs(); loadQ(0,0);
+        iv = setInterval(() => { rem--; let m=Math.floor(rem/60), s=rem%60; document.getElementById('time').innerText=`${m}:${s.toString().padStart(2,'0')}`; if(rem<=0) submit(); }, 1000);
+    }
+
+    function renderTabs() {
+        let h = ''; testData.forEach((s, i) => h += `<div class="tab ${i===si?'active':''}" onclick="loadQ(${i},0)">${s.section}</div>`);
+        document.getElementById('tabs').innerHTML = h;
+    }
+
+    function loadQ(s, q) {
+        si = s; qi = q; let qu = testData[s].questions[q];
+        document.getElementById('qn').innerText = `Question No. : ${q+1}`;
+        document.getElementById('qt').innerText = qu.text;
+        let oh = ''; qu.options.forEach((o, i) => oh += `<div class="opt ${qu.userAns===i?'selected':''}" onclick="sel(${i})"><div class="circle"></div> ${o}</div>`);
+        document.getElementById('opts').innerHTML = oh;
+        renderTabs();
+    }
+
+    function sel(i) { testData[si].questions[qi].userAns = i; loadQ(si,qi); }
+    function save() { testData[si].questions[qi].status = testData[si].questions[qi].userAns!==null?'answered':'not_answered'; if(qi<testData[si].questions.length-1) loadQ(si,qi+1); }
+    function mark() { testData[si].questions[qi].status = 'marked'; if(qi<testData[si].questions.length-1) loadQ(si,qi+1); }
+    function prev() { if(qi>0) loadQ(si,qi-1); }
+    function toggle() { let p=document.getElementById('pal'); p.classList.toggle('show'); if(p.classList.contains('show')) {
+        let gh = ''; testData[si].questions.forEach((q, i) => {
+            let c = ''; if(q.status==='answered') c='ans'; else if(q.status==='not_answered') c='not-ans'; else if(q.status==='marked') c='marked';
+            gh += `<div class="box ${c}" onclick="jump(${i})">${i+1}</div>`;
+        });
+        document.getElementById('gr').innerHTML = gh;
+    }}
+    function jump(i) { toggle(); loadQ(si, i); }
+    function submit() { clearInterval(iv); alert("Test Submitted Successfully!"); }
+</script>
+</body>
+</html>
