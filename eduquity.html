@@ -86,6 +86,7 @@
         .sc-lbl { font-size: 13px; color: #888; }
         .ic-score { background: #e1f5fe; color: #0288d1; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
         .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #e0f7fa; color: #0097a7; } .ic-acc { background: #fff3e0; color: #f57c00; }
+        
         .donut-container { display: flex; justify-content: center; margin: 20px 0; }
         .donut-chart { width: 200px; height: 200px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .donut-inner { width: 130px; height: 130px; background: #fff; border-radius: 50%; }
@@ -93,6 +94,7 @@
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .dot { width: 14px; height: 14px; border-radius: 4px; }
         .bg-green { background: #4caf50; } .bg-red { background: #e53935; } .bg-cyan { background: #00bcd4; }
+
         .comp-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; margin-top: 10px;}
         .comp-table th, .comp-table td { padding: 10px 6px; border: 1px solid #eee; }
         .col-you { background-color: #f3e5f5; } .col-top { background-color: #e8f5e9; } .col-avg { background-color: #e3f2fd; }
@@ -102,11 +104,13 @@
         .cr-you { background: #fff3e0; } .cr-top { background: #ffe0b2; } .cr-avg { background: #fff3e0; }
         .wr-you { background: #ffebee; } .wr-top { background: #fff; } .wr-avg { background: #ffebee; }
         .tm-you { background: #fff9c4; } .tm-top { background: #fff59d; } .tm-avg { background: #fff9c4; }
+
         .time-stats-box { display: flex; gap: 10px; height: 130px; margin-top: 20px;}
         .ts-left { flex: 1.2; background: #4caf50; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
         .ts-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .ts-rt-top { flex: 0.5; background: #26c6da; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px;}
         .ts-rt-bot { flex: 1; background: #ef5350; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
+
         .sec-title { font-size: 18px; font-weight: bold; margin: 24px 16px 12px 16px; }
         .subj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .subj-name { font-size: 16px; font-weight: bold; }
@@ -262,7 +266,8 @@
         
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
             <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Full Solutions</button>
-            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #1e88e5; color: white; border: none;" onclick="shareScoreTelegram()">📤 Share Score on Telegram</button>
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #1e88e5; color: white; border: none;" onclick="shareScoreTelegram()">📤 Share Score</button>
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #4caf50; color: white; border: none;" onclick="shareAnsKeyTelegram()">📥 Save Anskey</button>
         </div>
     </div>
 
@@ -482,7 +487,7 @@
     function renderFullSolution() {
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; document.getElementById('fs-q-txt').innerText = q.text;
-        let optHtml = '', optPrefix = ['a', 'b', 'c', 'd'];
+        let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
@@ -500,8 +505,28 @@
         let testUrl = window.location.href.split('?')[0] + "?id=" + testId;
         
         let text = `🎯 मैंने Mock Test में शानदार प्रदर्शन किया है!\n\n🏅 My Score: ${scoreText}\n🎯 Accuracy: ${accText}\n\n👉 आप भी टेस्ट दें: ${testUrl}`;
-        let tgUrl = `https://t.me/share/url?url=${encodeURIComponent(testUrl)}&text=${encodeURIComponent(text)}`;
+        let tgUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
+        window.open(tgUrl, '_blank');
+    }
+
+    // 🌟 NATIVE TELEGRAM SAVE ANSWER KEY FEATURE
+    function shareAnsKeyTelegram() {
+        let text = "📚 *Mock Test - Answer Key* 📚\n\n";
+        let optPrefix = ['A', 'B', 'C', 'D'];
         
+        allQsFlat.forEach((q) => {
+            let qText = q.text.length > 50 ? q.text.substring(0, 50) + "..." : q.text;
+            let correctOptText = q.options[q.correct];
+            text += `*Q${q.globalNum}.* ${qText}\n✅ *Ans: (${optPrefix[q.correct]})* ${correctOptText}\n\n`;
+        });
+        
+        let testUrl = window.location.href.split('?')[0] + "?id=" + testId;
+        text += `👉 *Test Link:* ${testUrl}`;
+        
+        // Failsafe: Copy to clipboard quietly
+        try { navigator.clipboard.writeText(text); } catch(e) {}
+
+        let tgUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
         window.open(tgUrl, '_blank');
     }
 </script>
