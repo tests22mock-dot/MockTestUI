@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GK Tricks Hub - TCS Pattern</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #333; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .hidden { display: none !important; }
+
+        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
+        .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
+        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
+        .start-info span:last-child { color: #888; font-weight: normal;}
+        .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
+
+        .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .tcs-timer { font-size: 18px; font-weight: bold; }
+        .tcs-title-sub { font-size: 12px; color: #c5cae9; margin-top: 2px; }
+        .tcs-hamburger { font-size: 26px; cursor: pointer; color: white; }
+
+        .tcs-tabs-wrapper { background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; white-space: nowrap; position: sticky; top: 60px; z-index: 9; }
+        .tcs-tab { display: inline-block; padding: 14px 16px; font-size: 14px; font-weight: 500; color: #555; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tcs-tab.active { color: #1a237e; border-bottom: 3px solid #1a237e; font-weight: bold; }
+
+        .tcs-q-info-bar { background: #f5f5f5; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-size: 13px; color: #555;}
+        .tcs-q-badge { background: #888; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px;}
+        .tcs-marks { display: flex; gap: 10px; }
+        .tcs-m-pos { color: #4caf50; font-weight: bold;}
+        .tcs-m-neg { color: #e53935; }
+
+        .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
+        .tcs-q-text { font-size: 16px; line-height: 1.6; color: #111; margin-bottom: 24px; }
+        .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; }
+        .tcs-option.selected { border-color: #1e88e5; background: #e3f2fd; }
+        .tcs-opt-lbl { margin-right: 16px; font-weight: bold; color: #555; }
+
+        .tcs-footer { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; z-index: 10; border-top: 1px solid #ddd; display: flex; flex-direction: column;}
+        .tcs-arrows { display: flex; justify-content: space-between; padding: 8px 16px; background: #f9f9f9; border-bottom: 1px solid #eee;}
+        .tcs-arrow-btn { background: none; border: none; font-size: 20px; font-weight: bold; color: #1a237e; cursor: pointer; padding: 4px 16px;}
+        .tcs-actions-row { display: flex; padding: 8px; gap: 6px; }
+        .tcs-btn { flex: 1; padding: 10px 4px; font-size: 11px; font-weight: bold; border-radius: 4px; text-align: center; cursor: pointer; border: 1px solid #ccc; background: #fff; color: #333;}
+        .tcs-btn-submit { background: #e53935; color: white; border-color: #e53935; }
+        .tcs-btn-save { background: #039be5; color: white; border-color: #039be5; }
+
+        .tcs-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s;}
+        .tcs-drawer-overlay.show { opacity: 1; pointer-events: auto; }
+        .tcs-drawer { position: absolute; right: 0; top: 0; width: 85%; max-width: 320px; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: 0.3s ease-out; }
+        .tcs-drawer-overlay.show .tcs-drawer { transform: translateX(0); }
+        .tcs-dr-header { display: flex; }
+        .tcs-dr-tab { flex: 1; text-align: center; padding: 16px; font-size: 14px; font-weight: bold; border-bottom: 2px solid #ddd; color: #888; }
+        .tcs-dr-tab.active { color: #111; border-bottom-color: #111; }
+        .tcs-dr-close { padding: 16px; font-size: 20px; cursor: pointer; color: #555; }
+        .tcs-dr-content { padding: 16px; overflow-y: auto; flex: 1; }
+        .tcs-q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .tcs-q-box { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+        .st-ans { background: #1976d2; color: #fff; border-color: #1976d2; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="start-screen">
+        <div class="start-card">
+            <h2>SSC GD TCS Mock</h2>
+            <div class="start-info"><span>Questions:</span> <span id="info-qs">--</span></div>
+            <div class="start-info"><span>Time:</span> <span id="info-time">--</span></div>
+            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Marks:</span> <span id="info-marks">--</span></div>
+            <button class="start-btn" onclick="startTest()">Loading...</button>
+        </div>
+    </div>
+
+    <div id="live-test-screen" class="hidden">
+        <div class="tcs-header">
+            <div>
+                <div class="tcs-timer" id="timer-display">00:00:00</div>
+                <div class="tcs-title-sub">Premium Test Portal</div>
+            </div>
+            <div class="tcs-hamburger" onclick="togglePalette()">≡</div>
+        </div>
+        <div class="tcs-tabs-wrapper" id="tabs-container"></div>
+        <div class="tcs-q-info-bar">
+            <div style="display: flex; align-items: center;"><div class="tcs-q-badge" id="q-num">1</div></div>
+            <div class="tcs-marks"><span class="tcs-m-pos" id="pos">+2.0</span><span class="tcs-m-neg" id="neg">-0.5</span></div>
+        </div>
+        <div class="tcs-question-area">
+            <div class="tcs-q-text" id="q-text">Loading...</div>
+            <div id="options-container"></div>
+        </div>
+        <div class="tcs-footer">
+            <div class="tcs-arrows"><button class="tcs-arrow-btn" onclick="prev()">❮</button><button class="tcs-arrow-btn" onclick="next()">❯</button></div>
+            <div class="tcs-actions-row">
+                <button class="tcs-btn tcs-btn-submit" onclick="submit()">Submit</button>
+                <button class="tcs-btn" onclick="mark()">Mark & Next</button>
+                <button class="tcs-btn tcs-btn-save" onclick="save()">Save & Next</button>
+            </div>
+        </div>
+        <div class="tcs-drawer-overlay" id="palette-overlay">
+            <div class="tcs-drawer">
+                <div class="tcs-dr-header"><div class="tcs-dr-tab active">Grid View</div><div class="tcs-dr-close" onclick="togglePalette()">✕</div></div>
+                <div class="tcs-dr-content"><div class="tcs-q-grid" id="q-grid"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let testData = []; let si = 0, qi = 0, rem = 0, iv;
+    const tId = new URLSearchParams(window.location.search).get('id');
+
+    window.onload = async () => {
+        if(!tId) { alert("ID missing!"); return; }
+        try {
+            const r = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${tId}`);
+            const d = await r.json();
+            testData = d.questions; rem = (d.time||60)*60;
+            document.getElementById('info-qs').innerText = d.total_qs;
+            document.getElementById('info-time').innerText = d.time + " Mins";
+            document.getElementById('info-marks').innerText = d.max_marks;
+            document.querySelector('.start-btn').innerText = "Start Test";
+        } catch(e) { alert("Server error!"); }
+    };
+
+    function startTest() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('live-test-screen').classList.remove('hidden');
+        renderTabs(); loadQ(0,0);
+        iv = setInterval(() => { rem--; let h=Math.floor(rem/3600), m=Math.floor((rem%3600)/60), s=rem%60; document.getElementById('timer-display').innerText=`${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if(rem<=0) submit(); }, 1000);
+    }
+
+    function renderTabs() {
+        let h = ''; testData.forEach((s, i) => h += `<div class="tcs-tab ${i===si?'active':''}" onclick="loadQ(${i},0)">${s.section}</div>`);
+        document.getElementById('tabs-container').innerHTML = h;
+    }
+
+    function loadQ(s, q) {
+        si = s; qi = q; let qu = testData[s].questions[q];
+        document.getElementById('q-num').innerText = q+1;
+        document.getElementById('q-text').innerText = qu.text;
+        let oh = ''; qu.options.forEach((o, i) => oh += `<div class="tcs-option ${qu.userAns===i?'selected':''}" onclick="sel(${i})"><span class="tcs-opt-lbl">${String.fromCharCode(65+i)}.</span> ${o}</div>`);
+        document.getElementById('options-container').innerHTML = oh;
+        renderTabs();
+    }
+
+    function sel(i) { testData[si].questions[qi].userAns = i; loadQ(si,qi); }
+    function save() { testData[si].questions[qi].status = testData[si].questions[qi].userAns!==null?'answered':'not_answered'; next(); }
+    function mark() { testData[si].questions[qi].status = 'marked'; next(); }
+    function next() { if(qi < testData[si].questions.length-1) loadQ(si, qi+1); else if(si < testData.length-1) loadQ(si+1, 0); }
+    function prev() { if(qi > 0) loadQ(si, qi-1); }
+    function togglePalette() { let p = document.getElementById('palette-overlay'); p.classList.toggle('show'); if(p.classList.contains('show')) renderGrid(); }
+    function renderGrid() {
+        let gh = ''; testData[si].questions.forEach((q, i) => {
+            let c = q.status==='answered'?'st-ans':'';
+            gh += `<div class="tcs-q-box ${c}" onclick="jump(${i})">${i+1}</div>`;
+        });
+        document.getElementById('q-grid').innerHTML = gh;
+    }
+    function jump(i) { togglePalette(); loadQ(si, i); }
+    function submit() { clearInterval(iv); alert("Test Submitted!"); }
+</script>
+</body>
+</html>
