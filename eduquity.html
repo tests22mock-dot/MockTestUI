@@ -11,6 +11,10 @@
         .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
 
+        /* 🌟 Naya Backup Button Style */
+        .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; }
+        .backup-btn:active { transform: scale(0.95); }
+
         #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
         .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
@@ -19,7 +23,6 @@
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
 
         .top-header { background: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-        .logo-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #1e88e5; display: flex; align-items: center; justify-content: center; color: #1e88e5; font-size: 11px; font-weight: bold; text-decoration: none;}
         .timer-box { text-align: right; }
         .timer-box .label { font-size: 12px; font-weight: bold; color: #333;}
         .timer-box .time { background: #fff59d; color: #d32f2f; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 14px;}
@@ -174,7 +177,7 @@
 
     <div id="live-test-screen" class="hidden">
         <div class="top-header">
-            <a href="https://t.me/+RQjBgn9IBrs1MDNl" style="text-decoration:none;"><div class="logo-circle">JOIN</div></a>
+            <a href="https://t.me/+RQjBgn9IBrs1MDNl" class="backup-btn">📢 Backup Channel</a>
             <div class="timer-box"><div class="label">Time Left</div><div class="time" id="timer-display">00:00</div></div>
         </div>
         <div class="section-tabs" id="section-tabs-container"></div>
@@ -468,7 +471,7 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // --- 📄 ADVANCED PDF GENERATOR (HIDDEN FIX) ---
+    // --- 📄 ADVANCED PDF GENERATOR (OVERLAP FIX + TELEGRAM ALERT) ---
     function downloadPDF() {
         let btn = document.getElementById('pdf-btn');
         let oldText = btn.innerText;
@@ -478,11 +481,11 @@
         printDiv.id = "print-container";
         
         // 🔴 FIX 1: स्क्रीन से पूरी तरह बाहर (Hide) कर दिया ताकि UI ख़राब न हो
-        printDiv.style.position = "absolute";
-        printDiv.style.left = "-9999px";
-        printDiv.style.top = "0";
+        printDiv.style.position = "fixed";
+        printDiv.style.top = "200vh"; // स्क्रीन के बहुत नीचे भेज दिया
+        printDiv.style.left = "0";
         printDiv.style.width = "800px";
-        printDiv.style.zIndex = "-1000";
+        printDiv.style.zIndex = "-9999";
         
         printDiv.style.padding = "30px";
         printDiv.style.background = "#fff";
@@ -537,9 +540,15 @@
         const opt = { margin: 0.4, filename: 'MockTest_Full_Solution.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
 
         // 🔴 FIX 2: Telegram WebApp अलर्ट
-        setTimeout(() => { alert("⏳ PDF तैयार हो रही है (5-10 सेकंड लग सकते हैं)।\n\n⚠️ ध्यान दें: अगर PDF डाउनलोड न हो, तो कृपया ऊपर दाईं ओर '3 डॉट्स (⋮)' पर क्लिक करें और 'Open in Chrome' चुनें।"); }, 500);
+        setTimeout(() => { alert("⏳ PDF तैयार हो रही है... \n\n⚠️ ध्यान दें: टेलीग्राम में डाउनलोड ब्लॉक होता है! अगर PDF डाउनलोड न हो, तो कृपया ऊपर दाईं ओर '3 डॉट्स (⋮)' पर क्लिक करें और 'Open in Chrome/Browser' चुनें।"); }, 500);
 
-        html2pdf().set(opt).from(printDiv).save().then(() => { btn.innerText = oldText; document.body.removeChild(printDiv); }).catch(err => { btn.innerText = oldText; document.body.removeChild(printDiv); });
+        html2pdf().set(opt).from(printDiv).save().then(() => { 
+            btn.innerText = oldText; 
+            document.body.removeChild(printDiv); 
+        }).catch(err => { 
+            btn.innerText = oldText; 
+            document.body.removeChild(printDiv); 
+        });
     }
 </script>
 </body>
