@@ -87,6 +87,7 @@
         .sc-lbl { font-size: 13px; color: #888; }
         .ic-score { background: #e1f5fe; color: #0288d1; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
         .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #e0f7fa; color: #0097a7; } .ic-acc { background: #fff3e0; color: #f57c00; }
+        
         .donut-container { display: flex; justify-content: center; margin: 20px 0; }
         .donut-chart { width: 200px; height: 200px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .donut-inner { width: 130px; height: 130px; background: #fff; border-radius: 50%; }
@@ -220,11 +221,16 @@
 
     <div id="analysis-screen" class="hidden">
         <div class="analysis-header"><h1 style="font-size: 18px; margin: 0 auto;">Analysis</h1></div>
-        <div class="a-card" style="margin-top: 20px;">
+        
+        <div style="padding: 16px 16px 0 16px;">
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 15px; background: #ff9800; color: #fff; border: none; border-radius: 8px;" onclick="forceOpenChrome()">🌐 Open in Chrome (For PDF Download)</button>
+        </div>
+
+        <div class="a-card" style="margin-top: 10px;">
             <div class="sc-grid">
                 <div class="sc-item"><div class="sc-icon ic-score">🏅</div><div class="sc-val" id="res-score">0/40</div><div class="sc-lbl">Your Score</div></div>
-                <div class="sc-item"><div class="sc-icon ic-rank">🏆</div><div class="sc-val">--</div><div class="sc-lbl">Rank</div></div>
-                <div class="sc-item"><div class="sc-icon ic-perc">👥</div><div class="sc-val">--</div><div class="sc-lbl">Percentile</div></div>
+                <div class="sc-item"><div class="sc-icon ic-rank">🏆</div><div class="sc-val" id="res-rank">--</div><div class="sc-lbl">Rank</div></div>
+                <div class="sc-item"><div class="sc-icon ic-perc">👥</div><div class="sc-val" id="res-perc">--</div><div class="sc-lbl">Percentile</div></div>
             </div>
             <div class="sc-grid">
                 <div class="sc-item"><div class="sc-icon ic-corr">✓</div><div class="sc-val" id="res-correct">0</div><div class="sc-lbl">Correct</div></div>
@@ -240,10 +246,10 @@
             <table class="comp-table">
                 <thead><tr><th style="border:none;"></th><th class="col-you">You</th><th class="col-top">Topper</th><th class="col-avg">Avg</th></tr></thead>
                 <tbody>
-                    <tr><td class="row-lbl">Score</td><td class="sc-you" id="cmp-score">0.0</td><td class="sc-top">--</td><td class="sc-avg">--</td></tr>
-                    <tr><td class="row-lbl">Accuracy</td><td class="ac-you" id="cmp-acc">0%</td><td class="ac-top">--</td><td class="ac-avg">--</td></tr>
-                    <tr><td class="row-lbl">Correct</td><td class="cr-you" id="cmp-c">0</td><td class="cr-top">--</td><td class="cr-avg">--</td></tr>
-                    <tr><td class="row-lbl">Wrong</td><td class="wr-you" id="cmp-w">0</td><td class="wr-top">--</td><td class="wr-avg">--</td></tr>
+                    <tr><td class="row-lbl">Score</td><td class="sc-you" id="cmp-score">0.0</td><td class="sc-top" id="cmp-top">--</td><td class="sc-avg" id="cmp-avg">--</td></tr>
+                    <tr><td class="row-lbl">Accuracy</td><td class="ac-you" id="cmp-acc">0%</td><td class="ac-top">95%</td><td class="ac-avg">55%</td></tr>
+                    <tr><td class="row-lbl">Correct</td><td class="cr-you" id="cmp-c">0</td><td class="cr-top" id="cmp-top-c">--</td><td class="cr-avg" id="cmp-avg-c">--</td></tr>
+                    <tr><td class="row-lbl">Wrong</td><td class="wr-you" id="cmp-w">0</td><td class="wr-top" id="cmp-top-w">--</td><td class="wr-avg" id="cmp-avg-w">--</td></tr>
                 </tbody>
             </table>
         </div>
@@ -262,10 +268,9 @@
         </div>
         <div class="sec-title">Section Wise Stats</div>
         <div id="analysis-sections-container"></div>
-
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
             <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Solutions</button>
-            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download Full Report (PDF)</button>
+            <button class="btn-black" id="pdf-btn" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download PDF Report</button>
         </div>
     </div>
 
@@ -401,11 +406,15 @@
 
     function formatTime(sec) { if(sec === 0) return "0 sec"; let m = Math.floor(sec/60), s = sec%60; return m > 0 ? `${m}m ${s}s` : `${s}s`; }
 
+    // 🌟 FULL RANK & TOPPER FIX 🌟
     function submitTest() {
         clearInterval(timerInterval); hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden');
 
         let tC = 0, tI = 0, tU = 0, secHtml = '';
         allQsFlat = []; let globalQNum = 1;
+
+        let posMark = parseFloat(document.querySelector('.positive') ? document.querySelector('.positive').innerText.replace('+','') : 2);
+        let negMark = parseFloat(document.querySelector('.negative') ? document.querySelector('.negative').innerText.replace('-','') : 0.25);
 
         testData.forEach((sec, sIdx) => {
             let c = 0, inc = 0, u = 0, cT = 0, incT = 0, uT = 0;
@@ -417,18 +426,46 @@
                 allQsFlat.push({ ...q, secName: sec.section, globalNum: globalQNum++, state: state, secIdx: sIdx, qIdx: qIdx });
             });
             tC += c; tI += inc; tU += u;
-            let secMarks = Math.max(0, (c * 2) - (inc * 0.25));
+            let secMarks = Math.max(0, (c * posMark) - (inc * negMark));
 
             secHtml += `<div class="a-card"><div class="subj-header"><div class="subj-name">${sec.section}</div><div class="black-circle"><span>Marks</span><span>${secMarks.toFixed(2)}</span></div></div><div class="subj-q-stats">Section Question Stats</div><div class="time-split"><div class="col"><div class="c-green">Correct</div><div class="val-num c-green">${c.toFixed(1)}</div><div class="val-time">In ${formatTime(cT)}</div></div><div class="col"><div class="c-red">Incorrect</div><div class="val-num c-red">${inc.toFixed(1)}</div><div class="val-time">In ${formatTime(incT)}</div></div><div class="col"><div class="c-grey">Unattempted</div><div class="val-num c-grey">${u.toFixed(1)}</div><div class="val-time">In ${formatTime(uT)}</div></div></div></div>`;
         });
 
-        let totalMarks = Math.max(0, (tC * 2) - (tI * 0.25));
         let totalQs = tC + tI + tU; 
+        let totalMarks = Math.max(0, (tC * posMark) - (tI * negMark));
+        let maxMarks = totalQs * posMark;
         let acc = (tC+tI) > 0 ? ((tC / (tC+tI)) * 100).toFixed(2) : 0;
 
-        document.getElementById('res-score').innerText = `${totalMarks.toFixed(2)}/40.0`;
-        document.getElementById('res-correct').innerText = tC; document.getElementById('res-incorrect').innerText = tI; document.getElementById('res-unatt').innerText = tU; document.getElementById('res-acc').innerText = `${acc}%`;
-        document.getElementById('cmp-score').innerText = `${totalMarks.toFixed(2)}`; document.getElementById('cmp-acc').innerText = `${acc}%`; document.getElementById('cmp-c').innerText = tC; document.getElementById('cmp-w').innerText = tI;
+        // Calculate Dummy Rank & Percentile
+        let topperScore = (maxMarks * 0.90).toFixed(2);
+        if(totalMarks > parseFloat(topperScore)) topperScore = totalMarks.toFixed(2);
+        let avgScore = (maxMarks * 0.45).toFixed(2);
+        
+        let percentile = totalMarks <= 0 ? 0 : Math.min(99.9, ((totalMarks / maxMarks) * 100) + (Math.random() * 5)).toFixed(1);
+        let rank = totalMarks <= 0 ? Math.floor(Math.random() * 5000) + 15000 : Math.floor((100 - percentile) * 120) + 1;
+
+        let topC = Math.floor(totalQs * 0.9); let topW = Math.floor(totalQs * 0.05);
+        let avgC = Math.floor(totalQs * 0.45); let avgW = Math.floor(totalQs * 0.25);
+
+        // UI Update
+        document.getElementById('res-score').innerText = `${totalMarks.toFixed(2)}/${maxMarks.toFixed(1)}`;
+        document.getElementById('res-correct').innerText = tC; 
+        document.getElementById('res-incorrect').innerText = tI; 
+        document.getElementById('res-unatt').innerText = tU; 
+        document.getElementById('res-acc').innerText = `${acc}%`;
+        
+        document.getElementById('res-rank').innerText = rank;
+        document.getElementById('res-perc').innerText = percentile + "%";
+        document.getElementById('cmp-score').innerText = `${totalMarks.toFixed(2)}`; 
+        document.getElementById('cmp-acc').innerText = `${acc}%`; 
+        document.getElementById('cmp-c').innerText = tC; 
+        document.getElementById('cmp-w').innerText = tI;
+        document.getElementById('cmp-top').innerText = topperScore;
+        document.getElementById('cmp-avg').innerText = avgScore;
+        document.getElementById('cmp-top-c').innerText = topC;
+        document.getElementById('cmp-avg-c').innerText = avgC;
+        document.getElementById('cmp-top-w').innerText = topW;
+        document.getElementById('cmp-avg-w').innerText = avgW;
         
         let pC = (tC / totalQs) * 100, pI = (tI / totalQs) * 100;
         document.getElementById('res-donut').style.background = `conic-gradient(#4caf50 0% ${pC}%, #e53935 ${pC}% ${pC+pI}%, #00bcd4 ${pC+pI}% 100%)`;
@@ -467,7 +504,23 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // --- 📄 ADVANCED PDF GENERATOR (NATIVE SHARE API) ---
+    // 🌟 FORCE OPEN CHROME BUTTON LOGIC 🌟
+    function forceOpenChrome() {
+        let url = window.location.href;
+        let intentUrl = "intent://" + url.replace(/^https?:\/\//, '') + "#Intent;scheme=https;package=com.android.chrome;end";
+        
+        window.location.href = intentUrl;
+        
+        setTimeout(() => {
+            navigator.clipboard.writeText(url).then(() => {
+                alert("⚠️ अगर Chrome नहीं खुला, तो लिंक कॉपी हो गया है। कृपया Chrome ब्राउज़र खोलें और लिंक पेस्ट करके टेस्ट का PDF डाउनलोड करें।");
+            }).catch(err => {
+                alert("कृपया इस लिंक को कॉपी करके Chrome में खोलें:\n" + url);
+            });
+        }, 1000);
+    }
+
+    // 📄 PDF DOWNLOAD (NOW SUPER SAFE)
     function downloadPDF() {
         let btn = document.getElementById('pdf-btn');
         let oldText = btn.innerText;
@@ -475,11 +528,11 @@
 
         let printDiv = document.createElement('div');
         printDiv.id = "print-container";
-        printDiv.style.position = "fixed";
-        printDiv.style.top = "200vh"; // 🔴 UI के पीछे छिप गया
-        printDiv.style.left = "0";
+        printDiv.style.position = "absolute"; // Fix Overlap
+        printDiv.style.left = "-9999px";
+        printDiv.style.top = "0";
         printDiv.style.width = "800px";
-        printDiv.style.zIndex = "-9999";
+        printDiv.style.zIndex = "-1000";
         printDiv.style.padding = "30px";
         printDiv.style.background = "#fff";
         printDiv.style.color = "#000";
@@ -489,7 +542,7 @@
         let accText = document.getElementById('res-acc').innerText;
         
         let html = `
-            <div style="text-align:center; border-bottom:2px solid #1a237e; padding-bottom:15px; margin-bottom:25px;">
+            <div style="text-align:center; border-bottom:2px solid #1e88e5; padding-bottom:15px; margin-bottom:25px;">
                 <h1 style="margin:0; font-size:24px; color:#1e88e5;">Eduquity Pattern Mock Test - Full Report</h1>
                 <p>Score: <b>${scoreText}</b> | Accuracy: <b>${accText}</b></p>
                 <a href="https://t.me/+N9ijRyP-zYtjNTg1" style="display:inline-block; background:#e53935; color:#fff; padding:10px 20px; border-radius:25px; text-decoration:none; font-size:14px; font-weight:bold; margin-top:10px;">📢 Join Main Channel</a>
@@ -531,36 +584,17 @@
 
         const opt = {
             margin:       0.4,
-            filename:     'MockTest_Scorecard.pdf',
+            filename:     'MockTest_Full_Report.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(printDiv).output('blob').then(function(pdfBlob) {
-            let file = new File([pdfBlob], "MockTest_Scorecard.pdf", { type: "application/pdf" });
-            
-            // 🌟 NATIVE SHARE/SAVE MENU (TELEGRAM BLOCK BYPASS) 🌟
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                    title: 'Mock Test Report',
-                    text: 'Mera Mock Test Scorecard aur Full Solutions!',
-                    files: [file]
-                }).then(() => {
-                    btn.innerText = oldText; document.body.removeChild(printDiv);
-                }).catch(err => {
-                    btn.innerText = oldText; document.body.removeChild(printDiv);
-                });
-            } else {
-                // PC / Normal Browser Fallback
-                let url = window.URL.createObjectURL(pdfBlob);
-                let a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url; a.download = "MockTest_Scorecard.pdf";
-                document.body.appendChild(a); a.click();
-                window.URL.revokeObjectURL(url);
-                btn.innerText = oldText; document.body.removeChild(printDiv);
-            }
+        html2pdf().set(opt).from(printDiv).save().then(() => {
+            btn.innerText = oldText; document.body.removeChild(printDiv);
+        }).catch(err => {
+            btn.innerText = oldText; document.body.removeChild(printDiv);
+            alert("⚠️ Telegram में PDF डाउनलोड फेल! कृपया ऊपर 'Open in Chrome' वाले पीले बटन पर क्लिक करें।");
         });
     }
 </script>
