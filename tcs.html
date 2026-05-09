@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GK Tricks Hub - TCS Pattern</title>
+    <title>SSC GD TCS Mock Test</title>
     <style>
+        /* --- ग्लोबल स्टाइल्स --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
 
+        /* --- 1. स्टार्ट स्क्रीन (Same to Same) --- */
         #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
         .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
@@ -17,27 +19,35 @@
         .start-info span:last-child { color: #888; font-weight: normal;}
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
 
+        /* --- 2. TCS लाइव टेस्ट स्क्रीन --- */
+        /* TCS Header */
         .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .tcs-timer { font-size: 18px; font-weight: bold; }
         .tcs-title-sub { font-size: 12px; color: #c5cae9; margin-top: 2px; }
         .tcs-hamburger { font-size: 26px; cursor: pointer; color: white; }
 
+        /* TCS Tabs */
         .tcs-tabs-wrapper { background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; white-space: nowrap; position: sticky; top: 60px; z-index: 9; }
+        .tcs-tabs-wrapper::-webkit-scrollbar { display: none; }
         .tcs-tab { display: inline-block; padding: 14px 16px; font-size: 14px; font-weight: 500; color: #555; cursor: pointer; border-bottom: 3px solid transparent; }
         .tcs-tab.active { color: #1a237e; border-bottom: 3px solid #1a237e; font-weight: bold; }
 
+        /* TCS Question Info Bar */
         .tcs-q-info-bar { background: #f5f5f5; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-size: 13px; color: #555;}
         .tcs-q-badge { background: #888; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px;}
         .tcs-marks { display: flex; gap: 10px; }
         .tcs-m-pos { color: #4caf50; font-weight: bold;}
         .tcs-m-neg { color: #e53935; }
 
+        /* TCS Question Area */
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
         .tcs-q-text { font-size: 16px; line-height: 1.6; color: #111; margin-bottom: 24px; }
-        .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; }
+        
+        .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
         .tcs-option.selected { border-color: #1e88e5; background: #e3f2fd; }
         .tcs-opt-lbl { margin-right: 16px; font-weight: bold; color: #555; }
 
+        /* TCS Footer (Fixed Bottom) */
         .tcs-footer { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; z-index: 10; border-top: 1px solid #ddd; display: flex; flex-direction: column;}
         .tcs-arrows { display: flex; justify-content: space-between; padding: 8px 16px; background: #f9f9f9; border-bottom: 1px solid #eee;}
         .tcs-arrow-btn { background: none; border: none; font-size: 20px; font-weight: bold; color: #1a237e; cursor: pointer; padding: 4px 16px;}
@@ -46,120 +56,584 @@
         .tcs-btn-submit { background: #e53935; color: white; border-color: #e53935; }
         .tcs-btn-save { background: #039be5; color: white; border-color: #039be5; }
 
+        /* --- TCS Drawer / Palette --- */
         .tcs-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s;}
         .tcs-drawer-overlay.show { opacity: 1; pointer-events: auto; }
-        .tcs-drawer { position: absolute; right: 0; top: 0; width: 85%; max-width: 320px; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: 0.3s ease-out; }
+        .tcs-drawer { position: absolute; right: 0; top: 0; width: 85%; max-width: 320px; height: 100%; background: #fff; display: flex; flex-direction: column; transform: translateX(100%); transition: 0.3s ease-out; box-shadow: -2px 0 10px rgba(0,0,0,0.1);}
         .tcs-drawer-overlay.show .tcs-drawer { transform: translateX(0); }
+        
         .tcs-dr-header { display: flex; }
         .tcs-dr-tab { flex: 1; text-align: center; padding: 16px; font-size: 14px; font-weight: bold; border-bottom: 2px solid #ddd; color: #888; }
         .tcs-dr-tab.active { color: #111; border-bottom-color: #111; }
         .tcs-dr-close { padding: 16px; font-size: 20px; cursor: pointer; color: #555; }
+
         .tcs-dr-content { padding: 16px; overflow-y: auto; flex: 1; }
-        .tcs-q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .tcs-q-box { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
-        .st-ans { background: #1976d2; color: #fff; border-color: #1976d2; }
+        
+        .tcs-legend { margin-bottom: 20px; }
+        .tcs-leg-item { display: flex; align-items: center; font-size: 14px; font-weight: bold; margin-bottom: 12px; color: #111;}
+        .tcs-circ { width: 16px; height: 16px; border-radius: 50%; margin-right: 12px; }
+        .c-marked { border: 2px solid #fbc02d; }
+        .c-attempt { background: #1976d2; }
+        .c-unattempt { border: 2px solid #bdbdbd; }
+
+        .tcs-accordion { margin-bottom: 10px; border-top: 1px solid #eee; padding-top: 10px;}
+        .tcs-acc-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 8px; cursor: pointer; color: #111;}
+        .tcs-acc-stats { display: flex; gap: 16px; font-size: 12px; color: #555; margin-bottom: 12px;}
+        .tcs-acc-stats span { display: flex; align-items: center; gap: 4px; }
+        
+        /* Grid inside accordion */
+        .tcs-q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; display: none;}
+        .tcs-q-grid.open { display: grid; }
+        .tcs-q-box { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px;}
+        .st-ans { background: #1976d2; color: #fff; }
+        .st-not-ans { border: 2px solid #bdbdbd; color: #333; }
+        .st-mark { border: 2px solid #fbc02d; color: #333; }
+        .st-mark-ans { border: 2px solid #fbc02d; background: #e3f2fd; color: #333; position: relative;}
+        .st-mark-ans::after { content: '✓'; position: absolute; bottom: -4px; right: 0; color: #1976d2; font-size: 10px; font-weight: 900;}
+
+        /* --- 3, 4, 5, 6. (Same to Same Styles) --- */
+        #submit-screen { background: #f5f5f5; min-height: 100vh; padding: 20px; }
+        .submit-header { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 12px;}
+        .section-summary-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .confirm-actions { text-align: center; margin-top: 20px; padding-bottom: 40px;}
+        .btn-yes { background: #1e88e5; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; margin-right: 10px; cursor: pointer;}
+        .btn-no { background: #fff; color: #555; border: 1px solid #ccc; padding: 12px 30px; border-radius: 8px; font-size: 16px; cursor: pointer;}
+
+        #analysis-screen { background: #f5f5f5; min-height: 100vh; padding-bottom: 40px;}
+        .analysis-header { background: #111; color: white; padding: 16px; display: flex; align-items: center; position: sticky; top: 0; z-index: 10;}
+        .a-card { background: #fff; border-radius: 16px; padding: 20px; margin: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; text-align: center; }
+        .sc-item { display: flex; flex-direction: column; align-items: center; }
+        .sc-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px; }
+        .sc-val { font-size: 16px; font-weight: 800; color: #000; margin-bottom: 4px; }
+        .sc-lbl { font-size: 13px; color: #888; }
+        .ic-score { background: #e1f5fe; color: #0288d1; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
+        .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #e0f7fa; color: #0097a7; } .ic-acc { background: #fff3e0; color: #f57c00; }
+        .donut-container { display: flex; justify-content: center; margin: 20px 0; }
+        .donut-chart { width: 200px; height: 200px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .donut-inner { width: 130px; height: 130px; background: #fff; border-radius: 50%; }
+        .chart-legend { display: flex; justify-content: center; gap: 16px; font-size: 13px; color: #555; margin-bottom: 10px;}
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 14px; height: 14px; border-radius: 4px; }
+        .bg-green { background: #4caf50; } .bg-red { background: #e53935; } .bg-cyan { background: #00bcd4; }
+        .comp-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; margin-top: 10px;}
+        .comp-table th, .comp-table td { padding: 10px 6px; border: 1px solid #eee; }
+        .col-you { background-color: #f3e5f5; } .col-top { background-color: #e8f5e9; } .col-avg { background-color: #e3f2fd; }
+        .row-lbl { color: #888; text-align: left; background: #fff; }
+        .sc-you { background: #ce93d8; color: #000; font-weight: bold;} .sc-top { background: #ba68c8; color: #fff; font-weight: bold;} .sc-avg { background: #ce93d8; font-weight: bold;}
+        .ac-you { background: #e1f5fe; } .ac-top { background: #e0f7fa; } .ac-avg { background: #e1f5fe; }
+        .cr-you { background: #fff3e0; } .cr-top { background: #ffe0b2; } .cr-avg { background: #fff3e0; }
+        .wr-you { background: #ffebee; } .wr-top { background: #fff; } .wr-avg { background: #ffebee; }
+        .tm-you { background: #fff9c4; } .tm-top { background: #fff59d; } .tm-avg { background: #fff9c4; }
+        .time-stats-box { display: flex; gap: 10px; height: 130px; margin-top: 20px;}
+        .ts-left { flex: 1.2; background: #4caf50; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
+        .ts-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .ts-rt-top { flex: 0.5; background: #26c6da; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px;}
+        .ts-rt-bot { flex: 1; background: #ef5350; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
+        .sec-title { font-size: 18px; font-weight: bold; margin: 24px 16px 12px 16px; }
+        .subj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .subj-name { font-size: 16px; font-weight: bold; }
+        .black-circle { width: 60px; height: 60px; background: #000; border-radius: 50%; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .black-circle span:first-child { font-size: 11px; color: #aaa; }
+        .black-circle span:last-child { font-size: 16px; font-weight: bold; }
+        .subj-q-stats { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 12px; color: #000;}
+        .time-split { display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
+        .time-split .col { flex: 1; }
+        .c-green { color: #4caf50; } .c-red { color: #e53935; } .c-grey { color: #888; }
+        .val-num { font-size: 15px; font-weight: bold; margin: 4px 0;}
+        .val-time { color: #555; font-size: 12px;}
+
+        #solutions-screen { background: #f5f5f5; min-height: 100vh; padding-bottom: 40px;}
+        .sol-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;}
+        .filters { display: flex; gap: 10px; padding: 16px; background: #fff; overflow-x: auto; border-bottom: 1px solid #eee;}
+        .filters::-webkit-scrollbar { display: none; }
+        .flt-btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; color: #555; background: #f0f0f0; white-space: nowrap; cursor: pointer; }
+        .flt-active { background: #f3e5f5; color: #9c27b0; }
+        .sol-container { padding: 16px; }
+        .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 16px; }
+        .sol-num-col { display: flex; flex-direction: column; align-items: center; width: 40px;}
+        .sol-num { width: 36px; height: 36px; background: #f0f0f0; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; position: relative; z-index: 2;}
+        .sol-status-icon { position: absolute; right: -6px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #fff;}
+        .st-corr { background: #4caf50; } .st-wr { background: #e53935; } .st-una { background: #ccc; }
+        .sol-line { width: 2px; background: #e0e0e0; flex-grow: 1; margin-top: -10px; margin-bottom: -20px; z-index: 1;}
+        .sol-card { background: #fff; border-radius: 12px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .sol-sec-badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
+        .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; line-height: 1.5; }
+        .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+
+        #full-sol-screen { background: #fff; min-height: 100vh; padding-bottom: 80px;}
+        .fs-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;}
+        .fs-q-info { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee;}
+        .fs-q-pill { background: #e0e0e0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+        .fs-time { font-size: 13px; color: #888; }
+        .fs-content { padding: 16px; }
+        .fs-q-txt { font-size: 16px; line-height: 1.6; color: #111; margin-bottom: 24px;}
+        .fs-opt { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;}
+        .fs-opt.correct { border: 2px solid #4caf50; background: #f1f8e9; }
+        .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; }
+        .fs-opt-perc { font-size: 12px; font-weight: bold; color: #4caf50; }
+        .fs-exp-title { font-size: 16px; font-weight: bold; margin: 24px 0 10px 0; color: #000; }
+        .fs-exp-text { font-size: 15px; line-height: 1.6; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
+        .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
+        .btn-next { background: #000; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+
     <div id="start-screen">
         <div class="start-card">
-            <h2>SSC GD TCS Mock</h2>
-            <div class="start-info"><span>Questions:</span> <span id="info-qs">--</span></div>
-            <div class="start-info"><span>Time:</span> <span id="info-time">--</span></div>
-            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Marks:</span> <span id="info-marks">--</span></div>
-            <button class="start-btn" onclick="startTest()">Loading...</button>
+            <h2>SSC GD (TCS Pattern)</h2>
+            <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
+            <div class="start-info"><span>Total Time:</span> <span>--</span></div>
+            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
+            <button class="start-btn" onclick="startTest()">Loading Test...</button>
         </div>
     </div>
 
     <div id="live-test-screen" class="hidden">
         <div class="tcs-header">
             <div>
-                <div class="tcs-timer" id="timer-display">00:00:00</div>
-                <div class="tcs-title-sub">Premium Test Portal</div>
+                <div class="tcs-timer" id="tcs-timer-display">00:15:00</div>
+                <div class="tcs-title-sub">SSC GD Level (Mock Test)</div>
             </div>
-            <div class="tcs-hamburger" onclick="togglePalette()">≡</div>
+            <div class="tcs-hamburger" onclick="toggleTcsPalette()">≡</div>
         </div>
-        <div class="tcs-tabs-wrapper" id="tabs-container"></div>
+        
+        <div class="tcs-tabs-wrapper" id="tcs-tabs-container"></div>
+
         <div class="tcs-q-info-bar">
-            <div style="display: flex; align-items: center;"><div class="tcs-q-badge" id="q-num">1</div></div>
-            <div class="tcs-marks"><span class="tcs-m-pos" id="pos">+2.0</span><span class="tcs-m-neg" id="neg">-0.5</span></div>
-        </div>
-        <div class="tcs-question-area">
-            <div class="tcs-q-text" id="q-text">Loading...</div>
-            <div id="options-container"></div>
-        </div>
-        <div class="tcs-footer">
-            <div class="tcs-arrows"><button class="tcs-arrow-btn" onclick="prev()">❮</button><button class="tcs-arrow-btn" onclick="next()">❯</button></div>
-            <div class="tcs-actions-row">
-                <button class="tcs-btn tcs-btn-submit" onclick="submit()">Submit</button>
-                <button class="tcs-btn" onclick="mark()">Mark & Next</button>
-                <button class="tcs-btn tcs-btn-save" onclick="save()">Save & Next</button>
+            <div style="display: flex; align-items: center;">
+                <div class="tcs-q-badge" id="tcs-q-num">1</div>
+                <span id="tcs-q-time" style="color: #888;">00:00</span>
+            </div>
+            <div class="tcs-marks">
+                <span class="tcs-m-pos">+2.00</span>
+                <span class="tcs-m-neg">-0.25</span>
+                <span style="color:#aaa;">⚠️</span>
             </div>
         </div>
-        <div class="tcs-drawer-overlay" id="palette-overlay">
+
+        <div class="tcs-question-area">
+            <div class="tcs-q-text" id="tcs-q-text">Loading...</div>
+            <div id="tcs-options-container"></div>
+        </div>
+        
+        <div class="tcs-footer">
+            <div class="tcs-arrows">
+                <button class="tcs-arrow-btn" onclick="prevQuestion()">❮</button>
+                <button class="tcs-arrow-btn" onclick="nextQuestion()">❯</button>
+            </div>
+            <div class="tcs-actions-row">
+                <button class="tcs-btn tcs-btn-submit" onclick="prepareSubmit()">Submit Quiz</button>
+                <button class="tcs-btn" onclick="markForReview()">Mark & Next</button>
+                <button class="tcs-btn" onclick="clearResponse()">Clear Response</button>
+                <button class="tcs-btn tcs-btn-save" onclick="saveAndNext()">Save & Next</button>
+            </div>
+        </div>
+
+        <div class="tcs-drawer-overlay" id="tcs-palette">
             <div class="tcs-drawer">
-                <div class="tcs-dr-header"><div class="tcs-dr-tab active">Grid View</div><div class="tcs-dr-close" onclick="togglePalette()">✕</div></div>
-                <div class="tcs-dr-content"><div class="tcs-q-grid" id="q-grid"></div></div>
+                <div class="tcs-dr-header">
+                    <div class="tcs-dr-tab active">Grid View</div>
+                    <div class="tcs-dr-tab" style="font-weight: normal; border-bottom: 2px solid #ddd;">List View</div>
+                    <div class="tcs-dr-close" onclick="toggleTcsPalette()">✕</div>
+                </div>
+                
+                <div class="tcs-dr-content">
+                    <div class="tcs-legend">
+                        <div class="tcs-leg-item"><div class="tcs-circ c-marked"></div> Marked For Review</div>
+                        <div class="tcs-leg-item"><div class="tcs-circ c-attempt"></div> Attempted</div>
+                        <div class="tcs-leg-item"><div class="tcs-circ c-unattempt"></div> Unattempted</div>
+                    </div>
+
+                    <div id="tcs-accordion-container">
+                        </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="submit-screen" class="hidden">
+        <div class="submit-header">Submit Test</div>
+        <div id="submit-summary-container"></div>
+        <div class="confirm-actions">
+            <h3>Are you sure you want to submit?</h3>
+            <button class="btn-yes" onclick="submitTest()">Yes</button>
+            <button class="btn-no" onclick="closeSubmit()">No</button>
+        </div>
+    </div>
+
+    <div id="analysis-screen" class="hidden">
+        <div class="analysis-header"><h1 style="font-size: 18px; margin: 0 auto;">Analysis</h1></div>
+        <div class="a-card" style="margin-top: 20px;">
+            <div class="sc-grid">
+                <div class="sc-item"><div class="sc-icon ic-score">🏅</div><div class="sc-val" id="res-score">0/40</div><div class="sc-lbl">Your Score</div></div>
+                <div class="sc-item"><div class="sc-icon ic-rank">🏆</div><div class="sc-val">56522</div><div class="sc-lbl">Rank</div></div>
+                <div class="sc-item"><div class="sc-icon ic-perc">👥</div><div class="sc-val">80.3%</div><div class="sc-lbl">Percentile</div></div>
+            </div>
+            <div class="sc-grid">
+                <div class="sc-item"><div class="sc-icon ic-corr">✓</div><div class="sc-val" id="res-correct">0</div><div class="sc-lbl">Correct</div></div>
+                <div class="sc-item"><div class="sc-icon ic-inc">✕</div><div class="sc-val" id="res-incorrect">0</div><div class="sc-lbl">Incorrect</div></div>
+                <div class="sc-item"><div class="sc-icon ic-una">−</div><div class="sc-val" id="res-unatt">0</div><div class="sc-lbl">Unattempted</div></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <div class="sc-icon ic-acc" style="border-radius: 16px; margin: 0 auto 10px auto;">🎯</div><div class="sc-val" id="res-acc">0%</div><div class="sc-lbl">Accuracy</div>
+            </div>
+        </div>
+        <div class="a-card">
+            <h2 style="font-size: 18px; text-align: center; margin-bottom: 16px;">Comparison</h2>
+            <table class="comp-table">
+                <thead><tr><th style="border:none;"></th><th class="col-you">You</th><th class="col-top">Topper</th><th class="col-avg">Avg</th></tr></thead>
+                <tbody>
+                    <tr><td class="row-lbl">Score</td><td class="sc-you" id="cmp-score">0.0</td><td class="sc-top">40.0</td><td class="sc-avg">18.5</td></tr>
+                    <tr><td class="row-lbl">Accuracy</td><td class="ac-you" id="cmp-acc">0%</td><td class="ac-top">100%</td><td class="ac-avg">60%</td></tr>
+                    <tr><td class="row-lbl">Correct</td><td class="cr-you" id="cmp-c">0</td><td class="cr-top">20</td><td class="cr-avg">10</td></tr>
+                    <tr><td class="row-lbl">Wrong</td><td class="wr-you" id="cmp-w">0</td><td class="wr-top">0</td><td class="wr-avg">5</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="a-card">
+            <div class="donut-container"><div class="donut-chart" id="res-donut"><div class="donut-inner"></div></div></div>
+            <div class="chart-legend">
+                <div class="legend-item"><div class="dot bg-green"></div>Correct</div>
+                <div class="legend-item"><div class="dot bg-red"></div>Incorrect</div>
+                <div class="legend-item"><div class="dot bg-cyan"></div>Unattempted</div>
+            </div>
+            <h3 style="text-align: center; margin-top: 30px; font-size: 18px;">Time Stats</h3>
+            <div class="time-stats-box">
+                <div class="ts-left">Correct</div>
+                <div class="ts-right"><div class="ts-rt-top">Unattempted</div><div class="ts-rt-bot">Incorrect</div></div>
+            </div>
+        </div>
+        <div class="sec-title">Section Wise Stats</div>
+        <div id="analysis-sections-container"></div>
+        <div style="padding: 16px;">
+            <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Solutions</button>
+        </div>
+    </div>
+
+    <div id="solutions-screen" class="hidden">
+        <div class="sol-header"><span style="cursor: pointer;" onclick="closeSolutions()">←</span> Solutions <span style="font-size: 24px;">A/अ</span></div>
+        <div class="filters">
+            <button class="flt-btn flt-active" onclick="filterSol('all', this)">All</button>
+            <button class="flt-btn" onclick="filterSol('correct', this)">Correct</button>
+            <button class="flt-btn" onclick="filterSol('incorrect', this)">Incorrect</button>
+            <button class="flt-btn" onclick="filterSol('unattempted', this)">Unattempted</button>
+        </div>
+        <div class="sol-container" id="sol-list-container"></div>
+    </div>
+
+    <div id="full-sol-screen" class="hidden">
+        <div class="fs-header"><span style="cursor: pointer;" onclick="closeFullSol()">←</span> Full Solution <span style="font-size: 24px;">A/अ</span></div>
+        <div class="fs-q-info"><div class="fs-q-pill" id="fs-q-num">Question 1</div><div class="fs-time" id="fs-q-time">Time taken: 0 secs</div></div>
+        <div class="fs-content">
+            <div class="fs-q-txt" id="fs-q-txt">Q Text</div>
+            <div id="fs-options-container"></div>
+            <div class="fs-exp-title">Full Solution</div>
+            <div class="fs-exp-text" id="fs-exp-text">Explanation</div>
+        </div>
+        <div class="fs-bottom-bar"><button class="tcs-btn tcs-btn-submit" style="border-radius: 24px; padding: 12px 30px;" onclick="nextFullSol()">Next</button></div>
+    </div>
+
 </div>
 
 <script>
-    let testData = []; let si = 0, qi = 0, rem = 0, iv;
-    const tId = new URLSearchParams(window.location.search).get('id');
+    let testData = [];
+    let currentSecIdx = 0, currentQIdx = 0; 
+    let timerInterval, timeRemaining = 15 * 60;
+    let qStartTime = Date.now();
+    let currentFilter = 'all', allQsFlat = [], currentFlatIdx = 0;
 
-    window.onload = async () => {
-        if(!tId) { alert("ID missing!"); return; }
+    const urlParams = new URLSearchParams(window.location.search);
+    const testId = urlParams.get('id');
+
+    window.onload = async function() {
+        const startBtn = document.querySelector('.start-btn');
+        if(startBtn) { startBtn.innerText = "Loading Test..."; startBtn.disabled = true; }
+
+        if (!testId) { 
+            alert("Error: Test ID is missing from the link!"); 
+            if(startBtn) startBtn.innerText = "Invalid Link"; 
+            return; 
+        }
+
         try {
-            const r = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${tId}`);
-            const d = await r.json();
-            testData = d.questions; rem = (d.time||60)*60;
-            document.getElementById('info-qs').innerText = d.total_qs;
-            document.getElementById('info-time').innerText = d.time + " Mins";
-            document.getElementById('info-marks').innerText = d.max_marks;
-            document.querySelector('.start-btn').innerText = "Start Test";
-        } catch(e) { alert("Server error!"); }
+            const response = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${testId}`);
+            const data = await response.json();
+
+            if (data.error) { 
+                alert("Test not found!"); 
+                if(startBtn) startBtn.innerText = "Not Found"; 
+                return; 
+            }
+
+            testData = data.questions;
+            
+            // 🛑 YOUR ORIGINAL UI FIX: Adding properties required by your scorecard logic
+            testData.forEach(sec => {
+                sec.questions.forEach(q => {
+                    q.userAns = null;
+                    q.status = 'not_visited';
+                    q.time = 0;
+                });
+            });
+
+            timeRemaining = (data.time || 15) * 60;
+            
+            const startInfos = document.querySelectorAll('.start-info span:last-child');
+            if(startInfos.length >= 3) {
+                startInfos[0].innerText = data.total_qs || 20;
+                startInfos[1].innerText = data.time + " mins";
+                startInfos[2].innerText = data.max_marks || 40;
+            }
+            
+            const posEl = document.querySelector('.tcs-m-pos');
+            const negEl = document.querySelector('.tcs-m-neg');
+            if(posEl) posEl.innerText = "+" + (data.pos || 2);
+            if(negEl) negEl.innerText = "-" + (data.neg || 0.25);
+
+            if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
+        } catch (err) {
+            alert("Server error or no internet!");
+            if(startBtn) startBtn.innerText = "Network Error";
+        }
     };
 
-    function startTest() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('live-test-screen').classList.remove('hidden');
-        renderTabs(); loadQ(0,0);
-        iv = setInterval(() => { rem--; let h=Math.floor(rem/3600), m=Math.floor((rem%3600)/60), s=rem%60; document.getElementById('timer-display').innerText=`${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if(rem<=0) submit(); }, 1000);
+    // --- Core Navigation ---
+    function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
+    
+    function startTest() { 
+        hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); 
+        renderTabs(); startTimer(); loadQuestion(0, 0); 
+    }
+    
+    function formatTcsTimer(totalSecs) {
+        let h = Math.floor(totalSecs / 3600);
+        let m = Math.floor((totalSecs % 3600) / 60);
+        let s = totalSecs % 60;
+        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function startTimer() { 
+        timerInterval = setInterval(() => { 
+            timeRemaining--; 
+            document.getElementById('tcs-timer-display').innerText = formatTcsTimer(timeRemaining); 
+            
+            // Update individual question time live
+            let elapsed = Math.floor((Date.now() - qStartTime) / 1000);
+            let m = Math.floor(elapsed/60), s = elapsed%60;
+            document.getElementById('tcs-q-time').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+
+            if(timeRemaining <= 0) submitTest(); 
+        }, 1000); 
     }
 
     function renderTabs() {
-        let h = ''; testData.forEach((s, i) => h += `<div class="tcs-tab ${i===si?'active':''}" onclick="loadQ(${i},0)">${s.section}</div>`);
-        document.getElementById('tabs-container').innerHTML = h;
+        let html = ''; testData.forEach((sec, idx) => { html += `<div class="tcs-tab" id="tab-${idx}" onclick="loadQuestion(${idx}, 0)">${sec.section}</div>`; });
+        document.getElementById('tcs-tabs-container').innerHTML = html;
     }
 
-    function loadQ(s, q) {
-        si = s; qi = q; let qu = testData[s].questions[q];
-        document.getElementById('q-num').innerText = q+1;
-        document.getElementById('q-text').innerText = qu.text;
-        let oh = ''; qu.options.forEach((o, i) => oh += `<div class="tcs-option ${qu.userAns===i?'selected':''}" onclick="sel(${i})"><span class="tcs-opt-lbl">${String.fromCharCode(65+i)}.</span> ${o}</div>`);
-        document.getElementById('options-container').innerHTML = oh;
-        renderTabs();
+    function updateQuestionTime() { 
+        let elapsed = Math.floor((Date.now() - qStartTime) / 1000); 
+        testData[currentSecIdx].questions[currentQIdx].time += elapsed; 
+        qStartTime = Date.now(); 
     }
 
-    function sel(i) { testData[si].questions[qi].userAns = i; loadQ(si,qi); }
-    function save() { testData[si].questions[qi].status = testData[si].questions[qi].userAns!==null?'answered':'not_answered'; next(); }
-    function mark() { testData[si].questions[qi].status = 'marked'; next(); }
-    function next() { if(qi < testData[si].questions.length-1) loadQ(si, qi+1); else if(si < testData.length-1) loadQ(si+1, 0); }
-    function prev() { if(qi > 0) loadQ(si, qi-1); }
-    function togglePalette() { let p = document.getElementById('palette-overlay'); p.classList.toggle('show'); if(p.classList.contains('show')) renderGrid(); }
-    function renderGrid() {
-        let gh = ''; testData[si].questions.forEach((q, i) => {
-            let c = q.status==='answered'?'st-ans':'';
-            gh += `<div class="tcs-q-box ${c}" onclick="jump(${i})">${i+1}</div>`;
+    function loadQuestion(secIdx, qIdx) {
+        updateQuestionTime(); currentSecIdx = secIdx; currentQIdx = qIdx;
+        let q = testData[secIdx].questions[qIdx];
+        if(q.status === 'not_visited') q.status = 'not_answered';
+
+        document.getElementById('tcs-q-num').innerText = qIdx + 1;
+        document.getElementById('tcs-q-text').innerText = q.text;
+
+        let optionsHtml = '';
+        let optPrefix = ['a', 'b', 'c', 'd'];
+        q.options.forEach((opt, i) => { 
+            let isSel = (q.userAns === i) ? 'selected' : ''; 
+            optionsHtml += `<div class="tcs-option ${isSel}" onclick="selectOption(${i})"><span class="tcs-opt-lbl">${optPrefix[i]}.</span> ${opt}</div>`; 
         });
-        document.getElementById('q-grid').innerHTML = gh;
+        document.getElementById('tcs-options-container').innerHTML = optionsHtml;
+
+        testData.forEach((s, i) => { 
+            let btn = document.getElementById(`tab-${i}`); 
+            if(i === secIdx) { btn.classList.add('active'); btn.scrollIntoView({behavior: "smooth", inline: "center"}); } 
+            else { btn.classList.remove('active'); } 
+        });
     }
-    function jump(i) { togglePalette(); loadQ(si, i); }
-    function submit() { clearInterval(iv); alert("Test Submitted!"); }
+
+    // --- Action Buttons ---
+    function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
+    
+    function saveAndNext() { 
+        let q = testData[currentSecIdx].questions[currentQIdx]; 
+        if(q.userAns !== null) q.status = 'answered'; 
+        else if (q.status !== 'marked') q.status = 'not_answered';
+        nextQuestion();
+    }
+    
+    function markForReview() { 
+        testData[currentSecIdx].questions[currentQIdx].status = 'marked'; 
+        nextQuestion();
+    }
+    
+    function clearResponse() {
+        testData[currentSecIdx].questions[currentQIdx].userAns = null;
+        testData[currentSecIdx].questions[currentQIdx].status = 'not_answered';
+        loadQuestion(currentSecIdx, currentQIdx);
+    }
+
+    function nextQuestion() {
+        if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1);
+        else if(currentSecIdx < testData.length - 1) loadQuestion(currentSecIdx + 1, 0);
+    }
+    
+    function prevQuestion() { 
+        if(currentQIdx > 0) loadQuestion(currentSecIdx, currentQIdx - 1); 
+        else if(currentSecIdx > 0) loadQuestion(currentSecIdx - 1, testData[currentSecIdx-1].questions.length - 1);
+    }
+
+    // --- TCS Drawer / Palette ---
+    function toggleTcsPalette() { 
+        let drawer = document.getElementById('tcs-palette'); 
+        if(drawer.classList.contains('show')) drawer.classList.remove('show'); 
+        else { renderTcsDrawer(); drawer.classList.add('show'); } 
+    }
+
+    function renderTcsDrawer() {
+        let html = '';
+        testData.forEach((sec, sIdx) => {
+            let counts = { ans:0, notAns:0, marked:0, notVis:0 };
+            let gridHtml = '';
+            
+            sec.questions.forEach((q, qIdx) => {
+                let cls = 'st-not-ans';
+                if(q.status === 'answered') { cls = 'st-ans'; counts.ans++; } 
+                else if(q.status === 'not_answered') { cls = 'st-not-ans'; counts.notAns++; } 
+                else if(q.status === 'marked') { cls = q.userAns !== null ? 'st-mark-ans' : 'st-mark'; counts.marked++; } 
+                else { cls = 'st-not-ans'; counts.notVis++; } // TCS treats not visited as unattempted visual
+                
+                gridHtml += `<div class="tcs-q-box ${cls}" onclick="jumpToQ(${sIdx}, ${qIdx})">${qIdx+1}</div>`;
+            });
+
+            // Is Accordion open? Only for current section
+            let isOpen = (sIdx === currentSecIdx) ? 'open' : '';
+
+            html += `
+            <div class="tcs-accordion">
+                <div class="tcs-acc-header" onclick="toggleAcc(${sIdx})">
+                    <span>${sec.section}</span>
+                    <span id="arr-${sIdx}">${isOpen ? '▲' : '▼'}</span>
+                </div>
+                <div class="tcs-acc-stats">
+                    <span><div class="tcs-circ c-marked" style="width:10px;height:10px;margin-right:2px;"></div> ${counts.marked.toString().padStart(2,'0')}</span>
+                    <span><div class="tcs-circ c-attempt" style="width:10px;height:10px;margin-right:2px;"></div> ${counts.ans.toString().padStart(2,'0')}</span>
+                    <span><div class="tcs-circ c-unattempt" style="width:10px;height:10px;margin-right:2px;"></div> ${(counts.notAns+counts.notVis).toString().padStart(2,'0')}</span>
+                </div>
+                <div class="tcs-q-grid ${isOpen}" id="acc-grid-${sIdx}">${gridHtml}</div>
+            </div>`;
+        });
+        document.getElementById('tcs-accordion-container').innerHTML = html;
+    }
+    
+    function toggleAcc(idx) {
+        let grid = document.getElementById(`acc-grid-${idx}`);
+        let arr = document.getElementById(`arr-${idx}`);
+        if(grid.classList.contains('open')) { grid.classList.remove('open'); arr.innerText = '▼'; }
+        else { grid.classList.add('open'); arr.innerText = '▲'; }
+    }
+
+    function jumpToQ(sIdx, qIdx) { toggleTcsPalette(); loadQuestion(sIdx, qIdx); }
+
+    // --- Submit Logic (Same to same) ---
+    function prepareSubmit() {
+        updateQuestionTime(); hideAllScreens(); document.getElementById('submit-screen').classList.remove('hidden');
+        let html = '';
+        testData.forEach((sec, idx) => {
+            let ans = 0, marked = 0, notVis = 0;
+            sec.questions.forEach(q => { if(q.status === 'answered') ans++; else if(q.status === 'marked') marked++; else if(q.status === 'not_visited') notVis++; });
+            html += `<div class="section-summary-card"><h2 style="margin-bottom:12px;">${sec.section}</h2><div class="stat-row"><span>Number of Questions</span> <strong>${sec.questions.length}</strong></div><div class="stat-row"><span>Answered</span> <strong>${ans}</strong></div><div class="stat-row"><span>Not Visited</span> <strong>${notVis}</strong></div></div>`;
+        });
+        document.getElementById('submit-summary-container').innerHTML = html;
+    }
+    function closeSubmit() { hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); }
+
+    // --- Analysis Dashboard (Same to same) ---
+    function formatTime(sec) { if(sec === 0) return "0 sec"; let m = Math.floor(sec/60), s = sec%60; return m > 0 ? `${m}m ${s}s` : `${s}s`; }
+
+    function submitTest() {
+        clearInterval(timerInterval); hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden');
+
+        let tC = 0, tI = 0, tU = 0, secHtml = '';
+        allQsFlat = []; let globalQNum = 1;
+
+        testData.forEach((sec, sIdx) => {
+            let c = 0, inc = 0, u = 0, cT = 0, incT = 0, uT = 0;
+            sec.questions.forEach((q, qIdx) => {
+                let state = 'unattempted';
+                if(q.userAns === null) { u++; uT += q.time; }
+                else if(q.userAns === q.correct) { c++; cT += q.time; state = 'correct'; }
+                else { inc++; incT += q.time; state = 'incorrect'; }
+                allQsFlat.push({ ...q, secName: sec.section, globalNum: globalQNum++, state: state, secIdx: sIdx, qIdx: qIdx });
+            });
+
+            tC += c; tI += inc; tU += u;
+            let secMarks = Math.max(0, (c * 2) - (inc * 0.25));
+
+            secHtml += `<div class="a-card"><div class="subj-header"><div class="subj-name">${sec.section}</div><div class="black-circle"><span>Marks</span><span>${secMarks.toFixed(2)}</span></div></div><div class="subj-q-stats">Section Question Stats</div><div class="time-split"><div class="col"><div class="c-green">Correct</div><div class="val-num c-green">${c.toFixed(1)}</div><div class="val-time">In ${formatTime(cT)}</div></div><div class="col"><div class="c-red">Incorrect</div><div class="val-num c-red">${inc.toFixed(1)}</div><div class="val-time">In ${formatTime(incT)}</div></div><div class="col"><div class="c-grey">Unattempted</div><div class="val-num c-grey">${u.toFixed(1)}</div><div class="val-time">In ${formatTime(uT)}</div></div></div></div>`;
+        });
+
+        let totalMarks = Math.max(0, (tC * 2) - (tI * 0.25));
+        let totalQs = tC + tI + tU; 
+        let acc = (tC+tI) > 0 ? ((tC / (tC+tI)) * 100).toFixed(2) : 0;
+
+        document.getElementById('res-score').innerText = `${totalMarks.toFixed(2)}/40.0`;
+        document.getElementById('res-correct').innerText = tC; document.getElementById('res-incorrect').innerText = tI; document.getElementById('res-unatt').innerText = tU; document.getElementById('res-acc').innerText = `${acc}%`;
+        
+        document.getElementById('cmp-score').innerText = `${totalMarks.toFixed(2)}`; document.getElementById('cmp-acc').innerText = `${acc}%`; document.getElementById('cmp-c').innerText = tC; document.getElementById('cmp-w').innerText = tI;
+        
+        let pC = (tC / totalQs) * 100, pI = (tI / totalQs) * 100;
+        document.getElementById('res-donut').style.background = `conic-gradient(#4caf50 0% ${pC}%, #e53935 ${pC}% ${pC+pI}%, #00bcd4 ${pC+pI}% 100%)`;
+        document.getElementById('analysis-sections-container').innerHTML = secHtml;
+    }
+
+    // --- Solutions List (Same to same) ---
+    function openSolutions() { hideAllScreens(); document.getElementById('solutions-screen').classList.remove('hidden'); renderSolutions(); }
+    function closeSolutions() { hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden'); }
+    function filterSol(type, btn) { document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('flt-active')); btn.classList.add('flt-active'); currentFilter = type; renderSolutions(); }
+
+    function renderSolutions() {
+        let html = '';
+        allQsFlat.forEach((q, idx) => {
+            if(currentFilter !== 'all' && q.state !== currentFilter) return;
+            let iconStr = '', iconCls = '';
+            if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
+            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${q.text}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
+        });
+        document.getElementById('sol-list-container').innerHTML = html;
+    }
+
+    // --- Full Solution (Same to same) ---
+    function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
+    function closeFullSol() { hideAllScreens(); document.getElementById('solutions-screen').classList.remove('hidden'); }
+    
+    function renderFullSolution() {
+        let q = allQsFlat[currentFlatIdx];
+        document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; document.getElementById('fs-q-txt').innerText = q.text;
+        let optHtml = '', optPrefix = ['a', 'b', 'c', 'd'];
+        q.options.forEach((opt, i) => {
+            let cls = '', rightTxt = '';
+            if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
+            else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
+            optHtml += `<div class="fs-opt ${cls}"><span>${optPrefix[i]}. &nbsp;&nbsp; ${opt}</span> ${rightTxt}</div>`;
+        });
+        document.getElementById('fs-options-container').innerHTML = optHtml; document.getElementById('fs-exp-text').innerText = q.exp;
+    }
+    function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 </script>
+
 </body>
 </html>
