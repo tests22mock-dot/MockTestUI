@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSC GD TCS Mock Test</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
@@ -39,7 +38,7 @@
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
         .tcs-q-text { font-size: 16px; line-height: 1.6; color: #111; margin-bottom: 24px; }
         .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
-        .tcs-option.selected { border-color: #1e88e5; background: #e3f2fd; }
+        .tcs-option.selected { border-color: #1a237e; background: #e8eaf6; }
         .tcs-opt-lbl { margin-right: 16px; font-weight: bold; color: #555; }
 
         .tcs-footer { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; z-index: 10; border-top: 1px solid #ddd; display: flex; flex-direction: column;}
@@ -78,7 +77,7 @@
         .section-summary-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
         .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
         .confirm-actions { text-align: center; margin-top: 20px; padding-bottom: 40px;}
-        .btn-yes { background: #1e88e5; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; margin-right: 10px; cursor: pointer;}
+        .btn-yes { background: #1a237e; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; margin-right: 10px; cursor: pointer;}
         .btn-no { background: #fff; color: #555; border: 1px solid #ccc; padding: 12px 30px; border-radius: 8px; font-size: 16px; cursor: pointer;}
 
         #analysis-screen { background: #f5f5f5; min-height: 100vh; padding-bottom: 40px;}
@@ -89,34 +88,34 @@
         .sc-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px; }
         .sc-val { font-size: 16px; font-weight: 800; color: #000; margin-bottom: 4px; }
         .sc-lbl { font-size: 13px; color: #888; }
-        .ic-score { background: #e1f5fe; color: #0288d1; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
-        .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #e0f7fa; color: #0097a7; } .ic-acc { background: #fff3e0; color: #f57c00; }
+        .ic-score { background: #e8eaf6; color: #1a237e; } .ic-rank { background: #f3e5f5; color: #7b1fa2; } .ic-perc { background: #fce4ec; color: #c2185b; }
+        .ic-corr { background: #e8f5e9; color: #388e3c; } .ic-inc { background: #ffebee; color: #d32f2f; } .ic-una { background: #eceff1; color: #5c6bc0; } .ic-acc { background: #fff3e0; color: #f57c00; }
         .donut-container { display: flex; justify-content: center; margin: 20px 0; }
         .donut-chart { width: 200px; height: 200px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .donut-inner { width: 130px; height: 130px; background: #fff; border-radius: 50%; }
         .chart-legend { display: flex; justify-content: center; gap: 16px; font-size: 13px; color: #555; margin-bottom: 10px;}
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .dot { width: 14px; height: 14px; border-radius: 4px; }
-        .bg-green { background: #4caf50; } .bg-red { background: #e53935; } .bg-cyan { background: #00bcd4; }
+        .bg-green { background: #4caf50; } .bg-red { background: #e53935; } .bg-cyan { background: #5c6bc0; }
         .comp-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; margin-top: 10px;}
         .comp-table th, .comp-table td { padding: 10px 6px; border: 1px solid #eee; }
-        .col-you { background-color: #f3e5f5; } .col-top { background-color: #e8f5e9; } .col-avg { background-color: #e3f2fd; }
+        .col-you { background-color: #f3e5f5; } .col-top { background-color: #e8f5e9; } .col-avg { background-color: #e8eaf6; }
         .row-lbl { color: #888; text-align: left; background: #fff; }
         .sc-you { background: #ce93d8; color: #000; font-weight: bold;} .sc-top { background: #ba68c8; color: #fff; font-weight: bold;} .sc-avg { background: #ce93d8; font-weight: bold;}
-        .ac-you { background: #e1f5fe; } .ac-top { background: #e0f7fa; } .ac-avg { background: #e1f5fe; }
+        .ac-you { background: #e8eaf6; } .ac-top { background: #e0f7fa; } .ac-avg { background: #e8eaf6; }
         .cr-you { background: #fff3e0; } .cr-top { background: #ffe0b2; } .cr-avg { background: #fff3e0; }
         .wr-you { background: #ffebee; } .wr-top { background: #fff; } .wr-avg { background: #ffebee; }
         .tm-you { background: #fff9c4; } .tm-top { background: #fff59d; } .tm-avg { background: #fff9c4; }
         .time-stats-box { display: flex; gap: 10px; height: 130px; margin-top: 20px;}
         .ts-left { flex: 1.2; background: #4caf50; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
         .ts-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-        .ts-rt-top { flex: 0.5; background: #26c6da; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px;}
+        .ts-rt-top { flex: 0.5; background: #5c6bc0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px;}
         .ts-rt-bot { flex: 1; background: #ef5350; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;}
         .sec-title { font-size: 18px; font-weight: bold; margin: 24px 16px 12px 16px; }
         .subj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .subj-name { font-size: 16px; font-weight: bold; }
-        .black-circle { width: 60px; height: 60px; background: #000; border-radius: 50%; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .black-circle span:first-child { font-size: 11px; color: #aaa; }
+        .black-circle { width: 60px; height: 60px; background: #1a237e; border-radius: 50%; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .black-circle span:first-child { font-size: 11px; color: #c5cae9; }
         .black-circle span:last-child { font-size: 16px; font-weight: bold; }
         .subj-q-stats { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 12px; color: #000;}
         .time-split { display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
@@ -130,7 +129,7 @@
         .filters { display: flex; gap: 10px; padding: 16px; background: #fff; overflow-x: auto; border-bottom: 1px solid #eee;}
         .filters::-webkit-scrollbar { display: none; }
         .flt-btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; color: #555; background: #f0f0f0; white-space: nowrap; cursor: pointer; }
-        .flt-active { background: #f3e5f5; color: #9c27b0; }
+        .flt-active { background: #e8eaf6; color: #1a237e; }
         .sol-container { padding: 16px; }
         .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 16px; }
         .sol-num-col { display: flex; flex-direction: column; align-items: center; width: 40px;}
@@ -139,7 +138,7 @@
         .st-corr { background: #4caf50; } .st-wr { background: #e53935; } .st-una { background: #ccc; }
         .sol-line { width: 2px; background: #e0e0e0; flex-grow: 1; margin-top: -10px; margin-bottom: -20px; z-index: 1;}
         .sol-card { background: #fff; border-radius: 12px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .sol-sec-badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
+        .sol-sec-badge { display: inline-block; background: #e8eaf6; color: #1a237e; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
         .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; line-height: 1.5; }
         .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
 
@@ -157,7 +156,7 @@
         .fs-exp-title { font-size: 16px; font-weight: bold; margin: 24px 0 10px 0; color: #000; }
         .fs-exp-text { font-size: 15px; line-height: 1.6; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
         .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
-        .btn-next { background: #000; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-next { background: #1a237e; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -292,11 +291,11 @@
         <div id="analysis-sections-container"></div>
         
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Full Solutions</button>
-            <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF(event)">📥 Download PDF (Score + Solutions)</button>
+            <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px; background: #1a237e; border-color: #1a237e;" onclick="openSolutions()">View Full Solutions</button>
+            <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; border-color: #e53935; color: white;" onclick="downloadPDF(event)">📥 Download PDF (Score + Solutions)</button>
             
-            <div style="background: #e8f5e9; padding: 16px; border-radius: 12px; margin-top: 15px; border: 1px solid #c8e6c9; text-align: left;">
-                <h3 style="font-size: 16px; color: #d32f2f; font-weight: bold; text-align: center; margin-bottom: 12px;">
+            <div style="background: #e8eaf6; padding: 16px; border-radius: 12px; margin-top: 15px; border: 1px solid #c5cae9; text-align: left;">
+                <h3 style="font-size: 16px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
                     🔥 आज ही हमारा चैनल जॉइन करें और अनलिमिटेड प्रैक्टिस पाएं!
                 </h3>
                 <ul style="list-style: none; padding: 0; font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 12px;">
@@ -305,7 +304,7 @@
                     <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी स्पीड बढ़ाने का मौका!</li>
                     <li style="margin-bottom: 6px;">🖥️ <b>Real Exam UI:</b> TCS और Eduquity दोनों शानदार इंटरफ़ेस!</li>
                 </ul>
-                <p style="font-size: 13px; color: #2e7d32; font-weight: bold; text-align: center; margin-bottom: 12px;">
+                <p style="font-size: 13px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
                     👇 देरी कैसी? नीचे दिए गए बटन्स पर अभी क्लिक करें!
                 </p>
                 <button class="tcs-btn" style="width: 100%; padding: 12px; font-size: 15px; background: #1e88e5; color: white; border: none; margin-bottom: 8px;" onclick="window.open('https://t.me/+N9ijRyP-zYtjNTg1', '_blank')">📢 Join Test Updates Channel</button>
@@ -334,7 +333,7 @@
             <div class="fs-exp-title">Full Solution</div>
             <div class="fs-exp-text" id="fs-exp-text">Explanation</div>
         </div>
-        <div class="fs-bottom-bar"><button class="tcs-btn tcs-btn-submit" style="border-radius: 24px; padding: 12px 30px;" onclick="nextFullSol()">Next</button></div>
+        <div class="fs-bottom-bar"><button class="tcs-btn tcs-btn-submit" style="background: #1a237e; border-color: #1a237e; border-radius: 24px; padding: 12px 30px;" onclick="nextFullSol()">Next</button></div>
     </div>
 
 </div>
@@ -630,7 +629,7 @@
             if(currentFilter !== 'all' && q.state !== currentFilter) return;
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
-            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${q.text}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
+            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${q.text}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
     }
@@ -652,80 +651,103 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // 🌟 DIRECT PDF DOWNLOAD SCRIPT 🌟
+    // 🌟 DIRECT PDF DOWNLOAD SCRIPT (VIA PRINT WINDOW) 🌟
     function downloadPDF(event) {
         let btn = event.currentTarget;
         let originalText = btn.innerText;
-        btn.innerText = "⏳ PDF डाउनलोड हो रही है... कृपया प्रतीक्षा करें";
+        btn.innerText = "⏳ रिपोर्ट तैयार हो रही है...";
         btn.disabled = true;
 
-        let scoreText = document.getElementById('res-score').innerText;
-        let accText = document.getElementById('res-acc').innerText;
-        
-        let element = document.createElement('div');
-        element.style.padding = '20px';
-        element.style.fontFamily = 'sans-serif';
-        element.style.color = '#333';
-        
-        let html = `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h1 style="color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 10px; display: inline-block;">Mock Test - Detailed Report</h1>
-            </div>
-            <div style="border: 2px dashed #4caf50; padding: 20px; margin-bottom: 30px; border-radius: 12px; text-align: center; background: #f1f8e9;">
-                <h3 style="font-size: 22px; color: #2e7d32; margin: 5px 0;">Your Score: ${scoreText}</h3>
-                <h3 style="font-size: 18px; color: #2e7d32; margin: 5px 0;">Accuracy: ${accText}</h3>
-            </div>
-            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">Detailed Solutions</h2>
-        `;
-        
-        let optPrefix = ['A', 'B', 'C', 'D'];
-        allQsFlat.forEach((q) => {
-            html += `<div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #fff; page-break-inside: avoid;">`;
-            html += `<div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #111;">Q${q.globalNum}. ${q.text}</div>`;
+        setTimeout(() => {
+            let scoreText = document.getElementById('res-score').innerText;
+            let accText = document.getElementById('res-acc').innerText;
             
-            q.options.forEach((opt, i) => {
-                let optStyle = "margin-bottom: 8px; font-size: 15px; padding: 10px; border-radius: 5px; border: 1px solid #eee; background: #fff; color: #333;";
-                let badge = "";
-                
-                if (i === q.correct) {
-                    optStyle = "margin-bottom: 8px; font-size: 15px; padding: 10px; border-radius: 5px; color: #2e7d32; font-weight: bold; background: #e8f5e9; border: 1px solid #4caf50;";
-                    badge = " ✅ (Correct)";
-                } else if (i === q.userAns && q.userAns !== q.correct) {
-                    optStyle = "margin-bottom: 8px; font-size: 15px; padding: 10px; border-radius: 5px; color: #c62828; font-weight: bold; background: #ffebee; border: 1px solid #e53935;";
-                    badge = " ❌ (Your Answer)";
-                }
+            let printWindow = window.open('', '_blank');
+            let html = `
+                <!DOCTYPE html>
+                <html lang="hi">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Mock Test Report</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333; line-height: 1.6; max-width: 800px; margin: auto; background: #f5f5f5;}
+                        .no-print { text-align: center; margin-bottom: 20px; padding: 20px; background: #e3f2fd; border-radius: 12px; border: 2px solid #90caf9; }
+                        .print-btn { background: #1e88e5; color: white; border: none; padding: 14px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 300px;}
+                        .print-btn:hover { background: #1565c0; }
+                        .main-content { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+                        h1 { text-align: center; color: #1a237e; border-bottom: 2px solid #1a237e; padding-bottom: 10px; margin-bottom: 20px; }
+                        h2 { text-align: center; color: #333; margin-top: 30px; margin-bottom: 20px; }
+                        .score-card { border: 2px dashed #4caf50; padding: 20px; margin-bottom: 30px; border-radius: 12px; text-align: center; background: #f1f8e9; }
+                        .score-card h3 { font-size: 22px; color: #2e7d32; margin: 5px 0; }
+                        .q-block { border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #fff; page-break-inside: avoid; }
+                        .q-text { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #111; }
+                        .opt { margin-bottom: 8px; font-size: 15px; padding: 10px; border-radius: 5px; border: 1px solid #eee; background: #fafafa; }
+                        .correct-opt { color: #2e7d32; font-weight: bold; background: #e8f5e9; border: 1px solid #4caf50; }
+                        .wrong-opt { color: #c62828; font-weight: bold; background: #ffebee; border: 1px solid #e53935; }
+                        .exp { background: #f5f5f5; padding: 15px; margin-top: 15px; border-left: 5px solid #1a237e; border-radius: 4px; font-size: 14px; }
+                        .promo { text-align: center; margin-top: 40px; padding: 20px; font-weight: bold; font-size: 16px; color: #1a237e; background: #e8eaf6; border-radius: 10px; }
+                        @media print { 
+                            .no-print { display: none !important; } 
+                            body { padding: 0; background: #fff; } 
+                            .main-content { box-shadow: none; padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="no-print">
+                        <h3 style="margin:0 0 10px 0; color: #1565c0; font-size: 20px;">📄 PDF कैसे सेव करें?</h3>
+                        <p style="margin:0; font-size: 15px; color: #333; font-weight: 500;">नीचे दिए गए बटन पर क्लिक करें। फिर ऊपर <b>Destination (या प्रिंटर)</b> वाले विकल्प में जाकर <b>'Save as PDF'</b> चुनें।</p>
+                        <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+                    </div>
 
-                html += `<div style="${optStyle}">${optPrefix[i]}. ${opt}${badge}</div>`;
+                    <div class="main-content">
+                        <h1>Mock Test - Detailed Report</h1>
+                        <div class="score-card">
+                            <h3>Your Score: ${scoreText}</h3>
+                            <h3>Accuracy: ${accText}</h3>
+                        </div>
+                        <h2>Detailed Solutions</h2>
+            `;
+            
+            let optPrefix = ['A', 'B', 'C', 'D'];
+            allQsFlat.forEach((q) => {
+                html += `<div class="q-block">`;
+                html += `<div class="q-text">Q${q.globalNum}. ${q.text}</div>`;
+                
+                q.options.forEach((opt, i) => {
+                    let optClass = "opt";
+                    let badge = "";
+                    
+                    if (i === q.correct) {
+                        optClass += " correct-opt";
+                        badge = " ✅ (Correct Answer)";
+                    } else if (i === q.userAns && q.userAns !== q.correct) {
+                        optClass += " wrong-opt";
+                        badge = " ❌ (Your Answer)";
+                    }
+
+                    html += `<div class="${optClass}">${optPrefix[i]}. ${opt}${badge}</div>`;
+                });
+                
+                html += `<div class="exp"><strong>Explanation:</strong><br>${q.exp || "No explanation provided."}</div>`;
+                html += `</div>`;
             });
             
-            html += `<div style="background: #f5f5f5; padding: 15px; margin-top: 15px; border-left: 5px solid #1a237e; border-radius: 4px; font-size: 14px;"><strong>Explanation:</strong><br>${q.exp || "No explanation provided."}</div>`;
-            html += `</div>`;
-        });
-        
-        html += `
-            <div style="text-align: center; margin-top: 40px; padding: 20px; font-weight: bold; font-size: 16px; color: #1a237e; background: #e8eaf6; border-radius: 10px;">
-                👉 डेली फ्री मॉक टेस्ट और PDF के लिए टेलीग्राम पर ज्वाइन करें:<br>Mock Updates & Backup Channel
-            </div>
-        `;
-        
-        element.innerHTML = html;
-
-        let opt = {
-            margin:       10,
-            filename:     'Mock_Test_Report.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
+            html += `
+                        <div class="promo">
+                            👉 डेली फ्री मॉक टेस्ट और PDF के लिए टेलीग्राम पर ज्वाइन करें:<br>Mock Updates & Backup Channel
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
             btn.innerText = originalText;
             btn.disabled = false;
-        }).catch(err => {
-            alert("PDF डाउनलोड करने में समस्या आई!");
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
+        }, 500);
     }
 </script>
 </body>
