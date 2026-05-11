@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSC GD TCS Mock Test</title>
+    
+    <script>
+      MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
@@ -37,7 +45,6 @@
 
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
         
-        /* 🌟 NEW LINE & POWER FIX CSS 🌟 */
         .tcs-q-text, .fs-q-txt, .fs-exp-text, .sol-q-txt { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
         
         .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 24px; }
@@ -363,6 +370,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
+    // 🌟 MATH RENDER AUTO-FIXER 🌟
+    function formatMathText(text) {
+        if (!text) return "";
+        return text.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+    }
+
     window.onload = async function() {
         const startBtn = document.querySelector('.start-btn');
         if(startBtn) { startBtn.innerText = "Loading Test..."; startBtn.disabled = true; }
@@ -458,14 +471,13 @@
         if(q.status === 'not_visited') q.status = 'not_answered';
 
         document.getElementById('tcs-q-num').innerText = qIdx + 1;
-        // 🌟 FIX: innerHTML gives powers & formatting perfectly
-        document.getElementById('tcs-q-text').innerHTML = q.text; 
+        document.getElementById('tcs-q-text').innerHTML = formatMathText(q.text); 
 
         let optionsHtml = '';
         let optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => { 
             let isSel = (q.userAns === i) ? 'selected' : ''; 
-            optionsHtml += `<div class="tcs-option ${isSel}" onclick="selectOption(${i})"><span class="tcs-opt-lbl">${optPrefix[i]}.</span> ${opt}</div>`; 
+            optionsHtml += `<div class="tcs-option ${isSel}" onclick="selectOption(${i})"><span class="tcs-opt-lbl">${optPrefix[i]}.</span> ${formatMathText(opt)}</div>`; 
         });
         document.getElementById('tcs-options-container').innerHTML = optionsHtml;
 
@@ -474,6 +486,9 @@
             if(i === secIdx) { btn.classList.add('active'); btn.scrollIntoView({behavior: "smooth", inline: "center"}); } 
             else { btn.classList.remove('active'); } 
         });
+        
+        // 🌟 TELL MATHJAX TO RENDER 🌟
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
@@ -644,10 +659,10 @@
             if(currentFilter !== 'all' && q.state !== currentFilter) return;
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
-            // HTML is safe here too
-            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${q.text}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
+            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${formatMathText(q.text)}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -657,21 +672,19 @@
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
-        
-        // 🌟 FIX: innerHTML gives powers & formatting perfectly
-        document.getElementById('fs-q-txt').innerHTML = q.text;
+        document.getElementById('fs-q-txt').innerHTML = formatMathText(q.text);
         
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
-            optHtml += `<div class="fs-opt ${cls}"><span>${optPrefix[i]}. &nbsp;&nbsp; ${opt}</span> ${rightTxt}</div>`;
+            optHtml += `<div class="fs-opt ${cls}"><span>${optPrefix[i]}. &nbsp;&nbsp; ${formatMathText(opt)}</span> ${rightTxt}</div>`;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
-        
-        // 🌟 FIX: innerHTML gives powers & formatting perfectly
-        document.getElementById('fs-exp-text').innerHTML = q.exp;
+        document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
+
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
