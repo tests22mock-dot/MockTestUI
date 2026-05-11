@@ -163,7 +163,7 @@
 <div class="app-container">
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="text-align: center;">Mock Test Portal</h2>
+            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(Eduquity Pattern)</h2>
             <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
             <div class="start-info"><span>Total Time:</span> <span>--</span></div>
             <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
@@ -265,12 +265,23 @@
         <div id="analysis-sections-container"></div>
         
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px;" onclick="openSolutions()">View Full Solutions</button>
-            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #e53935; color: white; border: none;" onclick="downloadPDF()">📥 Download PDF (Score + Solutions)</button>
+            <button class="btn-black" style="width: 100%; padding: 14px; font-size: 16px; background: #1a237e; border: none; border-radius: 8px;" onclick="openSolutions()">📊 Full Analysis</button>
             
-            <div style="background: #e8f5e9; padding: 16px; border-radius: 12px; margin-top: 15px; border: 1px solid #c8e6c9; text-align: left;">
-                <h3 style="font-size: 16px; color: #d32f2f; font-weight: bold; text-align: center; margin-bottom: 12px;">
-                    🔥 आज ही हमारा चैनल जॉइन करें और अनलिमिटेड प्रैक्टिस पाएं!
+            <div style="background: #fff3e0; padding: 16px; border-radius: 12px; border: 1px solid #ffcc80; text-align: center; margin-top: 5px;">
+                <h3 style="font-size: 16px; color: #e65100; font-weight: bold; margin-bottom: 8px;">
+                    📥 इस टेस्ट की PDF कहाँ मिलेगी?
+                </h3>
+                <p style="font-size: 14px; color: #333; line-height: 1.5; margin-bottom: 12px;">
+                    इस टेस्ट के सभी सवालों और सही जवाबों की PDF उसी <b>टेलीग्राम मैसेज के ठीक नीचे</b> भेज दी गई है, जहाँ से आपने यह टेस्ट शुरू किया था!
+                </p>
+                <button class="btn-black" style="width: 100%; padding: 12px; font-size: 15px; background: #e65100; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="window.location.href='https://t.me/+N9ijRyP-zYtjNTg1'">
+                    🔙 Telegram पर वापस जाएँ
+                </button>
+            </div>
+
+            <div style="background: #e8eaf6; padding: 16px; border-radius: 12px; border: 1px solid #c5cae9; text-align: left;">
+                <h3 style="font-size: 16px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
+                    🔥 आज ही हमारा चैनल जॉइन करें!
                 </h3>
                 <ul style="list-style: none; padding: 0; font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 12px;">
                     <li style="margin-bottom: 6px;">📚 <b>PYQ Papers:</b> पिछले सालों के 100% असली पेपर्स!</li>
@@ -278,11 +289,11 @@
                     <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी स्पीड बढ़ाने का मौका!</li>
                     <li style="margin-bottom: 6px;">🖥️ <b>Real Exam UI:</b> TCS और Eduquity दोनों शानदार इंटरफ़ेस!</li>
                 </ul>
-                <p style="font-size: 13px; color: #2e7d32; font-weight: bold; text-align: center; margin-bottom: 12px;">
-                    👇 देरी कैसी? नीचे दिए गए बटन्स पर अभी क्लिक करें!
+                <p style="font-size: 13px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
+                    👇 नीचे दिए गए बटन्स पर अभी क्लिक करें!
                 </p>
-                <button class="btn-black" style="width: 100%; padding: 12px; font-size: 15px; background: #1e88e5; color: white; border: none; margin-bottom: 8px;" onclick="window.open('https://t.me/+N9ijRyP-zYtjNTg1', '_blank')">📢 Join Test Updates Channel</button>
-                <button class="btn-black" style="width: 100%; padding: 12px; font-size: 15px; background: #0288d1; color: white; border: none;" onclick="window.open('https://t.me/+RQjBgn9IBrs1MDNl', '_blank')">🔗 Join Backup Channel</button>
+                <button class="btn-black" style="width: 100%; padding: 12px; font-size: 15px; background: #1e88e5; color: white; border: none; margin-bottom: 8px; border-radius: 8px;" onclick="window.open('https://t.me/+N9ijRyP-zYtjNTg1', '_blank')">📢 Join Test Updates Channel</button>
+                <button class="btn-black" style="width: 100%; padding: 12px; font-size: 15px; background: #0288d1; color: white; border: none; border-radius: 8px;" onclick="window.open('https://t.me/+RQjBgn9IBrs1MDNl', '_blank')">🔗 Join Backup Channel</button>
             </div>
         </div>
     </div>
@@ -514,79 +525,6 @@
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
-    // 🌟 PDF DOWNLOAD SCRIPT
-    function downloadPDF() {
-        let scoreText = document.getElementById('res-score').innerText;
-        let accText = document.getElementById('res-acc').innerText;
-        
-        let printWindow = window.open('', '_blank');
-        let html = `
-            <html>
-            <head>
-                <title>Mock Test Report & Solutions</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; line-height: 1.6; }
-                    h1 { text-align: center; color: #1e88e5; border-bottom: 2px solid #1e88e5; padding-bottom: 10px; margin-bottom: 30px; }
-                    h2 { text-align: center; color: #333; margin-top: 30px; }
-                    .score-card { border: 2px dashed #4caf50; padding: 20px; margin-bottom: 40px; border-radius: 12px; text-align: center; background: #f1f8e9; }
-                    .score-card h3 { font-size: 24px; color: #2e7d32; margin: 5px 0; }
-                    .q-block { border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 25px; background: #fff; page-break-inside: avoid; }
-                    .q-text { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #111; }
-                    .opt { margin-bottom: 8px; font-size: 15px; padding: 8px; border-radius: 5px; }
-                    .correct-opt { color: #2e7d32; font-weight: bold; background: #e8f5e9; border: 1px solid #4caf50; }
-                    .wrong-opt { color: #c62828; font-weight: bold; background: #ffebee; border: 1px solid #e53935; }
-                    .exp { background: #f5f5f5; padding: 15px; margin-top: 15px; border-left: 5px solid #1e88e5; border-radius: 4px; font-size: 14px; }
-                    .promo { text-align: center; margin-top: 50px; font-weight: bold; font-size: 18px; color: #1e88e5; }
-                </style>
-            </head>
-            <body>
-                <h1>Mock Test - Detailed Report</h1>
-                <div class="score-card">
-                    <h3>Your Score: ${scoreText}</h3>
-                    <h3>Accuracy: ${accText}</h3>
-                </div>
-                <h2>Detailed Solutions</h2>
-        `;
-        
-        let optPrefix = ['A', 'B', 'C', 'D'];
-        allQsFlat.forEach((q) => {
-            html += `<div class="q-block">`;
-            html += `<div class="q-text">Q${q.globalNum}. ${q.text}</div>`;
-            
-            q.options.forEach((opt, i) => {
-                let optClass = "opt";
-                let badge = "";
-                
-                if (i === q.correct) {
-                    optClass += " correct-opt";
-                    badge = " ✅ (Correct Answer)";
-                } else if (i === q.userAns && q.userAns !== q.correct) {
-                    optClass += " wrong-opt";
-                    badge = " ❌ (Your Answer)";
-                }
-
-                html += `<div class="${optClass}">${optPrefix[i]}. ${opt}${badge}</div>`;
-            });
-            
-            html += `<div class="exp"><strong>Explanation:</strong><br>${q.exp || "No explanation provided."}</div>`;
-            html += `</div>`;
-        });
-        
-        html += `
-                <div class="promo">
-                    👉 डेली फ्री मॉक टेस्ट और PDF के लिए टेलीग्राम पर सर्च करें: Mock Updates Channel
-                </div>
-            </body>
-            </html>
-        `;
-        
-        printWindow.document.write(html);
-        printWindow.document.close();
-        
-        setTimeout(function() {
-            printWindow.print();
-        }, 500);
-    }
 </script>
 </body>
 </html>
