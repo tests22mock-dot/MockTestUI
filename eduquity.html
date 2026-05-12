@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mock Test Portal</title>
+    
+    <script>
+      MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
@@ -39,7 +47,10 @@
         .question-area { background: #fff; padding: 16px; min-height: calc(100vh - 250px); padding-bottom: 80px;}
         .q-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; margin-bottom: 16px; }
         .q-number-title { font-weight: bold; margin-bottom: 15px; font-size: 14px; color: #333;}
-        .question-text { font-size: 16px; margin-bottom: 24px; line-height: 1.5; color: #111;}
+        
+        .question-text, .fs-q-txt, .fs-exp-text, .sol-q-txt { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
+
+        .question-text { font-size: 16px; margin-bottom: 24px; color: #111;}
         .option-row { display: flex; align-items: center; padding: 14px 10px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; font-size: 15px; cursor: pointer; }
         .option-row.selected { background-color: #e3f2fd; border-color: #1e88e5; }
         .radio-circle { width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 50%; margin-right: 16px; display: flex; align-items: center; justify-content: center;}
@@ -139,7 +150,7 @@
         .sol-line { width: 2px; background: #e0e0e0; flex-grow: 1; margin-top: -10px; margin-bottom: -20px; z-index: 1;}
         .sol-card { background: #fff; border-radius: 12px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .sol-sec-badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
-        .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; line-height: 1.5; }
+        .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; }
         .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
 
         #full-sol-screen { background: #fff; min-height: 100vh; padding-bottom: 80px;}
@@ -148,13 +159,13 @@
         .fs-q-pill { background: #e0e0e0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
         .fs-time { font-size: 13px; color: #888; }
         .fs-content { padding: 16px; }
-        .fs-q-txt { font-size: 16px; line-height: 1.6; color: #111; margin-bottom: 24px;}
+        .fs-q-txt { font-size: 16px; color: #111; margin-bottom: 24px;}
         .fs-opt { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;}
         .fs-opt.correct { border: 2px solid #4caf50; background: #f1f8e9; }
         .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; }
         .fs-opt-perc { font-size: 12px; font-weight: bold; color: #4caf50; }
         .fs-exp-title { font-size: 16px; font-weight: bold; margin: 24px 0 10px 0; color: #000; }
-        .fs-exp-text { font-size: 15px; line-height: 1.6; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
+        .fs-exp-text { font-size: 15px; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
         .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
         .btn-next { background: #000; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
     </style>
@@ -332,6 +343,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
+    // 🌟 MATH RENDER AUTO-FIXER 🌟
+    function formatMathText(text) {
+        if (!text) return "";
+        return text.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+    }
+
     window.onload = async function() {
         const startBtn = document.querySelector('.start-btn');
         if(startBtn) { startBtn.innerText = "Loading Test..."; startBtn.disabled = true; }
@@ -384,13 +401,16 @@
 
         document.getElementById('current-section-name').innerText = sec.section;
         document.getElementById('q-number-display').innerText = `Question No. : ${qIdx + 1}`;
-        document.getElementById('q-text-display').innerText = q.text;
+        document.getElementById('q-text-display').innerHTML = formatMathText(q.text);
 
         let optionsHtml = '';
-        q.options.forEach((opt, i) => { let isSel = (q.userAns === i) ? 'selected' : ''; optionsHtml += `<div class="option-row ${isSel}" onclick="selectOption(${i})"><div class="radio-circle"></div> ${opt}</div>`; });
+        q.options.forEach((opt, i) => { let isSel = (q.userAns === i) ? 'selected' : ''; optionsHtml += `<div class="option-row ${isSel}" onclick="selectOption(${i})"><div class="radio-circle"></div> ${formatMathText(opt)}</div>`; });
         document.getElementById('options-container').innerHTML = optionsHtml;
 
         testData.forEach((s, i) => { let btn = document.getElementById(`tab-${i}`); if(i === secIdx) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } else { btn.classList.add('tab-inactive'); btn.classList.remove('tab-active'); } });
+        
+        // 🌟 TELL MATHJAX TO RENDER 🌟
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
@@ -503,9 +523,10 @@
             if(currentFilter !== 'all' && q.state !== currentFilter) return;
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
-            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${q.text}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
+            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${formatMathText(q.text)}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -513,15 +534,21 @@
     
     function renderFullSolution() {
         let q = allQsFlat[currentFlatIdx];
-        document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; document.getElementById('fs-q-txt').innerText = q.text;
+        document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
+        document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
+        document.getElementById('fs-q-txt').innerHTML = formatMathText(q.text);
+        
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
-            optHtml += `<div class="fs-opt ${cls}"><span>${optPrefix[i]}. &nbsp;&nbsp; ${opt}</span> ${rightTxt}</div>`;
+            optHtml += `<div class="fs-opt ${cls}"><span>${optPrefix[i]}. &nbsp;&nbsp; ${formatMathText(opt)}</span> ${rightTxt}</div>`;
         });
-        document.getElementById('fs-options-container').innerHTML = optHtml; document.getElementById('fs-exp-text').innerText = q.exp;
+        document.getElementById('fs-options-container').innerHTML = optHtml; 
+        document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
+
+        if(window.MathJax) { MathJax.typesetPromise(); }
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
