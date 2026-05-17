@@ -343,10 +343,23 @@
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
-    // 🌟 MATH RENDER AUTO-FIXER 🌟
+    // 🌟 MATH RENDER & IMAGE AUTO-FIXER 🌟
     function formatMathText(text) {
         if (!text) return "";
-        return text.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+        
+        // 1. गणित के फॉर्मूले (\frac) को सही करना
+        let processedText = text.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+        
+        // 2. इमेज लिंक्स (Catbox, jpg, png आदि) को <img> टैग में बदलना
+        processedText = processedText.replace(/(?:Image:\s*|Question Image:\s*)?(https?:\/\/[^\s<]+(\.(jpg|jpeg|png|gif|webp)|files\.catbox\.moe\/[^\s<]+))/gi, function(match) {
+            let cleanUrl = match.replace(/^(Image:\s*|Question Image:\s*)/i, '').trim();
+            return `<img src="${cleanUrl}" alt="Image" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin: 10px 0; display: block; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
+        });
+
+        // 3. नई लाइन (\n) को <br> में बदलना
+        processedText = processedText.replace(/\n/g, '<br>');
+        
+        return processedText;
     }
 
     window.onload = async function() {
