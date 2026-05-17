@@ -28,6 +28,7 @@
         .start-info span:last-child { color: #888; font-weight: normal;}
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
 
+        .top-header { background: #fff; padding: 10px 166px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
         .top-header { background: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
         .timer-box { text-align: right; }
         .timer-box .label { font-size: 12px; font-weight: bold; color: #333;}
@@ -169,6 +170,10 @@
         .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
         .btn-next { background: #000; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
         .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        
+        /* इमेजेस के लिए यूनिवर्सल स्टाइल */
+        .rendered-img { max-width: 100%; max-height: 250px; border-radius: 8px; margin: 10px 0; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .opt-img { max-width: 100%; max-height: 140px; border-radius: 4px; display: block; margin: 6px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -344,42 +349,39 @@
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
-    // 🚀 मेन फ़ंक्शन: टेक्स्ट, फ़ॉर्मूले और इमेज लिंक्स को सही क्रम में व्यवस्थित करना
+    // 🚀 टेक्स्ट फ़ॉर्मेटिंग और MathJax सपोर्ट
     function formatMathText(text) {
         if (!text) return "";
-        
-        // 1. इमेज लिंक्स (Catbox, jpg, png आदि) को पहचानना और अलग करना
-        const imgRegex = /(?:Image:\s*|Question Image:\s*)?(https?:\/\/[^\s<]+(\.(jpg|jpeg|png|gif|webp)|files\.catbox\.moe\/[^\s<]+))/gi;
-        
-        let imageUrls = [];
-        let cleanText = text.replace(imgRegex, function(match) {
-            let cleanUrl = match.replace(/^(Image:\s*|Question Image:\s*)/i, '').trim();
-            imageUrls.push(cleanUrl);
-            return ""; // मुख्य टेक्स्ट से लिंक हटा दें
-        });
-
-        cleanText = cleanText.trim();
-        
-        // 2. गणित के फॉर्मूले (\frac) को सही करना
+        let cleanText = text;
         cleanText = cleanText.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
-        
-        // 3. नई लाइन (\n) को <br> में बदलना
         cleanText = cleanText.replace(/\n/g, '<br>');
-        
-        // HTML स्ट्रक्चर तैयार करना
-        let finalHtml = "";
-        
-        // अगर केवल इमेज नहीं है, बल्कि कुछ टेक्स्ट भी लिखा है तो पहले टेक्स्ट दिखाएं
-        if (cleanText) {
-            finalHtml += `<div>${cleanText}</div>`;
-        }
-        
-        // उसके ठीक बाद सारी इमेजेज को नीचे क्रम में दिखाना
-        imageUrls.forEach(url => {
-            finalHtml += `<img src="${url}" alt="Image" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin: 10px 0; display: block; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
-        });
+        return cleanText;
+    }
 
-        return finalHtml;
+    // 🚀 चेक करने के लिए कि कोई टेक्स्ट इमेज लिंक तो नहीं है
+    function isUrl(str) {
+        if (!str || typeof str !== 'string') return false;
+        return str.startsWith('http://') || str.startsWith('https://');
+    }
+
+    // 🚀 कंबाइंड क्वेश्चन रेंडरर (टेक्स्ट + इमेज_लिंक)
+    function buildQuestionHtml(qText, imageLink) {
+        let html = "";
+        if (qText) {
+            html += `<div>${formatMathText(qText)}</div>`;
+        }
+        if (imageLink) {
+            html += `<img src="${imageLink}" alt="Question Image" class="rendered-img">`;
+        }
+        return html;
+    }
+
+    // 🚀 कंबाइंड ऑप्शन रेंडरर (टेक्स्ट या इमेज लिंक)
+    function buildOptionHtml(opt) {
+        if (isUrl(opt)) {
+            return `<img src="${opt}" alt="Option Image" class="opt-img">`;
+        }
+        return formatMathText(opt);
     }
 
     window.onload = async function() {
@@ -425,7 +427,8 @@
         document.getElementById('section-tabs-container').innerHTML = html;
     }
 
-    function updateQuestionTime() { let elapsed = Math.floor((Date.now() - qStartTime) / 1000); testData[currentSecIdx].questions[currentQIdx].time += elapsed; qStartTime = Date.now(); }
+    updateQuestionTime() { let elapsed = Math.floor((Date.now() - qStartTime) / 1000); if(testData[currentSecIdx] && testData[currentSecIdx].questions[currentQIdx]) { testData[currentSecIdx].questions[currentQIdx].time += elapsed; } qStartTime = Date.now(); }
+    function updateQuestionTime() { let elapsed = Math.floor((Date.now() - qStartTime) / 1000); if(testData[currentSecIdx] && testData[currentSecIdx].questions[currentQIdx]) { testData[currentSecIdx].questions[currentQIdx].time += elapsed; } qStartTime = Date.now(); }
 
     function loadQuestion(secIdx, qIdx) {
         updateQuestionTime(); currentSecIdx = secIdx; currentQIdx = qIdx;
@@ -434,12 +437,15 @@
 
         document.getElementById('current-section-name').innerText = sec.section;
         document.getElementById('q-number-display').innerText = `Question No. : ${qIdx + 1}`;
-        document.getElementById('q-text-display').innerHTML = formatMathText(q.text);
+        
+        // 🚀 प्रश्न रेंडरिंग (पहले टेक्स्ट, फिर इमेज_लिंक)
+        document.getElementById('q-text-display').innerHTML = buildQuestionHtml(q.text, q.image_link);
 
+        // 🚀 ऑप्शंस रेंडरिंग (चेक के साथ)
         let optionsHtml = '';
         q.options.forEach((opt, i) => { 
             let isSel = (q.userAns === i) ? 'selected' : ''; 
-            optionsHtml += `<div class="option-row ${isSel}" onclick="selectOption(${i})"><div class="radio-circle"></div><div style="flex:1;">${formatMathText(opt)}</div></div>`; 
+            optionsHtml += `<div class="option-row ${isSel}" onclick="selectOption(${i})"><div class="radio-circle"></div><div style="flex:1;">${buildOptionHtml(opt)}</div></div>`; 
         });
         document.getElementById('options-container').innerHTML = optionsHtml;
 
@@ -558,7 +564,11 @@
             if(currentFilter !== 'all' && q.state !== currentFilter) return;
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
-            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${formatMathText(q.text)}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
+            
+            // समाधानों की लिस्ट में इमेज लोड करने के लिए
+            let qContentHtml = buildQuestionHtml(q.text, q.image_link);
+            
+            html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${qContentHtml}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
         if(window.MathJax) { MathJax.typesetPromise(); }
@@ -571,14 +581,17 @@
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
-        document.getElementById('fs-q-txt').innerHTML = formatMathText(q.text);
+        
+        // फुल सॉल्यूशन स्क्रीन पर सवाल का रेंडरर
+        document.getElementById('fs-q-txt').innerHTML = buildQuestionHtml(q.text, q.image_link);
         
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
-            optHtml += `<div class="fs-opt ${cls}"><div style="flex:1;"><b>${optPrefix[i]}.</b> &nbsp;&nbsp; ${formatMathText(opt)}</div> ${rightTxt}</div>`;
+            
+            optHtml += `<div class="fs-opt ${cls}"><div style="flex:1;"><b>${optPrefix[i]}.</b> &nbsp;&nbsp; ${buildOptionHtml(opt)}</div> ${rightTxt}</div>`;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
         document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
