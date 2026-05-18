@@ -45,11 +45,10 @@
 
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
         
-        .tcs-q-text, .fs-q-txt, .fs-exp-text, .sol-q-txt { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
+        .tcs-q-text-body, .fs-q-txt-body, .fs-exp-text, .sol-q-txt-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
         
         .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 16px; }
         
-        /* Image Support Styles */
         .q-image-container, .opt-image-container { margin: 12px 0; text-align: center; width: 100%; }
         .q-img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #e0e0e0; object-fit: contain; display: block; margin: 0 auto; }
         .opt-img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; margin: 4px 0; }
@@ -383,15 +382,21 @@
     let currentSolFilter = 'all';
     let currentFlatIdx = 0;
 
-    // हेल्पर फ़ंक्शन जो टेक्स्ट या इमेज लिंक को पहचान कर सही HTML रेंडर करता है
+    // फिक्स: टेक्स्ट को सुरक्षित तरीके से स्ट्रिंग में बदलें (ताकि नंबर आने पर एरर न आए)
+    function formatMathText(txt) {
+        if(txt === undefined || txt === null) return '';
+        return String(txt).replace(/\n/g, '<br>');
+    }
+
+    // फिक्स: ऑप्शन्स को स्ट्रिंग में बदलें और फिर जांचें
     function renderTextOrImage(contentString) {
-        if (!contentString) return '';
-        let trimmed = contentString.trim();
-        // अगर स्ट्रिंग http या https से शुरू होती है तो उसे इमेज के रूप में दिखाएं
+        if (contentString === undefined || contentString === null) return '';
+        let str = String(contentString);
+        let trimmed = str.trim();
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
             return `<div class="opt-image-container"><img src="${trimmed}" class="opt-img" alt="Option Image" /></div>`;
         }
-        return formatMathText(contentString);
+        return formatMathText(str);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -459,7 +464,6 @@
             let cls = (idx === currentSecIdx) ? 'tcs-tab active' : 'tcs-tab';
             html += `<div class="${cls}" onclick="switchSection(${idx})">${sec.section}</div>`;
         });
-        container.html = html;
         container.innerHTML = html;
     }
 
@@ -475,18 +479,15 @@
         currentQIdx = qIdx;
 
         let q = examData[secIdx].questions[qIdx];
-        let fIdx = allQsFlat.findIndex(item => item.globalNum === q.globalNum);
-
         document.getElementById('tcs-q-num').innerText = q.globalNum;
 
-        // प्रश्न टेक्स्ट और इमेज दोनों का सपोर्ट एक साथ
+        // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
         let qHtml = `<div class="tcs-q-text-body">${formatMathText(q.text || '')}</div>`;
-        if (q.image_link && q.image_link.trim() !== "") {
-            qHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+        if (q.image_link && String(q.image_link).trim() !== "") {
+            qHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
         }
         document.getElementById('tcs-q-text').innerHTML = qHtml;
 
-        // ऑप्शन्स का रेंडरिंग (टेक्स्ट और इमेज दोनों सपोर्ट के साथ)
         let optHtml = '';
         let prefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, idx) => {
@@ -745,8 +746,8 @@
         });
 
         let finalScore = (correctCount * 2) - (wrongCount * 0.25);
-        let accuracy = attCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
         let attCount = correctCount + wrongCount;
+        let accuracy = attCount > 0 ? Math.round((correctCount / attCount) * 100) : 0;
         let attRate = Math.round((attCount / totalQs) * 100);
 
         document.getElementById('an-score').innerText = finalScore.toFixed(2);
@@ -828,10 +829,10 @@
 
             let secName = examData[q.sectionIdx].section;
 
-            // सोल्यूशंस लिस्ट स्क्रीन में भी प्रश्न टेक्स्ट और इमेज दोनों का सपोर्ट
+            // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
             let itemQHtml = `<div class="sol-q-txt-body">${formatMathText(q.text || '')}</div>`;
-            if (q.image_link && q.image_link.trim() !== "") {
-                itemQHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+            if (q.image_link && String(q.image_link).trim() !== "") {
+                itemQHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
             }
 
             html += `
@@ -879,10 +880,10 @@
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
 
-        // फुल सोल्यूशन स्क्रीन पर भी प्रश्न का टेक्स्ट और इमेज दोनों सपोर्ट
+        // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
         let fullQHtml = `<div class="fs-q-txt-body">${formatMathText(q.text || '')}</div>`;
-        if (q.image_link && q.image_link.trim() !== "") {
-            fullQHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+        if (q.image_link && String(q.image_link).trim() !== "") {
+            fullQHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
         }
         document.getElementById('fs-q-txt').innerHTML = fullQHtml;
         
@@ -920,11 +921,6 @@
     function backToAnalysis() {
         hideAllScreens();
         document.getElementById('analysis-screen').classList.remove('hidden');
-    }
-
-    function formatMathText(txt) {
-        if(!txt) return '';
-        return txt.replace(/\n/g, '<br>');
     }
 
     function hideAllScreens() {
