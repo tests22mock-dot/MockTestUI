@@ -323,7 +323,7 @@
                 <ul style="list-style: none; padding: 0; font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 12px;">
                     <li style="margin-bottom: 6px;">📚 <b>PYQ Papers:</b> पिछले सालों के 100% असली पेपर्स!</li>
                     <li style="margin-bottom: 6px;">💎 <b>Premium Mocks:</b> बड़ी कोचिंग्स की पेड टेस्ट सीरीज!</li>
-                    <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी स्पीड बढ़ाने का मौका!</li>
+                    <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी SPEED बढ़ाने का मौका!</li>
                     <li style="margin-bottom: 6px;">🖥️ <b>Real Exam UI:</b> TCS और Eduquity दोनों शानदार इंटरफ़ेस!</li>
                 </ul>
                 <p style="font-size: 13px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
@@ -370,13 +370,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
-    // 🌟 HELPER TO DETECT IMAGE URLs 🌟
+    // 🌟 HELPER TO CHECK IMAGE URLs 🌟
     function isImageUrl(url) {
         if (!url) return false;
-        return url.toString().match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) != null || url.toString().startsWith("http");
+        let str = url.toString().trim();
+        return str.startsWith("http://") || str.startsWith("https://") || str.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) != null;
     }
 
-    // 🌟 MATH RENDER AUTO-FIXER 🌟
+    // Math render fixer
     function formatMathText(text) {
         if (!text) return "";
         return text.toString().replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
@@ -478,17 +479,19 @@
 
         document.getElementById('tcs-q-num').innerText = qIdx + 1;
         
-        // 🌟 TEXT AND IMAGE IN QUESTION RENDER 🌟
-        let qTextHtml = q.text ? formatMathText(q.text) : '';
-        let qImgHtml = q.image_link ? `<img src="${q.image_link}" style="max-width: 100%; margin-top: 10px; border-radius: 8px;">` : '';
-        document.getElementById('tcs-q-text').innerHTML = qTextHtml + qImgHtml;
+        // 🌟 QUESTION CONTENT (TEXT + IMAGE LINK SUPPORT) 🌟
+        let qHtml = q.text ? formatMathText(q.text) : '';
+        if (q.image_link) {
+            qHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
+        }
+        document.getElementById('tcs-q-text').innerHTML = qHtml || 'Question';
 
-        // 🌟 TEXT AND IMAGE IN OPTIONS RENDER 🌟
+        // 🌟 OPTIONS CONTENT (TEXT OR IMAGE LINK SUPPORT) 🌟
         let optionsHtml = '';
         let optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => { 
             let isSel = (q.userAns === i) ? 'selected' : ''; 
-            let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height: 80px; max-width: 100%; border-radius: 4px; display: block;">` : formatMathText(opt);
+            let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height:100px; max-width:100%; display:block; margin:4px 0; border-radius:4px;">` : formatMathText(opt);
             optionsHtml += `<div class="tcs-option ${isSel}" onclick="selectOption(${i})"><span class="tcs-opt-lbl">${optPrefix[i]}.</span> <div style="flex:1;">${optContent}</div></div>`; 
         });
         document.getElementById('tcs-options-container').innerHTML = optionsHtml;
@@ -671,10 +674,10 @@
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
             
-            // 🌟 SUPPORT TEXT OR IMAGE OR BOTH IN SOLUTION PREVIEW 🌟
+            // 🌟 SOLUTIONS LIST (TEXT + IMAGE SUPPORT) 🌟
             let solQText = q.text ? formatMathText(q.text) : '';
-            let solQImg = q.image_link ? `<img src="${q.image_link}" style="max-width: 100%; max-height: 80px; display: block; margin-top: 8px; border-radius: 4px;">` : '';
-            let displayContent = solQText + solQImg || "Image Based Question";
+            let solQImg = q.image_link ? `<br><img src="${q.image_link}" style="max-width: 100%; max-height: 80px; display: block; margin-top: 5px; border-radius: 4px;">` : '';
+            let displayContent = solQText + solQImg || "Image Question";
 
             html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${displayContent}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
@@ -690,19 +693,21 @@
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
         
-        // 🌟 TEXT AND IMAGE IN FULL SOLUTION QUESTION RENDER 🌟
-        let fsQTextHtml = q.text ? formatMathText(q.text) : '';
-        let fsQImgHtml = q.image_link ? `<img src="${q.image_link}" style="max-width: 100%; margin-top: 10px; border-radius: 8px;">` : '';
-        document.getElementById('fs-q-txt').innerHTML = fsQTextHtml + fsQImgHtml;
+        // 🌟 FULL SOLUTION QUESTION (TEXT + IMAGE SUPPORT) 🌟
+        let fsQHtml = q.text ? formatMathText(q.text) : '';
+        if (q.image_link) {
+            fsQHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
+        }
+        document.getElementById('fs-q-txt').innerHTML = fsQHtml || 'Question';
         
-        // 🌟 TEXT AND IMAGE IN FULL SOLUTION OPTIONS RENDER 🌟
+        // 🌟 FULL SOLUTION OPTIONS (TEXT OR IMAGE SUPPORT) 🌟
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
             
-            let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height: 60px; max-width: 100%; border-radius: 4px; display: block;">` : formatMathText(opt);
+            let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height:80px; max-width:100%; display:block; border-radius:4px;">` : formatMathText(opt);
             
             optHtml += `<div class="fs-opt ${cls}"><div style="display:flex; align-items:center;"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div>${optContent}</div></div> ${rightTxt}</div>`;
         });
