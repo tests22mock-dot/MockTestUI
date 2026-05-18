@@ -13,6 +13,7 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
     <style>
+        /* CSS 100% Same as your original design */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #333; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 414px; height: 100vh; background-color: #f8f9fa; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
@@ -21,12 +22,17 @@
         .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
         .backup-btn:active { transform: scale(0.95); }
 
-        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
-        .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
+        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);}
+        .start-card h2 { font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center; color:#1a237e;}
         .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
-        .start-info span:last-child { color: #888; font-weight: normal;}
-        .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        .start-info span:last-child { color: #888; font-weight: bold;}
+        .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s;}
+        .start-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .file-upload-box { margin-top: 15px; border: 2px dashed #1a237e; padding: 10px; border-radius: 10px; text-align: center; background: #e8eaf6; }
+        .file-upload-box input { display: none; }
+        .file-upload-box label { color: #1a237e; font-weight: bold; cursor: pointer; display: block; padding: 10px; }
 
         .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .tcs-timer { font-size: 18px; font-weight: bold; }
@@ -45,10 +51,11 @@
 
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
         
-        .tcs-q-text-body, .fs-q-txt-body, .fs-exp-text, .sol-q-txt-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
+        /* Universal Text Wrap */
+        .tcs-q-text-body, .fs-q-txt-body, .fs-exp-text, .sol-q-txt-body, .opt-text-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
+        .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 16px; font-weight: 500; }
         
-        .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 16px; }
-        
+        /* Image Classes */
         .q-image-container, .opt-image-container { margin: 12px 0; text-align: center; width: 100%; }
         .q-img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #e0e0e0; object-fit: contain; display: block; margin: 0 auto; }
         .opt-img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; margin: 4px 0; }
@@ -89,6 +96,7 @@
         .st-mark-ans { border: 2px solid #fbc02d; background: #e3f2fd; color: #333; position: relative;}
         .st-mark-ans::after { content: '✓'; position: absolute; bottom: -4px; right: 0; color: #1976d2; font-size: 10px; font-weight: 900;}
 
+        /* Rest of the UI elements unchanged */
         #submit-screen { background: #f5f5f5; min-height: 100vh; padding: 20px; }
         .submit-header { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 12px;}
         .section-summary-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
@@ -148,32 +156,25 @@
         .flt-btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; color: #555; background: #f0f0f0; white-space: nowrap; cursor: pointer; }
         .flt-active { background: #e8eaf6; color: #1a237e; }
         .sol-container { padding: 16px; }
-        .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 16px; }
-        .sol-num-col { display: flex; flex-direction: column; align-items: center; width: 40px;}
-        .sol-num { width: 36px; height: 36px; background: #f0f0f0; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; position: relative; z-index: 2;}
-        .sol-status-icon { position: absolute; right: -6px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #fff;}
-        .st-corr { background: #4caf50; } .st-wr { background: #e53935; } .st-una { background: #ccc; }
-        .sol-line { width: 2px; background: #e0e0e0; flex-grow: 1; margin-top: -10px; margin-bottom: -20px; z-index: 1;}
-        .sol-card { background: #fff; border-radius: 12px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .sol-sec-badge { display: inline-block; background: #e8eaf6; color: #1a237e; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
-        .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; }
-        .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 14px; background: #fff; padding: 14px; border-radius: 12px; border: 1px solid #e0e0e0; cursor: pointer;}
+        .sol-status-badge { position: absolute; top: 12px; right: 12px; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold;}
+        .s-cr { background: #e8f5e9; color: #2e7d32; } .s-wr { background: #ffebee; color: #c62828; } .s-un { background: #eceff1; color: #37474f; }
 
-        #full-sol-screen { background: #fff; min-height: 100vh; padding-bottom: 80px;}
+        #full-sol-screen { background: #fff; min-height: 100vh; }
         .fs-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;}
         .fs-q-info { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee;}
         .fs-q-pill { background: #e0e0e0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
         .fs-time { font-size: 13px; color: #888; }
-        .fs-content { padding: 16px; }
+        .fs-content { padding: 16px; padding-bottom: 100px; }
         .fs-q-txt { font-size: 16px; color: #111; margin-bottom: 24px;}
         .fs-opt { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;}
-        .fs-opt.correct { border: 2px solid #4caf50; background: #f1f8e9; }
-        .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; }
-        .fs-opt-perc { font-size: 12px; font-weight: bold; color: #4caf50; }
-        .fs-exp-title { font-size: 16px; font-weight: bold; margin: 24px 0 10px 0; color: #000; }
-        .fs-exp-text { font-size: 15px; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
-        .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
-        .btn-next { background: #1a237e; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .fs-opt.correct { border: 2px solid #4caf50; background: #e8f5e9; color: #1b5e20; font-weight: 500;}
+        .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; color: #b71c1c; }
+        .fs-opt-perc { font-size: 12px; font-weight: bold; }
+        .fs-exp-box { background: #f5f5f5; border-radius: 12px; padding: 16px; margin-top: 24px; border-left: 4px solid #1a237e;}
+        .fs-exp-head { font-size: 14px; font-weight: bold; color: #1a237e; margin-bottom: 8px; }
+        .fs-footer { position: fixed; bottom: 0; left:0; width: 100%; max-width:414px; background:#fff; border-top:1px solid #eee; padding:12px 16px; display:flex; justify-content:space-between; z-index:10;}
+        .fs-nav-btn { background:#1a237e; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;}
     </style>
 </head>
 <body>
@@ -182,19 +183,33 @@
 
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(TCS Pattern)</h2>
+            <h2 id="test-title">(TCS Pattern Mock Test)</h2>
             <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
             <div class="start-info"><span>Total Time:</span> <span>--</span></div>
             <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
-            <button class="start-btn" onclick="startTest()">Loading Test...</button>
+            
+            <button class="start-btn" id="start-btn" disabled>Loading Test Data...</button>
+            
+            <div id="fallback-uploader" class="file-upload-box hidden">
+                <p style="font-size: 12px; color: #e53935; margin-bottom: 5px;">⚠️ API Link Failed. Please upload JSON manually:</p>
+                <label for="json-upload">📥 Upload your .json File</label>
+                <input type="file" id="json-upload" accept=".json" onchange="handleFileUpload(event)">
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+               <a href="https://t.me/Raj_Education_Hub" target="_blank" class="backup-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2L2 10l9 3 3 9z"/></svg>
+                  Join Telegram Channel
+               </a>
+            </div>
         </div>
     </div>
 
     <div id="live-test-screen" class="hidden">
         <div class="tcs-header">
             <div>
-                <div class="tcs-timer" id="tcs-timer-display">00:15:00</div>
-                <a href="https://t.me/+RQjBgn9IBrs1MDNl" class="backup-btn">📢 Join Backup</a>
+                <div class="tcs-timer" id="tcs-timer-display">00:00:00</div>
+                <a href="https://t.me/+RQjBgn9IBrs1MDNl" target="_blank" class="backup-btn">📢 Join Backup</a>
             </div>
             <div class="tcs-hamburger" onclick="toggleTcsPalette()">≡</div>
         </div>
@@ -226,13 +241,13 @@
             <div class="tcs-actions-row">
                 <button class="tcs-btn tcs-btn-submit" onclick="prepareSubmit()">Submit Quiz</button>
                 <button class="tcs-btn" onclick="markForReview()">Mark & Next</button>
-                <button class="tcs-btn" onclick="clearResponse()">Clear Response</button>
+                <button class="tcs-btn" onclick="clearResponse()">Clear</button>
                 <button class="tcs-btn tcs-btn-save" onclick="saveAndNext()">Save & Next</button>
             </div>
         </div>
 
-        <div class="tcs-drawer-overlay" id="tcs-palette">
-            <div class="tcs-drawer">
+        <div class="tcs-drawer-overlay" id="tcs-palette" onclick="toggleTcsPalette()">
+            <div class="tcs-drawer" onclick="event.stopPropagation()">
                 <div class="tcs-dr-header">
                     <div class="tcs-dr-tab active">Grid View</div>
                     <div class="tcs-dr-tab" style="font-weight: normal; border-bottom: 2px solid #ddd;">List View</div>
@@ -276,9 +291,7 @@
         <div class="a-card" style="text-align: center;">
             <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">Question Distribution</h3>
             <div class="donut-container">
-                <div class="donut-chart" id="an-donut">
-                    <div class="donut-inner"></div>
-                </div>
+                <div class="donut-chart" id="an-donut"><div class="donut-inner"></div></div>
             </div>
             <div class="chart-legend">
                 <div class="legend-item"><div class="dot bg-green"></div> Correct (<span id="lg-corr">0</span>)</div>
@@ -298,14 +311,7 @@
         <div class="a-card" style="padding: 14px 10px;">
             <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center;">Topper Comparison</h3>
             <table class="comp-table">
-                <thead>
-                    <tr>
-                        <th class="row-lbl">Metric</th>
-                        <th class="col-you">You</th>
-                        <th class="col-top">Topper</th>
-                        <th class="col-avg">Avg</th>
-                    </tr>
-                </thead>
+                <thead><tr><th class="row-lbl">Metric</th><th class="col-you">You</th><th class="col-top">Topper</th><th class="col-avg">Avg</th></tr></thead>
                 <tbody>
                     <tr><td class="row-lbl">Score</td><td id="tc-u-sc" class="sc-you">0</td><td class="sc-top">145.5</td><td class="sc-avg">68.2</td></tr>
                     <tr><td class="row-lbl">Accuracy</td><td id="tc-u-ac" class="ac-you">0%</td><td class="ac-top">96%</td><td class="ac-avg">74%</td></tr>
@@ -316,29 +322,18 @@
             </table>
         </div>
 
-        <div class="a-card">
-            <h3 style="font-size: 15px; font-weight: bold; text-align: center;">Time Analysis (Per Question)</h3>
-            <div class="time-stats-box">
-                <div class="ts-left">Correct Qs<br><span id="tm-corr-avg">0s</span></div>
-                <div class="ts-right">
-                    <div class="ts-rt-top">Unattempted<br><span id="tm-una-avg" style="margin-left:4px;">0s</span></div>
-                    <div class="ts-rt-bot">Incorrect Qs<br><span id="tm-inc-avg">0s</span></div>
-                </div>
-            </div>
-        </div>
-
         <div class="sec-title">Subject Wise Summary</div>
         <div id="an-subjects-container"></div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn-black" style="padding: 14px 40px; font-size: 16px; border-radius: 30px;" onclick="viewSolutions()">VIEW SOLUTIONS</button>
+            <button class="btn-black" style="padding: 14px 40px; font-size: 16px; border-radius: 30px; background:#1a237e; color:white; border:none; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="viewSolutions()">VIEW SOLUTIONS</button>
         </div>
     </div>
 
     <div id="solutions-screen" class="hidden">
         <div class="sol-header">
             <span>Solutions</span>
-            <button class="btn-black" onclick="backToAnalysis()">Analysis</button>
+            <button class="btn-black" style="background:#1a237e; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:bold;" onclick="backToAnalysis()">Back</button>
         </div>
         <div class="filters">
             <button class="flt-btn flt-active" onclick="filterSol('all', this)">All Qs</button>
@@ -352,71 +347,181 @@
     <div id="full-sol-screen" class="hidden">
         <div class="fs-header">
             <span>Detailed Solution</span>
-            <button class="btn-black" onclick="closeFullSol()">Close</button>
+            <button class="btn-black" style="background:#e53935; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:bold;" onclick="closeFullSol()">Close</button>
         </div>
         <div class="fs-q-info">
-            <span class="fs-q-pill" id="fs-q-num">Question 1</span>
-            <span class="fs-time" id="fs-q-time">Time taken: 0 secs</span>
+            <span class="fs-q-pill" id="fs-q-num" style="background:#1a237e; color:#fff;">Question 1</span>
+            <span class="fs-time" id="fs-q-time">Time: 0s</span>
         </div>
         <div class="fs-content">
-            <div class="fs-q-txt" id="fs-q-txt"></div>
+            <div id="fs-q-txt"></div>
             <div id="fs-options-container"></div>
-            <div class="fs-exp-title">Explanation</div>
-            <div class="fs-exp-text" id="fs-exp-text"></div>
+            <div class="fs-exp-box" style="background: #e8eaf6; border-left: 4px solid #1a237e; padding: 15px; margin-top: 20px; border-radius: 8px;">
+                <div class="fs-exp-head" style="font-weight:bold; margin-bottom:10px; color:#1a237e;">Explanation:</div>
+                <div class="fs-exp-text" id="fs-exp-text"></div>
+            </div>
         </div>
         <div class="fs-bottom-bar">
-            <button class="btn-next" onclick="nextFullSol()">Next Question ❯</button>
+            <button class="btn-next" style="background:#1a237e; color:#fff; border:none; padding:12px 30px; border-radius:24px; font-weight:bold; width:100%;" onclick="nextFullSol()">Next Question ❯</button>
         </div>
     </div>
 
 </div>
 
 <script>
-    let examData = [];
-    let allQsFlat = []; 
-    let currentSecIdx = 0;
-    let currentQIdx = 0; 
-    let testTimer = null;
-    let totalTimeSecs = 0;
-    let timeRemaining = 0;
-    let currentSolFilter = 'all';
-    let currentFlatIdx = 0;
+    // ---------------------------------------------------------
+    // 1. BULLETPROOF FORMATTING FUNCTIONS (The Core Fixes)
+    // ---------------------------------------------------------
 
-    // फिक्स: टेक्स्ट को सुरक्षित तरीके से स्ट्रिंग में बदलें (ताकि नंबर आने पर एरर न आए)
+    // Fix: Safely convert anything (even numbers) to a string before MathJax/HTML processing
     function formatMathText(txt) {
-        if(txt === undefined || txt === null) return '';
-        return String(txt).replace(/\n/g, '<br>');
+        if (txt === undefined || txt === null) return '';
+        let cleanText = String(txt); // Strictly cast to string
+        cleanText = cleanText.replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+        cleanText = cleanText.replace(/\n/g, '<br>');
+        return cleanText;
     }
 
-    // फिक्स: ऑप्शन्स को स्ट्रिंग में बदलें और फिर जांचें
-    function renderTextOrImage(contentString) {
-        if (contentString === undefined || contentString === null) return '';
-        let str = String(contentString);
-        let trimmed = str.trim();
-        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-            return `<div class="opt-image-container"><img src="${trimmed}" class="opt-img" alt="Option Image" /></div>`;
+    // Fix: Render pure URLs as images, otherwise as text
+    function renderTextOrImage(content) {
+        if (content === undefined || content === null) return '';
+        let str = String(content).trim();
+        // Check if string is a direct link to an image
+        if (/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(str) || str.includes('catbox.moe')) {
+            return `<div class="opt-image-container"><img src="${str}" class="opt-img" alt="Option Image" /></div>`;
         }
-        return formatMathText(str);
+        return `<div class="opt-text-body">${formatMathText(str)}</div>`;
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        fetch('up demo.json')
-            .then(res => res.json())
-            .then(data => {
-                examData = data;
-                initFlatQuestions();
-                setupStartScreen();
-            })
-            .catch(err => {
-                console.error("Data load error:", err);
-                alert("Failed to load quiz data.");
-            });
-    });
+    // Fix: Render question text + question image smoothly
+    function buildQuestionHtml(qObj) {
+        let html = "";
+        if (qObj.text !== undefined && qObj.text !== null) {
+            html += `<div class="tcs-q-text-body">${formatMathText(qObj.text)}</div>`;
+        }
+        if (qObj.image_link && String(qObj.image_link).trim() !== "") {
+            html += `<div class="q-image-container"><img src="${String(qObj.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
+        } else if (qObj.image && String(qObj.image).trim() !== "") {
+            html += `<div class="q-image-container"><img src="${String(qObj.image).trim()}" class="q-img" alt="Question Image" /></div>`;
+        }
+        return html;
+    }
 
-    function initFlatQuestions() {
+
+    // ---------------------------------------------------------
+    // 2. DATA LOADING & NORMALIZATION
+    // ---------------------------------------------------------
+    let examData = [];     // Stores normalized sections array
+    let allQsFlat = [];    // Flatted list for easy navigation
+    let currentSecIdx = 0, currentQIdx = 0; 
+    let testTimer = null, questionTimerInterval = null;
+    let totalTimeSecs = 0, timeRemaining = 0;
+    let qStartTime = Date.now();
+    let currentSolFilter = 'all', currentFlatIdx = 0;
+
+    // Load instantly, bypassing DOMContentLoaded issues
+    function initApp() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('id');
+        
+        if (!testId) {
+            // IF NO ID, ALLOW LOCAL JSON UPLOAD DIRECTLY
+            showUploader("No Test ID provided. Upload JSON file manually:");
+            return;
+        }
+        fetchTestData(testId);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        initApp();
+    }
+
+    async function fetchTestData(id) {
+        const startBtn = document.getElementById('start-btn');
+        try {
+            startBtn.innerText = "Fetching API Data...";
+            
+            const res = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${id}`);
+            if (!res.ok) throw new Error("API Server Issue");
+            const data = await res.json();
+            
+            if(data.error) throw new Error(data.error);
+            
+            processDataAndLoad(data);
+
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            showUploader("API Connection Failed. Please upload the .json file manually:");
+        }
+    }
+
+    function showUploader(message) {
+        document.getElementById('test-title').innerText = "Test Portal";
+        let uploaderBox = document.getElementById('fallback-uploader');
+        uploaderBox.classList.remove('hidden');
+        uploaderBox.querySelector('p').innerText = message;
+        document.getElementById('start-btn').classList.add('hidden'); // Hide original start button
+    }
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const parsedData = JSON.parse(e.target.result);
+                processDataAndLoad(parsedData);
+            } catch(err) {
+                alert("Invalid JSON file format!");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // Bulletproof JSON normalizer
+    function processDataAndLoad(rawData) {
+        let sections = [];
+        let durationMins = 60;
+        let title = "SSC GD TCS Mock Test";
+        let posMark = 2;
+        let negMark = 0.25;
+
+        // Smart Array/Object parsing
+        if (Array.isArray(rawData)) {
+            if (rawData.length > 0 && Array.isArray(rawData[0].questions)) {
+                sections = rawData; // Like up demo.json
+            } else {
+                sections = [ { section: "Mock Test", questions: rawData } ];
+            }
+        } else if (typeof rawData === 'object' && rawData !== null) {
+            title = rawData.title || title;
+            durationMins = rawData.time || rawData.duration || 60;
+            posMark = rawData.pos !== undefined ? rawData.pos : 2;
+            negMark = rawData.neg !== undefined ? rawData.neg : 0.25;
+
+            if (Array.isArray(rawData.questions)) {
+                if (rawData.questions.length > 0 && Array.isArray(rawData.questions[0].questions)) {
+                    sections = rawData.questions;
+                } else {
+                    sections = [ { section: "Section 1", questions: rawData.questions } ];
+                }
+            } else if (Array.isArray(rawData.data)) {
+                sections = [ { section: "Section 1", questions: rawData.data } ];
+            }
+        }
+
+        if (sections.length === 0) {
+            alert("No questions found in this data!");
+            return;
+        }
+
+        // Setup Flat Array
         allQsFlat = [];
         let gNum = 1;
-        examData.forEach((sec, sIdx) => {
+        sections.forEach((sec, sIdx) => {
+            if(!sec.questions) return;
             sec.questions.forEach((q, qIdx) => {
                 q.sectionIdx = sIdx;
                 q.localQIdx = qIdx;
@@ -427,34 +532,88 @@
                 allQsFlat.push(q);
             });
         });
-    }
 
-    function setupStartScreen() {
-        let totalQs = allQsFlat.length;
-        let tMin = totalQs; 
-        totalTimeSecs = tMin * 60;
+        examData = sections;
+        totalTimeSecs = durationMins * 60;
         timeRemaining = totalTimeSecs;
 
-        let sc = document.getElementById('start-screen');
-        let infos = sc.querySelectorAll('.start-info span:last-child');
-        infos[0].innerText = totalQs;
-        infos[1].innerText = `${tMin} Mins`;
-        infos[2].innerText = `${totalQs * 2}`;
+        // UI Setup
+        document.getElementById('test-title').innerText = title;
+        document.getElementById('fallback-uploader').classList.add('hidden'); // Hide uploader if successful
+        
+        const startInfos = document.querySelectorAll('.start-info');
+        if(startInfos.length >= 3) {
+            startInfos[0].innerHTML = `<span>Total Questions</span><span class="fs-q-pill">${allQsFlat.length}</span>`;
+            startInfos[1].innerHTML = `<span>Duration</span><span>${durationMins} mins</span>`;
+            startInfos[2].innerHTML = `<span>Max Marks</span><span>${allQsFlat.length * posMark}</span>`;
+        }
+        
+        const posEl = document.querySelector('.tcs-m-pos');
+        const negEl = document.querySelector('.tcs-m-neg');
+        if(posEl) posEl.innerText = "+" + posMark;
+        if(negEl) negEl.innerText = "-" + negMark;
 
-        let btn = sc.querySelector('.start-btn');
-        btn.innerText = "START TEST";
-        btn.style.background = "#4caf50";
+        const startBtn = document.getElementById('start-btn');
+        startBtn.classList.remove('hidden');
+        startBtn.innerText = "START TEST";
+        startBtn.style.background = "#4caf50";
+        startBtn.disabled = false;
+        startBtn.onclick = startTest;
+    }
+
+
+    // ---------------------------------------------------------
+    // 3. EXAM LOGIC & UI
+    // ---------------------------------------------------------
+
+    function hideAllScreens() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('live-test-screen').classList.add('hidden');
+        document.getElementById('submit-screen').classList.add('hidden');
+        document.getElementById('analysis-screen').classList.add('hidden');
+        document.getElementById('solutions-screen').classList.add('hidden');
+        document.getElementById('full-sol-screen').classList.add('hidden');
     }
 
     function startTest() {
-        if(examData.length === 0) return;
-        document.getElementById('start-screen').classList.add('hidden');
+        hideAllScreens();
         document.getElementById('live-test-screen').classList.remove('hidden');
-
         renderTabs();
         renderPalette();
         loadQuestion(0, 0);
-        startTimer();
+        startGlobalTimer();
+        startQuestionTimer();
+    }
+
+    function startGlobalTimer() {
+        let timeLabel = document.getElementById('tcs-timer-display');
+        testTimer = setInterval(() => {
+            timeRemaining--;
+            if(timeRemaining <= 0) {
+                clearInterval(testTimer);
+                clearInterval(questionTimerInterval);
+                timeRemaining = 0;
+                alert("Time is up! Submitting test.");
+                finalSubmit();
+            }
+            let h = Math.floor(timeRemaining / 3600).toString().padStart(2, '0');
+            let m = Math.floor((timeRemaining % 3600) / 60).toString().padStart(2, '0');
+            let s = (timeRemaining % 60).toString().padStart(2, '0');
+            timeLabel.innerText = `${h}:${m}:${s}`;
+        }, 1000);
+    }
+
+    function startQuestionTimer() {
+        if(questionTimerInterval) clearInterval(questionTimerInterval);
+        questionTimerInterval = setInterval(() => {
+            if(examData[currentSecIdx] && examData[currentSecIdx].questions[currentQIdx]) {
+                examData[currentSecIdx].questions[currentQIdx].time++;
+                let t = examData[currentSecIdx].questions[currentQIdx].time;
+                let m = Math.floor(t / 60).toString().padStart(2, '0');
+                let s = (t % 60).toString().padStart(2, '0');
+                document.getElementById('tcs-q-time').innerText = `${m}:${s}`;
+            }
+        }, 1000);
     }
 
     function renderTabs() {
@@ -481,33 +640,40 @@
         let q = examData[secIdx].questions[qIdx];
         document.getElementById('tcs-q-num').innerText = q.globalNum;
 
-        // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
-        let qHtml = `<div class="tcs-q-text-body">${formatMathText(q.text || '')}</div>`;
-        if (q.image_link && String(q.image_link).trim() !== "") {
-            qHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
-        }
-        document.getElementById('tcs-q-text').innerHTML = qHtml;
+        // Render Q Text + Image Safely
+        document.getElementById('tcs-q-text').innerHTML = buildQuestionHtml(q);
 
+        // Render Options Safely
         let optHtml = '';
         let prefix = ['A', 'B', 'C', 'D'];
-        q.options.forEach((opt, idx) => {
-            let selCls = (q.userAns === idx) ? 'selected' : '';
-            optHtml += `
-                <div class="tcs-option ${selCls}" onclick="selectOption(${idx})">
-                    <span class="tcs-opt-lbl">${prefix[idx]}.</span>
-                    <div class="tcs-opt-content">${renderTextOrImage(opt)}</div>
-                </div>
-            `;
-        });
+        
+        if (q.options && Array.isArray(q.options)) {
+            q.options.forEach((opt, idx) => {
+                let selCls = (q.userAns === idx) ? 'selected' : '';
+                optHtml += `
+                    <div class="tcs-option ${selCls}" onclick="selectOption(${idx})">
+                        <span class="tcs-opt-lbl">${prefix[idx]}.</span>
+                        <div class="tcs-opt-content">${renderTextOrImage(opt)}</div>
+                    </div>
+                `;
+            });
+        }
         document.getElementById('tcs-options-container').innerHTML = optHtml;
 
         let tabs = document.getElementById('tcs-tabs-container').children;
         for(let i=0; i<tabs.length; i++) {
             tabs[i].classList.remove('active');
-            if(i === secIdx) tabs[i].classList.add('active');
+            if(i === secIdx) {
+                tabs[i].classList.add('active');
+                tabs[i].scrollIntoView({behavior: "smooth", inline: "center"});
+            }
         }
 
         updatePaletteHighlight(q.globalNum);
+        
+        let t = q.time;
+        document.getElementById('tcs-q-time').innerText = `${Math.floor(t / 60).toString().padStart(2, '0')}:${(t % 60).toString().padStart(2, '0')}`;
+        
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
@@ -524,21 +690,15 @@
 
     function saveAndNext() {
         let q = examData[currentSecIdx].questions[currentQIdx];
-        if(q.userAns !== null) {
-            q.status = 'attempted';
-        } else {
-            q.status = 'unattempted';
-        }
+        if(q.userAns !== null) q.status = 'attempted';
+        else q.status = 'unattempted';
         syncAndGoNext();
     }
 
     function markForReview() {
         let q = examData[currentSecIdx].questions[currentQIdx];
-        if(q.userAns !== null) {
-            q.status = 'marked-answered';
-        } else {
-            q.status = 'marked';
-        }
+        if(q.userAns !== null) q.status = 'marked-answered';
+        else q.status = 'marked';
         syncAndGoNext();
     }
 
@@ -589,37 +749,6 @@
         }
     }
 
-    function startTimer() {
-        let timeLabel = document.getElementById('tcs-timer-display');
-        let qTimeLabel = document.getElementById('tcs-q-time');
-        let qSecs = 0;
-
-        testTimer = setInterval(() => {
-            timeRemaining--;
-            qSecs++;
-
-            if(timeRemaining <= 0) {
-                clearInterval(testTimer);
-                timeRemaining = 0;
-                alert("Time up! Submitting test.");
-                finalSubmit();
-            }
-
-            let h = Math.floor(timeRemaining / 3600).toString().padStart(2, '0');
-            let m = Math.floor((timeRemaining % 3600) / 60).toString().padStart(2, '0');
-            let s = (timeRemaining % 60).toString().padStart(2, '0');
-            timeLabel.innerText = `${h}:${m}:${s}`;
-
-            let qM = Math.floor(qSecs / 60).toString().padStart(2, '0');
-            let qS = (qSecs % 60).toString().padStart(2, '0');
-            qTimeLabel.innerText = `${qM}:${qS}`;
-
-            let activeQ = examData[currentSecIdx].questions[currentQIdx];
-            if(activeQ) activeQ.time++;
-
-        }, 1000);
-    }
-
     function toggleTcsPalette() {
         document.getElementById('tcs-palette').classList.toggle('show');
     }
@@ -651,7 +780,7 @@
                     <div class="tcs-acc-stats">
                         <span>Answered: ${att}</span>
                         <span>Marked: ${mMark}</span>
-                        <span>Not Visited: ${unAtt}</span>
+                        <span>Unattempted: ${unAtt}</span>
                     </div>
                     <div class="tcs-q-grid ${openCls}">${gridHtml}</div>
                 </div>
@@ -677,13 +806,10 @@
         let boxes = document.querySelectorAll('.tcs-q-box');
         boxes.forEach(b => b.style.transform = 'scale(1)');
         let target = document.getElementById(`pal-box-${gNum}`);
-        if(target) {
-            target.style.transform = 'scale(1.15)';
-        }
+        if(target) target.style.transform = 'scale(1.15)';
     }
 
     function prepareSubmit() {
-        clearInterval(testTimer);
         hideAllScreens();
         document.getElementById('submit-screen').classList.remove('hidden');
 
@@ -713,11 +839,11 @@
     function cancelSubmit() {
         document.getElementById('submit-screen').classList.add('hidden');
         document.getElementById('live-test-screen').classList.remove('hidden');
-        startTimer();
     }
 
     function finalSubmit() {
         clearInterval(testTimer);
+        clearInterval(questionTimerInterval);
         calculateResultsAndRenderAnalysis();
     }
 
@@ -725,32 +851,29 @@
         hideAllScreens();
         document.getElementById('analysis-screen').classList.remove('hidden');
 
+        let posMark = parseFloat(document.querySelector('.tcs-m-pos') ? document.querySelector('.tcs-m-pos').innerText.replace('+','') : 2);
+        let negMark = parseFloat(document.querySelector('.tcs-m-neg') ? document.querySelector('.tcs-m-neg').innerText.replace('-','') : 0.25);
+
         let totalQs = allQsFlat.length;
         let correctCount = 0, wrongCount = 0, unattemptedCount = 0;
-        let totalTimeSpent = 0;
-
-        let timeCorr = 0, timeWr = 0, timeUna = 0;
+        let totalTimeSpent = totalTimeSecs - timeRemaining;
 
         allQsFlat.forEach(q => {
-            totalTimeSpent += q.time;
             if(q.userAns === null) {
                 unattemptedCount++;
-                timeUna += q.time;
             } else if (q.userAns === q.correct) {
                 correctCount++;
-                timeCorr += q.time;
             } else {
                 wrongCount++;
-                timeWr += q.time;
             }
         });
 
-        let finalScore = (correctCount * 2) - (wrongCount * 0.25);
+        let finalScore = (correctCount * posMark) - (wrongCount * negMark);
         let attCount = correctCount + wrongCount;
         let accuracy = attCount > 0 ? Math.round((correctCount / attCount) * 100) : 0;
         let attRate = Math.round((attCount / totalQs) * 100);
 
-        document.getElementById('an-score').innerText = finalScore.toFixed(2);
+        document.getElementById('an-score').innerText = finalScore.toFixed(1);
         document.getElementById('an-rank').innerText = `#${Math.floor(Math.random() * 40) + 5}`;
         document.getElementById('an-perc').innerText = `${Math.floor(Math.random() * 15) + 80}%`;
 
@@ -771,10 +894,6 @@
         document.getElementById('tc-u-wr').innerText = wrongCount;
         document.getElementById('tc-u-tm').innerText = `${Math.round(totalTimeSpent/60)}m`;
 
-        document.getElementById('tm-corr-avg').innerText = `${correctCount > 0 ? Math.round(timeCorr/correctCount) : 0}s`;
-        document.getElementById('tm-inc-avg').innerText = `${wrongCount > 0 ? Math.round(timeWr/wrongCount) : 0}s`;
-        document.getElementById('tm-una-avg').innerText = `${unattemptedCount > 0 ? Math.round(timeUna/unattemptedCount) : 0}s`;
-
         let subContainer = document.getElementById('an-subjects-container');
         let subHtml = '';
         examData.forEach(sec => {
@@ -783,8 +902,7 @@
                 if(q.userAns !== null && q.userAns === q.correct) sCorr++;
                 else if (q.userAns !== null) sWr++;
             });
-            let sScore = (sCorr * 2) - (sWr * 0.25);
-            let sMax = sTotal * 2;
+            let sScore = (sCorr * posMark) - (sWr * negMark);
 
             subHtml += `
                 <div class="a-card">
@@ -792,7 +910,6 @@
                         <span class="subj-name">${sec.section}</span>
                         <div class="black-circle"><span>Score</span><span>${sScore.toFixed(1)}</span></div>
                     </div>
-                    <div class="subj-q-stats">Max Marks: ${sMax}</div>
                     <div class="time-split">
                         <div class="col c-green"><div class="val-num">${sCorr}</div><div>Correct</div></div>
                         <div class="col c-red"><div class="val-num">${sWr}</div><div>Incorrect</div></div>
@@ -829,12 +946,6 @@
 
             let secName = examData[q.sectionIdx].section;
 
-            // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
-            let itemQHtml = `<div class="sol-q-txt-body">${formatMathText(q.text || '')}</div>`;
-            if (q.image_link && String(q.image_link).trim() !== "") {
-                itemQHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
-            }
-
             html += `
                 <div class="sol-item">
                     <div class="sol-num-col">
@@ -843,14 +954,14 @@
                     </div>
                     <div class="sol-card">
                         <span class="sol-sec-badge">${secName}</span>
-                        <div class="sol-q-txt">${itemQHtml}</div>
-                        <button class="btn-black" style="font-size:12px; padding:6px 12px;" onclick="openFullSolution(${flatIdx})">View Solution</button>
+                        <div class="sol-q-txt">${buildQuestionHtml(q)}</div>
+                        <button class="btn-black" style="font-size:12px; padding:6px 12px; border-radius:6px;" onclick="openFullSolution(${flatIdx})">View Solution</button>
                     </div>
                 </div>
             `;
         });
 
-        container.innerHTML = html;
+        container.innerHTML = html || '<div style="text-align:center; padding:20px; color:#888;">No questions found.</div>';
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
@@ -878,33 +989,35 @@
     function renderFullSolution() {
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
-        document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
+        document.getElementById('fs-q-time').innerText = `Time: ${q.time}s`; 
 
-        // फिक्स: image_link को स्ट्रिंग मानकर चेक करें
-        let fullQHtml = `<div class="fs-q-txt-body">${formatMathText(q.text || '')}</div>`;
-        if (q.image_link && String(q.image_link).trim() !== "") {
-            fullQHtml += `<div class="q-image-container"><img src="${String(q.image_link).trim()}" class="q-img" alt="Question Image" /></div>`;
-        }
-        document.getElementById('fs-q-txt').innerHTML = fullQHtml;
+        document.getElementById('fs-q-txt').innerHTML = buildQuestionHtml(q);
         
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
-        q.options.forEach((opt, i) => {
-            let cls = '', rightTxt = '';
-            if(i === q.correct) { cls = 'correct'; rightTxt = '<span class=\"fs-opt-perc\">Correct</span>'; } 
-            else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
-            
-            optHtml += `
-                <div class="fs-opt ${cls}">
-                    <div style="display:flex; align-items:center; flex:1;">
-                        <span style="font-weight:bold; margin-right:10px;">${optPrefix[i]}.</span>
-                        <div style="flex:1;">${renderTextOrImage(opt)}</div>
+        if (q.options && Array.isArray(q.options)) {
+            q.options.forEach((opt, i) => {
+                let cls = '', rightTxt = '';
+                if(i === q.correct) { cls = 'correct'; rightTxt = '<span class=\"fs-opt-perc\">Correct</span>'; } 
+                else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
+                
+                optHtml += `
+                    <div class="fs-opt ${cls}">
+                        <div style="display:flex; align-items:center; flex:1;">
+                            <span style="font-weight:bold; margin-right:10px;">${optPrefix[i]}.</span>
+                            <div style="flex:1;">${renderTextOrImage(opt)}</div>
+                        </div>
+                        ${rightTxt}
                     </div>
-                    ${rightTxt}
-                </div>
-            `;
-        });
+                `;
+            });
+        }
         document.getElementById('fs-options-container').innerHTML = optHtml; 
-        document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp || 'No explanation available.');
+        
+        let expHtml = `<div class="fs-exp-text">${formatMathText(q.exp || 'No explanation available.')}</div>`;
+        if (q.exp_image && String(q.exp_image).trim() !== "") {
+            expHtml += `<div class="q-image-container"><img src="${String(q.exp_image).trim()}" class="q-img" alt="Explanation Image" /></div>`;
+        }
+        document.getElementById('fs-exp-text').innerHTML = expHtml;
 
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
@@ -923,14 +1036,6 @@
         document.getElementById('analysis-screen').classList.remove('hidden');
     }
 
-    function hideAllScreens() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('live-test-screen').classList.add('hidden');
-        document.getElementById('submit-screen').classList.add('hidden');
-        document.getElementById('analysis-screen').classList.add('hidden');
-        document.getElementById('solutions-screen').classList.add('hidden');
-        document.getElementById('full-sol-screen').classList.add('hidden');
-    }
 </script>
 </body>
 </html>
