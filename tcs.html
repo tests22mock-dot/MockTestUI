@@ -373,44 +373,75 @@
             if (!res.ok) { alert("Test data loading failed!"); return; }
             const data = await res.json();
             
-            document.getElementById('test-title').innerText = data.title || "Mock Test";
-            
-            if(!data.questions || data.questions.length === 0) {
-                alert("No questions found!");
-                if(startBtn) startBtn.innerText = "No Data Found";
+            let sections = [];
+            let title = "SSC GD TCS Mock Test";
+            let durationMins = 60;
+            let totalQs = 0;
+            let maxMarks = 0;
+            let posMark = 2;
+            let negMark = 0.25;
+
+            // Robust JSON formatting check (handles direct lists and object wrappers)
+            if (Array.isArray(data)) {
+                sections = data;
+            } else if (data && Array.isArray(data.questions)) {
+                sections = data.questions;
+                title = data.title || title;
+                durationMins = data.time || data.duration || 60;
+                posMark = data.pos !== undefined ? data.pos : 2;
+                negMark = data.neg !== undefined ? data.neg : 0.25;
+            }
+
+            if (!sections || sections.length === 0) {
+                alert("डेटा में कोई प्रश्न नहीं मिला!");
+                if (startBtn) startBtn.innerText = "No Data Found";
                 return;
             }
-            
-            testData = data.questions;
-            testData.forEach(sec => {
-                sec.questions.forEach(q => {
-                    q.userAns = null;
-                    q.status = 'not_visited';
-                    q.time = 0;
-                });
+
+            // Prepare questions data structure safely
+            sections.forEach(sec => {
+                if (sec.questions && Array.isArray(sec.questions)) {
+                    totalQs += sec.questions.length;
+                    sec.questions.forEach(q => {
+                        q.userAns = null;
+                        q.status = 'not_visited';
+                        q.time = 0;
+                    });
+                }
             });
+
+            maxMarks = totalQs * posMark;
             
-            timeRemaining = (data.time || 15) * 60;
+            if (!Array.isArray(data)) {
+                if (data.total_qs) totalQs = data.total_qs;
+                if (data.max_marks) maxMarks = data.max_marks;
+            }
+
+            testData = sections;
+            timeRemaining = durationMins * 60;
             totalDurationSecs = timeRemaining;
+
+            document.getElementById('test-title').innerText = title;
             
             const startInfos = document.querySelectorAll('.start-info span:last-child');
             if(startInfos.length >= 3) {
-                startInfos[0].innerText = data.total_qs || 20;
-                startInfos[1].innerText = data.time + " mins";
-                startInfos[2].innerText = data.max_marks || 40;
+                startInfos[0].innerText = totalQs;
+                startInfos[1].innerText = durationMins + " mins";
+                startInfos[2].innerText = maxMarks;
             }
             
             const posEl = document.querySelector('.tcs-m-pos');
             const negEl = document.querySelector('.tcs-m-neg');
-            if(posEl) posEl.innerText = "+" + (data.pos || 2);
-            if(negEl) negEl.innerText = "-" + (data.neg || 0.25);
+            if(posEl) posEl.innerText = "+" + posMark;
+            if(negEl) negEl.innerText = "-" + negMark;
             
             if(startBtn) {
                 startBtn.innerText = "Start Test";
                 startBtn.disabled = false;
             }
         } catch (err) {
-            alert("Server error or no internet!");
+            console.error(err);
+            alert("डेटा लोड करने या पार्स करने में समस्या आई!");
             if(startBtn) startBtn.innerText = "Error Loading";
         }
     }
@@ -497,9 +528,10 @@
         let optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let isSelected = (q.userAns === i) ? 'selected' : '';
-            let optContent = (opt.startsWith('http://') || opt.startsWith('https://')) 
-                ? `<img src="${opt}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
-                : formatMathText(opt);
+            let optStr = String(opt || '');
+            let optContent = (optStr.startsWith('http://') || optStr.startsWith('https://')) 
+                ? `<img src="${optStr}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
+                : formatMathText(optStr);
             optHtml += `<div class="tcs-option ${isSelected}" onclick="selectOption(${i})">
                 <span class="tcs-opt-lbl">${optPrefix[i]}</span>
                 <div>${optContent}</div>
@@ -792,9 +824,10 @@
             if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
             
-            let optContent = (opt.startsWith('http://') || opt.startsWith('https://')) 
-                ? `<img src="${opt}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
-                : formatMathText(opt);
+            let optStr = String(opt || '');
+            let optContent = (optStr.startsWith('http://') || optStr.startsWith('https://')) 
+                ? `<img src="${optStr}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
+                : formatMathText(optStr);
 
             optHtml += `<div class="fs-opt ${cls}">
                 <span style="display:flex; align-items:center; gap:10px;"><b>${optPrefix[i]}.</b> <div>${optContent}</div></span> 
