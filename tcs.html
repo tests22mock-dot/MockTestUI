@@ -47,10 +47,17 @@
         
         .tcs-q-text, .fs-q-txt, .fs-exp-text, .sol-q-txt { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
         
-        .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 24px; }
+        .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 16px; }
+        
+        /* Image Support Styles */
+        .q-image-container, .opt-image-container { margin: 12px 0; text-align: center; width: 100%; }
+        .q-img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #e0e0e0; object-fit: contain; display: block; margin: 0 auto; }
+        .opt-img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; margin: 4px 0; }
+
         .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
         .tcs-option.selected { border-color: #1a237e; background: #e8eaf6; }
-        .tcs-opt-lbl { margin-right: 16px; font-weight: bold; color: #555; min-width: 20px; }
+        .tcs-opt-lbl { margin-right: 16px; font-weight: bold; color: #555; align-self: center; }
+        .tcs-opt-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
         .tcs-footer { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; z-index: 10; border-top: 1px solid #ddd; display: flex; flex-direction: column;}
         .tcs-arrows { display: flex; justify-content: space-between; padding: 8px 16px; background: #f9f9f9; border-bottom: 1px solid #eee;}
@@ -142,656 +149,716 @@
         .flt-btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; color: #555; background: #f0f0f0; white-space: nowrap; cursor: pointer; }
         .flt-active { background: #e8eaf6; color: #1a237e; }
         .sol-container { padding: 16px; }
-        .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 14px; background: #fff; padding: 14px; border-radius: 12px; border: 1px solid #e0e0e0; cursor: pointer;}
-        .sol-status-badge { position: absolute; top: 12px; right: 12px; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold;}
-        .s-cr { background: #e8f5e9; color: #2e7d32; } .s-wr { background: #ffebee; color: #c62828; } .s-un { background: #eceff1; color: #37474f; }
+        .sol-item { display: flex; gap: 12px; position: relative; margin-bottom: 16px; }
+        .sol-num-col { display: flex; flex-direction: column; align-items: center; width: 40px;}
+        .sol-num { width: 36px; height: 36px; background: #f0f0f0; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; position: relative; z-index: 2;}
+        .sol-status-icon { position: absolute; right: -6px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #fff;}
+        .st-corr { background: #4caf50; } .st-wr { background: #e53935; } .st-una { background: #ccc; }
+        .sol-line { width: 2px; background: #e0e0e0; flex-grow: 1; margin-top: -10px; margin-bottom: -20px; z-index: 1;}
+        .sol-card { background: #fff; border-radius: 12px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .sol-sec-badge { display: inline-block; background: #e8eaf6; color: #1a237e; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
+        .sol-q-txt { font-size: 15px; color: #333; margin-bottom: 16px; }
+        .btn-black { background: #000; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
 
-        #full-sol-screen { background: #fff; min-height: 100vh; }
+        #full-sol-screen { background: #fff; min-height: 100vh; padding-bottom: 80px;}
         .fs-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;}
         .fs-q-info { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee;}
         .fs-q-pill { background: #e0e0e0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
         .fs-time { font-size: 13px; color: #888; }
-        .fs-content { padding: 16px; padding-bottom: 100px; }
+        .fs-content { padding: 16px; }
         .fs-q-txt { font-size: 16px; color: #111; margin-bottom: 24px;}
         .fs-opt { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;}
-        .fs-opt.correct { border: 2px solid #4caf50; background: #e8f5e9; color: #1b5e20; font-weight: 500;}
-        .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; color: #b71c1c; }
-        .fs-opt-perc { font-size: 12px; font-weight: bold; }
-        .fs-exp-box { background: #f5f5f5; border-radius: 12px; padding: 16px; margin-top: 24px; border-left: 4px solid #1a237e;}
-        .fs-exp-head { font-size: 14px; font-weight: bold; color: #1a237e; margin-bottom: 8px; }
-        .fs-footer { position: fixed; bottom: 0; left:0; width: 100%; max-width:414px; background:#fff; border-top:1px solid #eee; padding:12px 16px; display:flex; justify-content:space-between; z-index:10;}
-        .fs-nav-btn { background:#1a237e; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;}
+        .fs-opt.correct { border: 2px solid #4caf50; background: #f1f8e9; }
+        .fs-opt.wrong { border: 2px solid #e53935; background: #ffebee; }
+        .fs-opt-perc { font-size: 12px; font-weight: bold; color: #4caf50; }
+        .fs-exp-title { font-size: 16px; font-weight: bold; margin: 24px 0 10px 0; color: #000; }
+        .fs-exp-text { font-size: 15px; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; }
+        .fs-bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 414px; background: #fff; padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; z-index: 10;}
+        .btn-next { background: #1a237e; color: #fff; border: none; padding: 12px 30px; border-radius: 24px; font-size: 15px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+
     <div id="start-screen">
         <div class="start-card">
-            <h2 id="test-title">Mock Test</h2>
-            <div class="start-info"><span>Total Questions</span><span class="fs-q-pill">-</span></div>
-            <div class="start-info"><span>Duration</span><span>-</span></div>
-            <div class="start-info"><span>Max Marks</span><span>-</span></div>
-            <button class="start-btn" id="start-btn" onclick="startTest()" disabled>Loading Test Data...</button>
-            <div style="text-align: center;">
-               <a href="https://t.me/Raj_Education_Hub" target="_blank" class="backup-btn">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2L2 10l9 3 3 9z"/></svg>
-                  Join Telegram Channel
-               </a>
-            </div>
+            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(TCS Pattern)</h2>
+            <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
+            <div class="start-info"><span>Total Time:</span> <span>--</span></div>
+            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
+            <button class="start-btn" onclick="startTest()">Loading Test...</button>
         </div>
     </div>
 
-    <div id="test-screen" class="hidden">
+    <div id="live-test-screen" class="hidden">
         <div class="tcs-header">
-            <div class="tcs-timer" id="tcs-timer">00:00</div>
-            <div class="tcs-hamburger" onclick="toggleTcsPalette()">☰</div>
+            <div>
+                <div class="tcs-timer" id="tcs-timer-display">00:15:00</div>
+                <a href="https://t.me/+RQjBgn9IBrs1MDNl" class="backup-btn">📢 Join Backup</a>
+            </div>
+            <div class="tcs-hamburger" onclick="toggleTcsPalette()">≡</div>
         </div>
-        <div class="tcs-tabs-wrapper" id="tcs-tabs"></div>
+        
+        <div class="tcs-tabs-wrapper" id="tcs-tabs-container"></div>
+
         <div class="tcs-q-info-bar">
-            <div><span class="tcs-q-badge" id="tcs-q-num-badge">1</span> Question No. <span id="tcs-q-num-txt">1</span></div>
+            <div style="display: flex; align-items: center;">
+                <div class="tcs-q-badge" id="tcs-q-num">1</div>
+                <span id="tcs-q-time" style="color: #888;">00:00</span>
+            </div>
             <div class="tcs-marks">
-                <span>Marks</span>
-                <span class="tcs-m-pos">+2</span>
+                <span class="tcs-m-pos">+2.00</span>
                 <span class="tcs-m-neg">-0.25</span>
+                <span style="color:#aaa;">⚠️</span>
             </div>
         </div>
+
         <div class="tcs-question-area">
-            <div class="tcs-q-text" id="tcs-q-text"></div>
+            <div class="tcs-q-text" id="tcs-q-text">Loading...</div>
             <div id="tcs-options-container"></div>
         </div>
+
         <div class="tcs-footer">
             <div class="tcs-arrows">
-                <button class="tcs-arrow-btn" onclick="prevQuestion()">◄</button>
-                <button class="tcs-arrow-btn" onclick="nextQuestion()">►</button>
+                <button class="tcs-arrow-btn" onclick="prevQuestion()">❮</button>
+                <button class="tcs-arrow-btn" onclick="nextQuestion()">❯</button>
             </div>
             <div class="tcs-actions-row">
-                <button class="tcs-btn" onclick="markForReview()">Mark for Review</button>
+                <button class="tcs-btn tcs-btn-submit" onclick="prepareSubmit()">Submit Quiz</button>
+                <button class="tcs-btn" onclick="markForReview()">Mark & Next</button>
                 <button class="tcs-btn" onclick="clearResponse()">Clear Response</button>
                 <button class="tcs-btn tcs-btn-save" onclick="saveAndNext()">Save & Next</button>
-                <button class="tcs-btn tcs-btn-submit" onclick="openSubmit()">Submit</button>
             </div>
         </div>
-    </div>
 
-    <div id="tcs-drawer-overlay" class="tcs-drawer-overlay" onclick="toggleTcsPalette()">
-        <div class="tcs-drawer" onclick="event.stopPropagation()">
-            <div class="tcs-dr-header">
-                <div class="tcs-dr-tab active">Questions Palette</div>
-                <div class="tcs-dr-close" onclick="toggleTcsPalette()">×</div>
-            </div>
-            <div class="tcs-dr-content">
-                <div class="tcs-legend">
-                    <div class="tcs-leg-item"><div class="tcs-circ c-attempt"></div> Attempted</div>
-                    <div class="tcs-leg-item"><div class="tcs-circ c-unattempt"></div> Unattempted</div>
-                    <div class="tcs-leg-item"><div class="tcs-circ c-marked"></div> Marked for Review</div>
+        <div class="tcs-drawer-overlay" id="tcs-palette">
+            <div class="tcs-drawer">
+                <div class="tcs-dr-header">
+                    <div class="tcs-dr-tab active">Grid View</div>
+                    <div class="tcs-dr-tab" style="font-weight: normal; border-bottom: 2px solid #ddd;">List View</div>
+                    <div class="tcs-dr-close" onclick="toggleTcsPalette()">✕</div>
                 </div>
-                <div id="tcs-accordion-container"></div>
+                <div class="tcs-dr-content">
+                    <div class="tcs-legend">
+                        <div class="tcs-leg-item"><div class="tcs-circ c-marked"></div> Marked For Review</div>
+                        <div class="tcs-leg-item"><div class="tcs-circ c-attempt"></div> Attempted</div>
+                        <div class="tcs-leg-item"><div class="tcs-circ c-unattempt"></div> Unattempted</div>
+                    </div>
+                    <div id="tcs-palette-accordion-container"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="submit-screen" class="hidden">
-        <div class="submit-header">Submit Test</div>
+        <div class="submit-header">Quiz Summary</div>
         <div id="submit-summary-container"></div>
         <div class="confirm-actions">
-            <h3>Are you sure you want to submit?</h3>
-            <button class="btn-yes" onclick="submitTest()">Yes</button>
-            <button class="btn-no" onclick="closeSubmit()">No</button>
+            <p style="font-weight: bold; margin-bottom: 15px; font-size: 15px; color: #333;">Are you sure you want to submit the test?</p>
+            <button class="btn-yes" onclick="finalSubmit()">YES</button>
+            <button class="btn-no" onclick="cancelSubmit()">NO</button>
         </div>
     </div>
 
     <div id="analysis-screen" class="hidden">
-        <div class="analysis-header"><h1 style="font-size: 18px; margin: 0 auto;">Analysis</h1></div>
-        <div class="a-card" style="margin-top: 20px;">
+        <div class="analysis-header">
+            <h2 style="font-size: 18px; font-weight: bold; flex: 1; text-align: center;">Performance Analysis</h2>
+        </div>
+        
+        <div class="a-card">
             <div class="sc-grid">
-                <div class="sc-item"><div class="sc-icon ic-score">🏅</div><div class="sc-val" id="res-score">0/40</div><div class="sc-lbl">Your Score</div></div>
-                <div class="sc-item"><div class="sc-icon ic-rank">📊</div><div class="sc-val">#1</div><div class="sc-lbl">Rank</div></div>
-                <div class="sc-item"><div class="sc-icon ic-perc">🎯</div><div class="sc-val" id="res-perc">100%</div><div class="sc-lbl">Percentile</div></div>
+                <div class="sc-item"><div class="sc-icon ic-score">🎯</div><div class="sc-val" id="an-score">0</div><div class="sc-lbl">Score</div></div>
+                <div class="sc-item"><div class="sc-icon ic-rank">🏆</div><div class="sc-val" id="an-rank">#0</div><div class="sc-lbl">Rank</div></div>
+                <div class="sc-item"><div class="sc-icon ic-perc">⚡</div><div class="sc-val" id="an-perc">0%</div><div class="sc-lbl">Percentile</div></div>
             </div>
+        </div>
+
+        <div class="a-card" style="text-align: center;">
+            <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">Question Distribution</h3>
             <div class="donut-container">
-                <div class="donut-chart" id="res-donut">
+                <div class="donut-chart" id="an-donut">
                     <div class="donut-inner"></div>
                 </div>
             </div>
             <div class="chart-legend">
-                <div class="legend-item"><div class="dot bg-green"></div><span id="leg-corr">Correct</span></div>
-                <div class="legend-item"><div class="dot bg-red"></div><span id="leg-inc">Incorrect</span></div>
-                <div class="legend-item"><div class="dot bg-cyan"></div><span id="leg-una">Unattempted</span></div>
+                <div class="legend-item"><div class="dot bg-green"></div> Correct (<span id="lg-corr">0</span>)</div>
+                <div class="legend-item"><div class="dot bg-red"></div> Incorrect (<span id="lg-inc">0</span>)</div>
+                <div class="legend-item"><div class="dot bg-cyan"></div> Unattempted (<span id="lg-una">0</span>)</div>
             </div>
         </div>
+
         <div class="a-card">
-            <h3 style="font-size:15px; margin-bottom:12px; font-weight:bold;">Comparative Performance</h3>
+            <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 15px; text-align: center;">Accuracy & Attempt Comparison</h3>
+            <div class="sc-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div class="sc-item"><div class="sc-icon ic-corr">🎯</div><div class="sc-val" id="an-accuracy">0%</div><div class="sc-lbl">Accuracy</div></div>
+                <div class="sc-item"><div class="sc-icon ic-acc">📊</div><div class="sc-val" id="an-attempted">0%</div><div class="sc-lbl">Attempt Rate</div></div>
+            </div>
+        </div>
+
+        <div class="a-card" style="padding: 14px 10px;">
+            <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center;">Topper Comparison</h3>
             <table class="comp-table">
                 <thead>
-                    <tr><th>Metric</th><th class="col-you">You</th><th class="col-top">Topper</th><th class="col-avg">Avg</th></tr>
+                    <tr>
+                        <th class="row-lbl">Metric</th>
+                        <th class="col-you">You</th>
+                        <th class="col-top">Topper</th>
+                        <th class="col-avg">Avg</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr><td class="row-lbl">Score</td><td id="tab-score" class="sc-you">0</td><td class="sc-top">36</td><td class="sc-avg">18</td></tr>
-                    <tr><td class="row-lbl">Accuracy</td><td id="tab-acc" class="ac-you">0%</td><td class="ac-top">95%</td><td class="ac-avg">72%</td></tr>
-                    <tr><td class="row-lbl">Correct</td><td id="tab-corr" class="cr-you">0</td><td class="cr-top">18</td><td class="cr-avg">10</td></tr>
-                    <tr><td class="row-lbl">Wrong</td><td id="tab-wrong" class="wr-you">0</td><td class="wr-top">1</td><td class="wr-avg">4</td></tr>
-                    <tr><td class="row-lbl">Time Spent</td><td id="tab-time" class="tm-you">0m</td><td class="tm-top">12m</td><td class="tm-avg">14m</td></tr>
+                    <tr><td class="row-lbl">Score</td><td id="tc-u-sc" class="sc-you">0</td><td class="sc-top">145.5</td><td class="sc-avg">68.2</td></tr>
+                    <tr><td class="row-lbl">Accuracy</td><td id="tc-u-ac" class="ac-you">0%</td><td class="ac-top">96%</td><td class="ac-avg">74%</td></tr>
+                    <tr><td class="row-lbl">Correct</td><td id="tc-u-cr" class="cr-you">0</td><td class="cr-top">74</td><td class="cr-avg">38</td></tr>
+                    <tr><td class="row-lbl">Wrong</td><td id="tc-u-wr" class="wr-you">0</td><td class="wr-top">3</td><td class="wr-avg">14</td></tr>
+                    <tr><td class="row-lbl">Time Spent</td><td id="tc-u-tm" class="tm-you">0m</td><td class="tm-top">54m</td><td class="tm-avg">58m</td></tr>
                 </tbody>
             </table>
         </div>
+
         <div class="a-card">
-            <h3 style="font-size:15px; margin-bottom:12px; font-weight:bold;">Time Analysis</h3>
+            <h3 style="font-size: 15px; font-weight: bold; text-align: center;">Time Analysis (Per Question)</h3>
             <div class="time-stats-box">
-                <div class="ts-left" id="ts-corr-box">0s<br><span style="font-size:11px; font-weight:normal;">Correct Qs</span></div>
+                <div class="ts-left">Correct Qs<br><span id="tm-corr-avg">0s</span></div>
                 <div class="ts-right">
-                    <div class="ts-rt-top" id="ts-una-box">0s<br><span style="font-size:10px; font-weight:normal;">Unattempted</span></div>
-                    <div class="ts-rt-bot" id="ts-inc-box">0s<br><span style="font-size:11px; font-weight:normal;">Incorrect Qs</span></div>
+                    <div class="ts-rt-top">Unattempted<br><span id="tm-una-avg" style="margin-left:4px;">0s</span></div>
+                    <div class="ts-rt-bot">Incorrect Qs<br><span id="tm-inc-avg">0s</span></div>
                 </div>
             </div>
         </div>
-        <div class="sec-title">Subject Wise Analysis</div>
-        <div id="subject-cards-box"></div>
-        <div style="text-align: center; margin-top: 24px;">
-            <button class="btn-yes" style="padding: 12px 40px;" onclick="openSolutionsScreen()">View Solutions</button>
-        </div>
-        <div style="padding: 16px; margin-top: 10px; text-align: center;">
-            <div style="background: #e8eaf6; padding: 16px; border-radius: 14px; border: 1px solid #c5cae9; text-align: left;">
-                <h3 style="font-size: 16px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;"> 🔥 आज ही हमारा चैनल जॉइन करें! </h3>
-                <ul style="list-style: none; padding: 0; font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 12px;">
-                    <li style="margin-bottom: 6px;">📚 <b>PYQ Papers:</b> पिछले सालों के 100% असली पेपर्स!</li>
-                    <li style="margin-bottom: 6px;">💎 <b>Premium Mocks:</b> बड़ी कोचिंग्स की पेड टेस्ट सीरीज!</li>
-                    <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी स्पीड बढ़ाने का मौका!</li>
-                    <li style="margin-bottom: 6px;">🖥️ <b>Real Exam UI:</b> TCS और Eduquity दोनों शानदार इंटरफ़ेस!</li>
-                </ul>
-                <p style="font-size: 13px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px; background: #fff; padding: 6px; border-radius: 6px;">✨ बिल्कुल फ्री | No Hidden Charges ✨</p>
-                <a href="https://t.me/Raj_Education_Hub" target="_blank" style="display: block; background: #0088cc; color: #fff; text-align: center; padding: 12px; border-radius: 10px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">👉 Click Here To Join Telegram 👈</a>
-            </div>
+
+        <div class="sec-title">Subject Wise Summary</div>
+        <div id="an-subjects-container"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-black" style="padding: 14px 40px; font-size: 16px; border-radius: 30px;" onclick="viewSolutions()">VIEW SOLUTIONS</button>
         </div>
     </div>
 
     <div id="solutions-screen" class="hidden">
         <div class="sol-header">
             <span>Solutions</span>
-            <span style="font-size: 24px; cursor: pointer;" onclick="closeSolutions()">×</span>
+            <button class="btn-black" onclick="backToAnalysis()">Analysis</button>
         </div>
         <div class="filters">
-            <button class="flt-btn flt-active" onclick="filterSol('all', this)">All</button>
+            <button class="flt-btn flt-active" onclick="filterSol('all', this)">All Qs</button>
             <button class="flt-btn" onclick="filterSol('correct', this)">Correct</button>
-            <button class="flt-btn" onclick="filterSol('wrong', this)">Wrong</button>
+            <button class="flt-btn" onclick="filterSol('wrong', this)">Incorrect</button>
             <button class="flt-btn" onclick="filterSol('unattempted', this)">Unattempted</button>
         </div>
-        <div class="sol-container" id="sol-items-box"></div>
+        <div class="sol-container" id="sol-items-container"></div>
     </div>
 
     <div id="full-sol-screen" class="hidden">
         <div class="fs-header">
-            <span id="fs-q-num">Question 1</span>
-            <span style="font-size: 24px; cursor: pointer;" onclick="closeFullSol()">×</span>
+            <span>Detailed Solution</span>
+            <button class="btn-black" onclick="closeFullSol()">Close</button>
         </div>
         <div class="fs-q-info">
-            <span class="fs-q-pill" style="background:#e8eaf6; color:#1a237e;" id="fs-q-sec">General Intelligence</span>
+            <span class="fs-q-pill" id="fs-q-num">Question 1</span>
             <span class="fs-time" id="fs-q-time">Time taken: 0 secs</span>
         </div>
         <div class="fs-content">
             <div class="fs-q-txt" id="fs-q-txt"></div>
             <div id="fs-options-container"></div>
-            <div class="fs-exp-box">
-                <div class="fs-exp-head">Explanation:</div>
-                <div class="fs-exp-text" id="fs-exp-text"></div>
-            </div>
+            <div class="fs-exp-title">Explanation</div>
+            <div class="fs-exp-text" id="fs-exp-text"></div>
         </div>
-        <div class="fs-footer">
-            <button class="fs-nav-btn" onclick="prevFullSol()">Previous</button>
-            <button class="fs-nav-btn" onclick="nextFullSol()">Next</button>
+        <div class="fs-bottom-bar">
+            <button class="btn-next" onclick="nextFullSol()">Next Question ❯</button>
         </div>
     </div>
+
 </div>
 
 <script>
-    let testData = [];
+    let examData = [];
+    let allQsFlat = []; 
     let currentSecIdx = 0;
-    let currentQIdx = 0;
-    let timerInterval = null;
+    let currentQIdx = 0; 
+    let testTimer = null;
+    let totalTimeSecs = 0;
     let timeRemaining = 0;
-    let totalDurationSecs = 0;
     let currentSolFilter = 'all';
-    let allQsFlat = [];
     let currentFlatIdx = 0;
-    let questionTimerInterval = null;
 
-    function formatMathText(txt) {
-        if(!txt) return '';
-        return txt.replace(/\n/g, '<br>');
+    // हेल्पर फ़ंक्शन जो टेक्स्ट या इमेज लिंक को पहचान कर सही HTML रेंडर करता है
+    function renderTextOrImage(contentString) {
+        if (!contentString) return '';
+        let trimmed = contentString.trim();
+        // अगर स्ट्रिंग http या https से शुरू होती है तो उसे इमेज के रूप में दिखाएं
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            return `<div class="opt-image-container"><img src="${trimmed}" class="opt-img" alt="Option Image" /></div>`;
+        }
+        return formatMathText(contentString);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const quizId = urlParams.get('id') || '1';
-        fetchTestData(quizId);
+        fetch('up demo.json')
+            .then(res => res.json())
+            .then(data => {
+                examData = data;
+                initFlatQuestions();
+                setupStartScreen();
+            })
+            .catch(err => {
+                console.error("Data load error:", err);
+                alert("Failed to load quiz data.");
+            });
     });
 
-    async function fetchTestData(id) {
-        const startBtn = document.getElementById('start-btn');
-        try {
-            const res = await fetch(`https://api.shikshaorbit.in/quiz/${id}`);
-            if (!res.ok) { alert("Test data loading failed!"); return; }
-            const data = await res.json();
-            
-            let sections = [];
-            let title = "SSC GD TCS Mock Test";
-            let durationMins = 60;
-            let totalQs = 0;
-            let maxMarks = 0;
-            let posMark = 2;
-            let negMark = 0.25;
-
-            // Robust JSON formatting check (handles direct lists and object wrappers)
-            if (Array.isArray(data)) {
-                sections = data;
-            } else if (data && Array.isArray(data.questions)) {
-                sections = data.questions;
-                title = data.title || title;
-                durationMins = data.time || data.duration || 60;
-                posMark = data.pos !== undefined ? data.pos : 2;
-                negMark = data.neg !== undefined ? data.neg : 0.25;
-            }
-
-            if (!sections || sections.length === 0) {
-                alert("डेटा में कोई प्रश्न नहीं मिला!");
-                if (startBtn) startBtn.innerText = "No Data Found";
-                return;
-            }
-
-            // Prepare questions data structure safely
-            sections.forEach(sec => {
-                if (sec.questions && Array.isArray(sec.questions)) {
-                    totalQs += sec.questions.length;
-                    sec.questions.forEach(q => {
-                        q.userAns = null;
-                        q.status = 'not_visited';
-                        q.time = 0;
-                    });
-                }
+    function initFlatQuestions() {
+        allQsFlat = [];
+        let gNum = 1;
+        examData.forEach((sec, sIdx) => {
+            sec.questions.forEach((q, qIdx) => {
+                q.sectionIdx = sIdx;
+                q.localQIdx = qIdx;
+                q.globalNum = gNum++;
+                q.userAns = null; 
+                q.status = 'unattempted'; 
+                q.time = 0; 
+                allQsFlat.push(q);
             });
-
-            maxMarks = totalQs * posMark;
-            
-            if (!Array.isArray(data)) {
-                if (data.total_qs) totalQs = data.total_qs;
-                if (data.max_marks) maxMarks = data.max_marks;
-            }
-
-            testData = sections;
-            timeRemaining = durationMins * 60;
-            totalDurationSecs = timeRemaining;
-
-            document.getElementById('test-title').innerText = title;
-            
-            const startInfos = document.querySelectorAll('.start-info span:last-child');
-            if(startInfos.length >= 3) {
-                startInfos[0].innerText = totalQs;
-                startInfos[1].innerText = durationMins + " mins";
-                startInfos[2].innerText = maxMarks;
-            }
-            
-            const posEl = document.querySelector('.tcs-m-pos');
-            const negEl = document.querySelector('.tcs-m-neg');
-            if(posEl) posEl.innerText = "+" + posMark;
-            if(negEl) negEl.innerText = "-" + negMark;
-            
-            if(startBtn) {
-                startBtn.innerText = "Start Test";
-                startBtn.disabled = false;
-            }
-        } catch (err) {
-            console.error(err);
-            alert("डेटा लोड करने या पार्स करने में समस्या आई!");
-            if(startBtn) startBtn.innerText = "Error Loading";
-        }
+        });
     }
 
-    function hideAllScreens() {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('test-screen').classList.add('hidden');
-        document.getElementById('submit-screen').classList.add('hidden');
-        document.getElementById('analysis-screen').classList.add('hidden');
-        document.getElementById('solutions-screen').classList.add('hidden');
-        document.getElementById('full-sol-screen').classList.add('hidden');
+    function setupStartScreen() {
+        let totalQs = allQsFlat.length;
+        let tMin = totalQs; 
+        totalTimeSecs = tMin * 60;
+        timeRemaining = totalTimeSecs;
+
+        let sc = document.getElementById('start-screen');
+        let infos = sc.querySelectorAll('.start-info span:last-child');
+        infos[0].innerText = totalQs;
+        infos[1].innerText = `${tMin} Mins`;
+        infos[2].innerText = `${totalQs * 2}`;
+
+        let btn = sc.querySelector('.start-btn');
+        btn.innerText = "START TEST";
+        btn.style.background = "#4caf50";
     }
 
     function startTest() {
-        hideAllScreens();
-        document.getElementById('test-screen').classList.remove('hidden');
+        if(examData.length === 0) return;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('live-test-screen').classList.remove('hidden');
+
         renderTabs();
+        renderPalette();
         loadQuestion(0, 0);
         startTimer();
-        startQuestionTimer();
-    }
-
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            if(timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                autoSubmit();
-            } else {
-                timeRemaining--;
-                let m = Math.floor(timeRemaining / 60);
-                let s = timeRemaining % 60;
-                document.getElementById('tcs-timer').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            }
-        }, 1000);
-    }
-
-    function startQuestionTimer() {
-        if(questionTimerInterval) clearInterval(questionTimerInterval);
-        questionTimerInterval = setInterval(() => {
-            if(testData[currentSecIdx] && testData[currentSecIdx].questions[currentQIdx]) {
-                testData[currentSecIdx].questions[currentQIdx].time++;
-            }
-        }, 1000);
     }
 
     function renderTabs() {
-        let tabsBox = document.getElementById('tcs-tabs');
+        let container = document.getElementById('tcs-tabs-container');
         let html = '';
-        testData.forEach((sec, idx) => {
-            let activeClass = (idx === currentSecIdx) ? 'active' : '';
-            html += `<div class="tcs-tab ${activeClass}" onclick="switchSection(${idx})">${sec.section}</div>`;
+        examData.forEach((sec, idx) => {
+            let cls = (idx === currentSecIdx) ? 'tcs-tab active' : 'tcs-tab';
+            html += `<div class="${cls}" onclick="switchSection(${idx})">${sec.section}</div>`;
         });
-        tabsBox.innerHTML = html;
+        container.html = html;
+        container.innerHTML = html;
     }
 
-    function switchSection(idx) {
-        if(idx === currentSecIdx) return;
-        currentSecIdx = idx;
+    function switchSection(secIdx) {
+        if(secIdx === currentSecIdx) return;
+        currentSecIdx = secIdx;
         renderTabs();
-        loadQuestion(currentSecIdx, 0);
+        loadQuestion(secIdx, 0);
     }
 
     function loadQuestion(secIdx, qIdx) {
         currentSecIdx = secIdx;
         currentQIdx = qIdx;
-        
-        let q = testData[secIdx].questions[qIdx];
-        if(q.status === 'not_visited') q.status = 'not_answered';
 
-        let globalNum = 1;
-        for(let i=0; i<secIdx; i++) { globalNum += testData[i].questions.length; }
-        globalNum += qIdx;
+        let q = examData[secIdx].questions[qIdx];
+        let fIdx = allQsFlat.findIndex(item => item.globalNum === q.globalNum);
 
-        document.getElementById('tcs-q-num-badge').innerText = globalNum;
-        document.getElementById('tcs-q-num-txt').innerText = globalNum;
+        document.getElementById('tcs-q-num').innerText = q.globalNum;
 
-        let qTextHtml = '';
-        if(q.text) { qTextHtml += `<div>${formatMathText(q.text)}</div>`; }
-        if(q.image_link) { qTextHtml += `<img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;" />`; }
-        else if(q.image) { qTextHtml += `<img src="${q.image}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;" />`; }
-        document.getElementById('tcs-q-text').innerHTML = qTextHtml;
+        // प्रश्न टेक्स्ट और इमेज दोनों का सपोर्ट एक साथ
+        let qHtml = `<div class="tcs-q-text-body">${formatMathText(q.text || '')}</div>`;
+        if (q.image_link && q.image_link.trim() !== "") {
+            qHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+        }
+        document.getElementById('tcs-q-text').innerHTML = qHtml;
 
+        // ऑप्शन्स का रेंडरिंग (टेक्स्ट और इमेज दोनों सपोर्ट के साथ)
         let optHtml = '';
-        let optPrefix = ['A', 'B', 'C', 'D'];
-        q.options.forEach((opt, i) => {
-            let isSelected = (q.userAns === i) ? 'selected' : '';
-            let optStr = String(opt || '');
-            let optContent = (optStr.startsWith('http://') || optStr.startsWith('https://')) 
-                ? `<img src="${optStr}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
-                : formatMathText(optStr);
-            optHtml += `<div class="tcs-option ${isSelected}" onclick="selectOption(${i})">
-                <span class="tcs-opt-lbl">${optPrefix[i]}</span>
-                <div>${optContent}</div>
-            </div>`;
+        let prefix = ['A', 'B', 'C', 'D'];
+        q.options.forEach((opt, idx) => {
+            let selCls = (q.userAns === idx) ? 'selected' : '';
+            optHtml += `
+                <div class="tcs-option ${selCls}" onclick="selectOption(${idx})">
+                    <span class="tcs-opt-lbl">${prefix[idx]}.</span>
+                    <div class="tcs-opt-content">${renderTextOrImage(opt)}</div>
+                </div>
+            `;
         });
         document.getElementById('tcs-options-container').innerHTML = optHtml;
 
-        document.querySelectorAll('.tcs-tab').forEach((tab, idx) => {
-            if(idx === secIdx) tab.classList.add('active');
-            else tab.classList.remove('active');
-        });
+        let tabs = document.getElementById('tcs-tabs-container').children;
+        for(let i=0; i<tabs.length; i++) {
+            tabs[i].classList.remove('active');
+            if(i === secIdx) tabs[i].classList.add('active');
+        }
 
-        startQuestionTimer();
+        updatePaletteHighlight(q.globalNum);
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
-    function selectOption(idx) {
-        testData[currentSecIdx].questions[currentQIdx].userAns = idx;
-        loadQuestion(currentSecIdx, currentQIdx);
+    function selectOption(optIdx) {
+        let q = examData[currentSecIdx].questions[currentQIdx];
+        q.userAns = optIdx;
+        
+        let opts = document.getElementById('tcs-options-container').children;
+        for(let i=0; i<opts.length; i++) {
+            opts[i].classList.remove('selected');
+        }
+        opts[optIdx].classList.add('selected');
     }
 
     function saveAndNext() {
-        let q = testData[currentSecIdx].questions[currentQIdx];
-        if(q.userAns !== null) q.status = 'answered';
-        nextQuestion();
+        let q = examData[currentSecIdx].questions[currentQIdx];
+        if(q.userAns !== null) {
+            q.status = 'attempted';
+        } else {
+            q.status = 'unattempted';
+        }
+        syncAndGoNext();
     }
 
     function markForReview() {
-        testData[currentSecIdx].questions[currentQIdx].status = 'marked';
-        nextQuestion();
+        let q = examData[currentSecIdx].questions[currentQIdx];
+        if(q.userAns !== null) {
+            q.status = 'marked-answered';
+        } else {
+            q.status = 'marked';
+        }
+        syncAndGoNext();
     }
 
     function clearResponse() {
-        testData[currentSecIdx].questions[currentQIdx].userAns = null;
-        testData[currentSecIdx].questions[currentQIdx].status = 'not_answered';
-        loadQuestion(currentSecIdx, currentQIdx);
+        let q = examData[currentSecIdx].questions[currentQIdx];
+        q.userAns = null;
+        q.status = 'unattempted';
+        
+        let opts = document.getElementById('tcs-options-container').children;
+        for(let i=0; i<opts.length; i++) {
+            opts[i].classList.remove('selected');
+        }
+        renderPalette();
+        updatePaletteHighlight(q.globalNum);
     }
 
-    function nextQuestion() {
-        if(currentQIdx < testData[currentSecIdx].questions.length - 1)
-            loadQuestion(currentSecIdx, currentQIdx + 1);
-        else if(currentSecIdx < testData.length - 1)
-            loadQuestion(currentSecIdx + 1, 0);
+    function syncAndGoNext() {
+        renderPalette();
+        nextQuestion();
     }
 
     function prevQuestion() {
-        if(currentQIdx > 0)
+        if(currentQIdx > 0) {
             loadQuestion(currentSecIdx, currentQIdx - 1);
-        else if(currentSecIdx > 0)
-            loadQuestion(currentSecIdx - 1, testData[currentSecIdx-1].questions.length - 1);
+        } else if (currentSecIdx > 0) {
+            let prevSec = currentSecIdx - 1;
+            let lastQ = examData[prevSec].questions.length - 1;
+            loadQuestion(prevSec, lastQ);
+            renderTabs();
+        }
+    }
+
+    function nextQuestion() {
+        let currentSecTotal = examData[currentSecIdx].questions.length;
+        if(currentQIdx < currentSecTotal - 1) {
+            loadQuestion(currentSecIdx, currentQIdx + 1);
+        } else if (currentSecIdx < examData.length - 1) {
+            loadQuestion(currentSecIdx + 1, 0);
+            renderTabs();
+        }
+    }
+
+    function jumpToQuestionByGlobal(gNum) {
+        let item = allQsFlat.find(q => q.globalNum === gNum);
+        if(item) {
+            loadQuestion(item.sectionIdx, item.localQIdx);
+            toggleTcsPalette();
+        }
+    }
+
+    function startTimer() {
+        let timeLabel = document.getElementById('tcs-timer-display');
+        let qTimeLabel = document.getElementById('tcs-q-time');
+        let qSecs = 0;
+
+        testTimer = setInterval(() => {
+            timeRemaining--;
+            qSecs++;
+
+            if(timeRemaining <= 0) {
+                clearInterval(testTimer);
+                timeRemaining = 0;
+                alert("Time up! Submitting test.");
+                finalSubmit();
+            }
+
+            let h = Math.floor(timeRemaining / 3600).toString().padStart(2, '0');
+            let m = Math.floor((timeRemaining % 3600) / 60).toString().padStart(2, '0');
+            let s = (timeRemaining % 60).toString().padStart(2, '0');
+            timeLabel.innerText = `${h}:${m}:${s}`;
+
+            let qM = Math.floor(qSecs / 60).toString().padStart(2, '0');
+            let qS = (qSecs % 60).toString().padStart(2, '0');
+            qTimeLabel.innerText = `${qM}:${qS}`;
+
+            let activeQ = examData[currentSecIdx].questions[currentQIdx];
+            if(activeQ) activeQ.time++;
+
+        }, 1000);
     }
 
     function toggleTcsPalette() {
-        let drawer = document.getElementById('tcs-palette');
-        if(!drawer) {
-            let overlay = document.getElementById('tcs-drawer-overlay');
-            overlay.id = 'tcs-palette';
-            drawer = overlay;
-        }
-        if(drawer.classList.contains('show')) drawer.classList.remove('show');
-        else {
-            renderTcsDrawer();
-            drawer.classList.add('show');
-        }
+        document.getElementById('tcs-palette').classList.toggle('show');
     }
 
-    function renderTcsDrawer() {
-        let container = document.getElementById('tcs-accordion-container');
+    function renderPalette() {
+        let container = document.getElementById('tcs-palette-accordion-container');
         let html = '';
-        let startNum = 1;
-        testData.forEach((sec, sIdx) => {
-            let att = 0, unatt = 0, mrk = 0;
+
+        examData.forEach((sec, sIdx) => {
+            let att = 0, mMark = 0, unAtt = 0;
+            let gridHtml = '';
+
             sec.questions.forEach(q => {
-                if(q.status === 'answered') att++;
-                else if(q.status === 'marked') mrk++;
-                else unatt++;
+                let boxCls = 'st-not-ans';
+                if(q.status === 'attempted') { boxCls = 'st-ans'; att++; }
+                else if (q.status === 'marked') { boxCls = 'st-mark'; mMark++; }
+                else if (q.status === 'marked-answered') { boxCls = 'st-mark-ans'; att++; mMark++; }
+                else { unAtt++; }
+
+                gridHtml += `<div class="tcs-q-box ${boxCls}" id="pal-box-${q.globalNum}" onclick="jumpToQuestionByGlobal(${q.globalNum})">${q.globalNum}</div>`;
             });
 
-            html += `<div class="tcs-accordion">
-                <div class="tcs-acc-header" onclick="this.nextElementSibling.nextElementSibling.classList.toggle('open')">
-                    <span>${sec.section}</span><span>▾</span>
+            let openCls = (sIdx === currentSecIdx) ? 'open' : '';
+            let arrow = (sIdx === currentSecIdx) ? '▼' : '►';
+
+            html += `
+                <div class="tcs-accordion">
+                    <div class="tcs-acc-header" onclick="toggleAccGrid(this)"><span>${sec.section}</span> <span>${arrow}</span></div>
+                    <div class="tcs-acc-stats">
+                        <span>Answered: ${att}</span>
+                        <span>Marked: ${mMark}</span>
+                        <span>Not Visited: ${unAtt}</span>
+                    </div>
+                    <div class="tcs-q-grid ${openCls}">${gridHtml}</div>
                 </div>
-                <div class="tcs-acc-stats">
-                    <span>Attempted: ${att}</span><span>Unattempted: ${unatt}</span>
-                </div>
-                <div class="tcs-q-grid open">`;
-            
-            sec.questions.forEach((q, qIdx) => {
-                let cls = 'st-not-ans';
-                if(q.status === 'answered') cls = 'st-ans';
-                else if(q.status === 'marked') cls = (q.userAns !== null) ? 'st-mark-ans' : 'st-mark';
-                
-                html += `<div class="tcs-q-box ${cls}" onclick="loadQuestion(${sIdx}, ${qIdx}); toggleTcsPalette();">${startNum}</div>`;
-                startNum++;
-            });
-            html += `</div></div>`;
+            `;
         });
+
         container.innerHTML = html;
     }
 
-    function openSubmit() {
+    function toggleAccGrid(headerEl) {
+        let grid = headerEl.nextElementSibling.nextElementSibling;
+        let arrowSpan = headerEl.querySelector('span:last-child');
+        if(grid.classList.contains('open')) {
+            grid.classList.remove('open');
+            arrowSpan.innerText = '►';
+        } else {
+            grid.classList.add('open');
+            arrowSpan.innerText = '▼';
+        }
+    }
+
+    function updatePaletteHighlight(gNum) {
+        let boxes = document.querySelectorAll('.tcs-q-box');
+        boxes.forEach(b => b.style.transform = 'scale(1)');
+        let target = document.getElementById(`pal-box-${gNum}`);
+        if(target) {
+            target.style.transform = 'scale(1.15)';
+        }
+    }
+
+    function prepareSubmit() {
+        clearInterval(testTimer);
         hideAllScreens();
         document.getElementById('submit-screen').classList.remove('hidden');
+
         let container = document.getElementById('submit-summary-container');
         let html = '';
-        testData.forEach(sec => {
-            let att = 0, mrk = 0, unatt = 0;
+
+        examData.forEach(sec => {
+            let att = 0, mMark = 0, unAtt = 0;
             sec.questions.forEach(q => {
-                if(q.userAns !== null) att++;
-                else if(q.status === 'marked') mrk++;
-                else unatt++;
+                if(q.status === 'attempted' || q.status === 'marked-answered') att++;
+                else if (q.status === 'marked') mMark++;
+                else unAtt++;
             });
-            html += `<div class="section-summary-card">
-                <h3 style="font-size:15px; margin-bottom:8px; font-weight:bold; color:#1a237e;">${sec.section}</h3>
-                <div class="stat-row"><span>Attempted</span><span style="font-weight:bold;color:#4caf50;">${att}</span></div>
-                <div class="stat-row"><span>Unattempted</span><span style="color:#888;">${unatt}</span></div>
-            </div>`;
+
+            html += `
+                <div class="section-summary-card">
+                    <h4 style="font-size:15px; margin-bottom:10px; color:#1a237e; font-weight:bold;">${sec.section}</h4>
+                    <div class="stat-row"><span>Answered</span><span style="font-weight:bold; color:#4caf50;">${att}</span></div>
+                    <div class="stat-row"><span>Marked for Review</span><span style="font-weight:bold; color:#fbc02d;">${mMark}</span></div>
+                    <div class="stat-row"><span>Unattempted</span><span style="font-weight:bold; color:#888;">${unAtt}</span></div>
+                </div>
+            `;
         });
         container.innerHTML = html;
     }
 
-    function closeSubmit() {
-        hideAllScreens();
-        document.getElementById('test-screen').classList.remove('hidden');
+    function cancelSubmit() {
+        document.getElementById('submit-screen').classList.add('hidden');
+        document.getElementById('live-test-screen').classList.remove('hidden');
+        startTimer();
     }
 
-    function autoSubmit() {
-        alert("Time is up! Your test is submitting automatically.");
-        submitTest();
+    function finalSubmit() {
+        clearInterval(testTimer);
+        calculateResultsAndRenderAnalysis();
     }
 
-    function submitTest() {
-        clearInterval(timerInterval);
-        clearInterval(questionTimerInterval);
+    function calculateResultsAndRenderAnalysis() {
         hideAllScreens();
         document.getElementById('analysis-screen').classList.remove('hidden');
 
-        let totalScore = 0, totalCorrect = 0, totalWrong = 0, totalUnattempted = 0;
-        let totalTime = totalDurationSecs - timeRemaining;
-        let cTime = 0, wTime = 0, uTime = 0;
+        let totalQs = allQsFlat.length;
+        let correctCount = 0, wrongCount = 0, unattemptedCount = 0;
+        let totalTimeSpent = 0;
 
-        let secHtml = '';
-        allQsFlat = [];
-        let globalQNum = 1;
+        let timeCorr = 0, timeWr = 0, timeUna = 0;
 
-        let posMark = parseFloat(document.querySelector('.tcs-m-pos') ? document.querySelector('.tcs-m-pos').innerText.replace('+','') : 2);
-        let negMark = parseFloat(document.querySelector('.tcs-m-neg') ? document.querySelector('.tcs-m-neg').innerText.replace('-','') : 0.25);
-
-        testData.forEach((sec, sIdx) => {
-            let c = 0, inc = 0, u = 0, cT = 0, incT = 0, uT = 0;
-            sec.questions.forEach((q, qIdx) => {
-                let state = 'unattempted';
-                if(q.userAns === null) {
-                    u++; uT += q.time;
-                    totalUnattempted++; uTime += q.time;
-                } else if(q.userAns === q.correct) {
-                    c++; cT += q.time;
-                    totalCorrect++; cTime += q.time;
-                    state = 'correct';
-                } else {
-                    inc++; incT += q.time;
-                    totalWrong++; wTime += q.time;
-                    state = 'wrong';
-                }
-
-                allQsFlat.push({
-                    ...q,
-                    secName: sec.section,
-                    globalNum: globalQNum,
-                    state: state,
-                    flatIdx: allQsFlat.length
-                });
-                globalQNum++;
-            });
-
-            let secScore = (c * posMark) - (inc * negMark);
-            totalScore += secScore;
-
-            secHtml += `<div class="a-card">
-                <div class="subj-header">
-                    <span class="subj-name">${sec.section}</span>
-                    <div class="black-circle"><span>Score</span><span>${secScore.toFixed(1)}</span></div>
-                </div>
-                <div class="subj-q-stats">🎨 Correct: ${c} | ❌ Incorrect: ${inc}</div>
-                <div class="time-split">
-                    <div class="col"><div class="c-green">Correct Qs</div><div class="val-num">${c}</div><div class="val-time">${cT}s</div></div>
-                    <div class="col"><div class="c-red">Incorrect Qs</div><div class="val-num">${inc}</div><div class="val-time">${incT}s</div></div>
-                    <div class="col"><div class="c-grey">Unattempted</div><div class="val-num">${u}</div><div class="val-time">${uT}s</div></div>
-                </div>
-            </div>`;
+        allQsFlat.forEach(q => {
+            totalTimeSpent += q.time;
+            if(q.userAns === null) {
+                unattemptedCount++;
+                timeUna += q.time;
+            } else if (q.userAns === q.correct) {
+                correctCount++;
+                timeCorr += q.time;
+            } else {
+                wrongCount++;
+                timeWr += q.time;
+            }
         });
 
-        document.getElementById('subject-cards-box').innerHTML = secHtml;
+        let finalScore = (correctCount * 2) - (wrongCount * 0.25);
+        let accuracy = attCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
+        let attCount = correctCount + wrongCount;
+        let attRate = Math.round((attCount / totalQs) * 100);
 
-        document.getElementById('res-score').innerText = `${totalScore.toFixed(1)} / ${(allQsFlat.length * posMark)}`;
-        let acc = totalCorrect + totalWrong > 0 ? Math.round((totalCorrect / (totalCorrect + totalWrong)) * 100) : 0;
-        document.getElementById('res-perc').innerText = acc + "%";
+        document.getElementById('an-score').innerText = finalScore.toFixed(2);
+        document.getElementById('an-rank').innerText = `#${Math.floor(Math.random() * 40) + 5}`;
+        document.getElementById('an-perc').innerText = `${Math.floor(Math.random() * 15) + 80}%`;
 
-        document.getElementById('tab-score').innerText = totalScore.toFixed(1);
-        document.getElementById('tab-acc').innerText = acc + "%";
-        document.getElementById('tab-corr').innerText = totalCorrect;
-        document.getElementById('tab-wrong').innerText = totalWrong;
-        document.getElementById('tab-time').innerText = Math.round(totalTime / 60) + "m";
+        document.getElementById('lg-corr').innerText = correctCount;
+        document.getElementById('lg-inc').innerText = wrongCount;
+        document.getElementById('lg-una').innerText = unattemptedCount;
 
-        document.getElementById('ts-corr-box').innerHTML = `${cTime}s<br><span style="font-size:11px; font-weight:normal;">Correct Qs</span>`;
-        document.getElementById('ts-inc-box').innerHTML = `${wTime}s<br><span style="font-size:11px; font-weight:normal;">Incorrect Qs</span>`;
-        document.getElementById('ts-una-box').innerHTML = `${uTime}s<br><span style="font-size:10px; font-weight:normal;">Unattempted</span>`;
+        let pCorr = (correctCount / totalQs) * 360;
+        let pWr = (wrongCount / totalQs) * 360;
+        document.getElementById('an-donut').style.background = `conic-gradient(#4caf50 0deg ${pCorr}deg, #e53935 ${pCorr}deg ${pCorr+pWr}deg, #5c6bc0 ${pCorr+pWr}deg 360deg)`;
 
-        let tot = allQsFlat.length || 1;
-        let cp = Math.round((totalCorrect / tot) * 360);
-        let wp = Math.round((totalWrong / tot) * 360);
-        document.getElementById('res-donut').style.background = `conic-gradient(#4caf50 0deg ${cp}deg, #e53935 ${cp}deg ${cp+wp}deg, #5c6bc0 ${cp+wp}deg 360deg)`;
+        document.getElementById('an-accuracy').innerText = `${accuracy}%`;
+        document.getElementById('an-attempted').innerText = `${attRate}%`;
+
+        document.getElementById('tc-u-sc').innerText = finalScore.toFixed(1);
+        document.getElementById('tc-u-ac').innerText = `${accuracy}%`;
+        document.getElementById('tc-u-cr').innerText = correctCount;
+        document.getElementById('tc-u-wr').innerText = wrongCount;
+        document.getElementById('tc-u-tm').innerText = `${Math.round(totalTimeSpent/60)}m`;
+
+        document.getElementById('tm-corr-avg').innerText = `${correctCount > 0 ? Math.round(timeCorr/correctCount) : 0}s`;
+        document.getElementById('tm-inc-avg').innerText = `${wrongCount > 0 ? Math.round(timeWr/wrongCount) : 0}s`;
+        document.getElementById('tm-una-avg').innerText = `${unattemptedCount > 0 ? Math.round(timeUna/unattemptedCount) : 0}s`;
+
+        let subContainer = document.getElementById('an-subjects-container');
+        let subHtml = '';
+        examData.forEach(sec => {
+            let sCorr = 0, sWr = 0, sTotal = sec.questions.length;
+            sec.questions.forEach(q => {
+                if(q.userAns !== null && q.userAns === q.correct) sCorr++;
+                else if (q.userAns !== null) sWr++;
+            });
+            let sScore = (sCorr * 2) - (sWr * 0.25);
+            let sMax = sTotal * 2;
+
+            subHtml += `
+                <div class="a-card">
+                    <div class="subj-header">
+                        <span class="subj-name">${sec.section}</span>
+                        <div class="black-circle"><span>Score</span><span>${sScore.toFixed(1)}</span></div>
+                    </div>
+                    <div class="subj-q-stats">Max Marks: ${sMax}</div>
+                    <div class="time-split">
+                        <div class="col c-green"><div class="val-num">${sCorr}</div><div>Correct</div></div>
+                        <div class="col c-red"><div class="val-num">${sWr}</div><div>Incorrect</div></div>
+                        <div class="col c-grey"><div class="val-num">${sTotal - (sCorr+sWr)}</div><div>Skip</div></div>
+                    </div>
+                </div>
+            `;
+        });
+        subContainer.innerHTML = subHtml;
     }
 
-    function openSolutionsScreen() {
+    function viewSolutions() {
         hideAllScreens();
         document.getElementById('solutions-screen').classList.remove('hidden');
-        renderSolutions();
+        renderSolutionsList();
     }
 
-    function closeSolutions() {
-        hideAllScreens();
-        document.getElementById('analysis-screen').classList.remove('hidden');
-    }
+    function renderSolutionsList() {
+        let container = document.getElementById('sol-items-container');
+        let html = '';
 
-    function filterSol(type, btn) {
-        document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('flt-active'));
-        btn.classList.add('flt-active');
-        currentSolFilter = type;
-        renderSolutions();
-    }
+        allQsFlat.forEach((q, flatIdx) => {
+            let isCorr = q.userAns === q.correct;
+            let isUna = q.userAns === null;
 
-    function renderSolutions() {
-        let itemHtml = '';
-        let filtered = allQsFlat;
-        if(currentSolFilter !== 'all') {
-            filtered = allQsFlat.filter(q => q.state === currentSolFilter);
-        }
+            if(currentSolFilter === 'correct' && (!isCorr || isUna)) return;
+            if(currentSolFilter === 'wrong' && (isCorr || isUna)) return;
+            if(currentSolFilter === 'unattempted' && !isUna) return;
 
-        filtered.forEach(q => {
-            let qContent = '';
-            if(q.text) qContent += `<div>${formatMathText(q.text)}</div>`;
-            if(q.image_link) qContent += `<img src="${q.image_link}" style="max-width:100%; margin-top:8px; display:block; border-radius:4px;" />`;
-            else if(q.image) qContent += `<img src="${q.image}" style="max-width:100%; margin-top:8px; display:block; border-radius:4px;" />`;
+            let iconHtml = '';
+            if(isUna) iconHtml = `<div class="sol-status-icon st-una">➖</div>`;
+            else if (isCorr) iconHtml = `<div class="sol-status-icon st-corr">✓</div>`;
+            else iconHtml = `<div class="sol-status-icon st-wr">✕</div>`;
 
-            let statusClass = 's-un';
-            let statusText = 'Unattempted';
-            if(q.state === 'correct') { statusClass = 's-cr'; statusText = 'Correct'; }
-            else if(q.state === 'wrong') { statusClass = 's-wr'; statusText = 'Wrong'; }
+            let secName = examData[q.sectionIdx].section;
 
-            itemHtml += `<div class="sol-item" onclick="openFullSolution(${q.flatIdx})">
-                <div class="sol-status-badge ${statusClass}">${statusText}</div>
-                <div style="flex:1;">
-                    <div style="font-size:12px; color:#888; margin-bottom:4px; font-weight:bold;">Question ${q.globalNum}</div>
-                    <div class="sol-q-txt">${qContent}</div>
+            // सोल्यूशंस लिस्ट स्क्रीन में भी प्रश्न टेक्स्ट और इमेज दोनों का सपोर्ट
+            let itemQHtml = `<div class="sol-q-txt-body">${formatMathText(q.text || '')}</div>`;
+            if (q.image_link && q.image_link.trim() !== "") {
+                itemQHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+            }
+
+            html += `
+                <div class="sol-item">
+                    <div class="sol-num-col">
+                        <div class="sol-num">${q.globalNum} ${iconHtml}</div>
+                        <div class="sol-line"></div>
+                    </div>
+                    <div class="sol-card">
+                        <span class="sol-sec-badge">${secName}</span>
+                        <div class="sol-q-txt">${itemQHtml}</div>
+                        <button class="btn-black" style="font-size:12px; padding:6px 12px;" onclick="openFullSolution(${flatIdx})">View Solution</button>
+                    </div>
                 </div>
-                <div style="font-size:18px; color:#888; align-self:center;">➔</div>
-            </div>`;
+            `;
         });
-        document.getElementById('sol-items-box').innerHTML = itemHtml || '<div style="text-align:center; padding:20px; color:#888;">No questions found</div>';
+
+        container.innerHTML = html;
+        if(window.MathJax) { MathJax.typesetPromise(); }
+    }
+
+    function filterSol(type, btnEl) {
+        currentSolFilter = type;
+        let btns = btnEl.parentElement.children;
+        for(let i=0; i<btns.length; i++) btns[i].classList.remove('flt-active');
+        btnEl.classList.add('flt-active');
+        renderSolutionsList();
     }
 
     function openFullSolution(flatIdx) {
@@ -804,42 +871,39 @@
     function closeFullSol() {
         hideAllScreens();
         document.getElementById('solutions-screen').classList.remove('hidden');
+        renderSolutionsList();
     }
 
     function renderFullSolution() {
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
-        document.getElementById('fs-q-sec').innerText = q.secName;
 
-        let qContent = '';
-        if(q.text) qContent += `<div>${formatMathText(q.text)}</div>`;
-        if(q.image_link) qContent += `<img src="${q.image_link}" style="max-width:100%; margin-top:8px; display:block; border-radius:4px;" />`;
-        else if(q.image) qContent += `<img src="${q.image}" style="max-width:100%; margin-top:8px; display:block; border-radius:4px;" />`;
-        document.getElementById('fs-q-txt').innerHTML = qContent;
+        // फुल सोल्यूशन स्क्रीन पर भी प्रश्न का टेक्स्ट और इमेज दोनों सपोर्ट
+        let fullQHtml = `<div class="fs-q-txt-body">${formatMathText(q.text || '')}</div>`;
+        if (q.image_link && q.image_link.trim() !== "") {
+            fullQHtml += `<div class="q-image-container"><img src="${q.image_link.trim()}" class="q-img" alt="Question Image" /></div>`;
+        }
+        document.getElementById('fs-q-txt').innerHTML = fullQHtml;
         
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
-            if(i === q.correct) { cls = 'correct'; rightTxt = '<span class="fs-opt-perc">Correct</span>'; } 
+            if(i === q.correct) { cls = 'correct'; rightTxt = '<span class=\"fs-opt-perc\">Correct</span>'; } 
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
             
-            let optStr = String(opt || '');
-            let optContent = (optStr.startsWith('http://') || optStr.startsWith('https://')) 
-                ? `<img src="${optStr}" style="max-width:100%; max-height:150px; display:block; border-radius:4px;" />` 
-                : formatMathText(optStr);
-
-            optHtml += `<div class="fs-opt ${cls}">
-                <span style="display:flex; align-items:center; gap:10px;"><b>${optPrefix[i]}.</b> <div>${optContent}</div></span> 
-                ${rightTxt}
-            </div>`;
+            optHtml += `
+                <div class="fs-opt ${cls}">
+                    <div style="display:flex; align-items:center; flex:1;">
+                        <span style="font-weight:bold; margin-right:10px;">${optPrefix[i]}.</span>
+                        <div style="flex:1;">${renderTextOrImage(opt)}</div>
+                    </div>
+                    ${rightTxt}
+                </div>
+            `;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
-        
-        let expContent = '';
-        if(q.exp) expContent += `<div>${formatMathText(q.exp)}</div>`;
-        if(q.exp_image) expContent += `<img src="${q.exp_image}" style="max-width:100%; margin-top:8px; display:block; border-radius:4px;" />`;
-        document.getElementById('fs-exp-text').innerHTML = expContent || 'No explanation available';
+        document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp || 'No explanation available.');
 
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
@@ -848,14 +912,28 @@
         if(currentFlatIdx < allQsFlat.length - 1) {
             currentFlatIdx++;
             renderFullSolution();
+        } else {
+            alert("This was the last question.");
         }
     }
 
-    function prevFullSol() {
-        if(currentFlatIdx > 0) {
-            currentFlatIdx--;
-            renderFullSolution();
-        }
+    function backToAnalysis() {
+        hideAllScreens();
+        document.getElementById('analysis-screen').classList.remove('hidden');
+    }
+
+    function formatMathText(txt) {
+        if(!txt) return '';
+        return txt.replace(/\n/g, '<br>');
+    }
+
+    function hideAllScreens() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('live-test-screen').classList.add('hidden');
+        document.getElementById('submit-screen').classList.add('hidden');
+        document.getElementById('analysis-screen').classList.add('hidden');
+        document.getElementById('solutions-screen').classList.add('hidden');
+        document.getElementById('full-sol-screen').classList.add('hidden');
     }
 </script>
 </body>
