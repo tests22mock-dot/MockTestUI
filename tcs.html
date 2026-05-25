@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD TCS Mock Test</title>
+    <title>SSC GD TCS Mock Test (Smart Dual Mode)</title>
     
     <script>
       MathJax = {
@@ -29,13 +29,14 @@
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
 
         .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .tcs-timer { font-size: 18px; font-weight: bold; }
+        .tcs-timer { font-size: 18px; font-weight: bold; display: flex; align-items: center; }
         .tcs-hamburger { font-size: 26px; cursor: pointer; color: white; }
 
         .tcs-tabs-wrapper { background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; white-space: nowrap; position: sticky; top: 60px; z-index: 9; }
         .tcs-tabs-wrapper::-webkit-scrollbar { display: none; }
         .tcs-tab { display: inline-block; padding: 14px 16px; font-size: 14px; font-weight: 500; color: #555; cursor: pointer; border-bottom: 3px solid transparent; }
         .tcs-tab.active { color: #1a237e; border-bottom: 3px solid #1a237e; font-weight: bold; }
+        .tcs-tab.locked { color: #aaa; cursor: not-allowed; }
 
         .tcs-q-info-bar { background: #f5f5f5; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-size: 13px; color: #555;}
         .tcs-q-badge { background: #888; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px;}
@@ -187,7 +188,10 @@
     <div id="live-test-screen" class="hidden">
         <div class="tcs-header">
             <div>
-                <div class="tcs-timer" id="tcs-timer-display">00:15:00</div>
+                <div class="tcs-timer">
+                    <span id="timer-lbl" style="font-size:11px;background:#e53935;padding:2px 6px;border-radius:10px;margin-right:6px;font-weight:normal;">Time Left</span> 
+                    <span id="tcs-timer-display">00:15:00</span>
+                </div>
                 <a href="https://t.me/+RQjBgn9IBrs1MDNl" class="backup-btn">📢 Join Backup</a>
             </div>
             <div class="tcs-hamburger" onclick="toggleTcsPalette()">≡</div>
@@ -218,7 +222,7 @@
                 <button class="tcs-arrow-btn" onclick="nextQuestion()">❯</button>
             </div>
             <div class="tcs-actions-row">
-                <button class="tcs-btn tcs-btn-submit" onclick="prepareSubmit()">Submit Quiz</button>
+                <button class="tcs-btn tcs-btn-submit" id="btn-submit-dynamic" onclick="handleDynamicSubmit()">Submit Quiz</button>
                 <button class="tcs-btn" onclick="markForReview()">Mark & Next</button>
                 <button class="tcs-btn" onclick="clearResponse()">Clear Response</button>
                 <button class="tcs-btn tcs-btn-save" onclick="saveAndNext()">Save & Next</button>
@@ -367,17 +371,19 @@
     let qStartTime = Date.now();
     let currentFilter = 'all', allQsFlat = [], currentFlatIdx = 0;
 
+    // SMART JSON DETECTION VARS
+    let testMode = 'overall';
+    let isTimerActive = true;
+
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
 
-    // 🌟 HELPER TO CHECK IMAGE URLs 🌟
     function isImageUrl(url) {
         if (!url) return false;
         let str = url.toString().trim();
         return str.startsWith("http://") || str.startsWith("https://") || str.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) != null;
     }
 
-    // Math render fixer
     function formatMathText(text) {
         if (!text) return "";
         return text.toString().replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
@@ -403,23 +409,44 @@
                 return; 
             }
 
-            testData = data.questions;
+            testData = data.questions || data; // handle array or object wrapper
             
+            // 🌟 SMART JSON DUAL MODE DETECTOR 🌟
+            testMode = testData[0].test_mode || data.test_mode || 'overall';
+            
+            let totalQs = 0;
+            let totalTime = 0;
+
             testData.forEach(sec => {
-                sec.questions.forEach(q => {
-                    q.userAns = null;
-                    q.status = 'not_visited';
-                    q.time = 0;
-                });
+                totalQs += sec.questions ? sec.questions.length : 0;
+                sec.time = sec.time !== undefined ? sec.time : 15; 
+                totalTime += sec.time;
+                if(sec.questions) {
+                    sec.questions.forEach(q => {
+                        q.userAns = null;
+                        q.status = 'not_visited';
+                        q.time = 0;
+                    });
+                }
             });
 
-            timeRemaining = (data.time || 15) * 60;
+            // Set Initial Time Logic
+            if (testMode === 'overall') {
+                timeRemaining = data.time !== undefined ? data.time * 60 : totalTime * 60;
+            } else {
+                timeRemaining = testData[0].time * 60; 
+            }
+
+            // Check if user turned off timer
+            if ((data.time === 0) || (testData[0].time === 0 && testMode === 'overall')) {
+                isTimerActive = false;
+            }
             
             const startInfos = document.querySelectorAll('.start-info span:last-child');
             if(startInfos.length >= 3) {
-                startInfos[0].innerText = data.total_qs || 20;
-                startInfos[1].innerText = data.time + " mins";
-                startInfos[2].innerText = data.max_marks || 40;
+                startInfos[0].innerText = data.total_qs || totalQs;
+                startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
+                startInfos[2].innerText = data.max_marks || (totalQs * (data.pos || 2));
             }
             
             const posEl = document.querySelector('.tcs-m-pos');
@@ -438,7 +465,28 @@
     
     function startTest() { 
         hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); 
-        renderTabs(); startTimer(); loadQuestion(0, 0); 
+        
+        if (!isTimerActive) {
+            document.getElementById('tcs-timer-display').parentElement.style.display = 'none';
+        } else if (testMode === 'sectional') {
+            document.getElementById('timer-lbl').innerText = "Sec Time";
+            document.getElementById('btn-submit-dynamic').innerText = "Submit Sec";
+        }
+
+        loadSection(0);
+        startTimer(); 
+    }
+
+    function loadSection(sIdx) {
+        currentSecIdx = sIdx;
+        currentQIdx = 0;
+        
+        if (testMode === 'sectional') {
+            timeRemaining = (testData[sIdx].time || 15) * 60;
+        }
+        
+        renderTabs();
+        loadQuestion(sIdx, 0);
     }
     
     function formatTcsTimer(totalSecs) {
@@ -449,21 +497,54 @@
     }
 
     function startTimer() { 
+        if (!isTimerActive) return;
         timerInterval = setInterval(() => { 
             timeRemaining--; 
-            document.getElementById('tcs-timer-display').innerText = formatTcsTimer(timeRemaining); 
+            let display = document.getElementById('tcs-timer-display');
+            display.innerText = formatTcsTimer(timeRemaining); 
             
+            if (timeRemaining < 60) {
+                display.style.color = "#ff5252";
+            } else {
+                display.style.color = "#ffffff";
+            }
+
             let elapsed = Math.floor((Date.now() - qStartTime) / 1000);
             let m = Math.floor(elapsed/60), s = elapsed%60;
             document.getElementById('tcs-q-time').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 
-            if(timeRemaining <= 0) submitTest(); 
+            if(timeRemaining <= 0) {
+                if (testMode === 'sectional') {
+                    alert("सेक्शन का समय समाप्त हुआ!");
+                    if (currentSecIdx < testData.length - 1) {
+                        loadSection(currentSecIdx + 1);
+                    } else {
+                        prepareSubmit();
+                    }
+                } else {
+                    prepareSubmit(); 
+                }
+            }
         }, 1000); 
     }
 
     function renderTabs() {
-        let html = ''; testData.forEach((sec, idx) => { html += `<div class="tcs-tab" id="tab-${idx}" onclick="loadQuestion(${idx}, 0)">${sec.section}</div>`; });
+        let html = ''; 
+        testData.forEach((sec, idx) => { 
+            let isActive = (idx === currentSecIdx) ? 'active' : '';
+            if (testMode === 'sectional') {
+                let isLocked = (idx !== currentSecIdx) ? 'locked' : '';
+                html += `<div class="tcs-tab ${isActive} ${isLocked}" id="tab-${idx}">${sec.section}</div>`;
+            } else {
+                html += `<div class="tcs-tab ${isActive}" id="tab-${idx}" onclick="loadSection(${idx})">${sec.section}</div>`; 
+            }
+        });
         document.getElementById('tcs-tabs-container').innerHTML = html;
+        
+        setTimeout(() => {
+            let activeTab = document.getElementById(`tab-${currentSecIdx}`);
+            if(activeTab) activeTab.scrollIntoView({behavior: "smooth", inline: "center"});
+        }, 100);
     }
 
     function updateQuestionTime() { 
@@ -479,14 +560,12 @@
 
         document.getElementById('tcs-q-num').innerText = qIdx + 1;
         
-        // 🌟 QUESTION CONTENT (TEXT + IMAGE LINK SUPPORT) 🌟
         let qHtml = q.text ? formatMathText(q.text) : '';
         if (q.image_link) {
             qHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
         }
         document.getElementById('tcs-q-text').innerHTML = qHtml || 'Question';
 
-        // 🌟 OPTIONS CONTENT (TEXT OR IMAGE LINK SUPPORT) 🌟
         let optionsHtml = '';
         let optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => { 
@@ -496,12 +575,6 @@
         });
         document.getElementById('tcs-options-container').innerHTML = optionsHtml;
 
-        testData.forEach((s, i) => { 
-            let btn = document.getElementById(`tab-${i}`); 
-            if(i === secIdx) { btn.classList.add('active'); btn.scrollIntoView({behavior: "smooth", inline: "center"}); } 
-            else { btn.classList.remove('active'); } 
-        });
-        
         if(window.MathJax) { MathJax.typesetPromise(); }
     }
 
@@ -526,13 +599,26 @@
     }
 
     function nextQuestion() {
-        if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1);
-        else if(currentSecIdx < testData.length - 1) loadQuestion(currentSecIdx + 1, 0);
+        if(currentQIdx < testData[currentSecIdx].questions.length - 1) {
+            loadQuestion(currentSecIdx, currentQIdx + 1);
+        } else {
+            if (testMode === 'overall') {
+                if(currentSecIdx < testData.length - 1) loadSection(currentSecIdx + 1);
+            } else {
+                alert("यह इस सेक्शन का आखिरी प्रश्न है। कृपया 'Submit Sec' पर क्लिक करें।");
+            }
+        }
     }
     
     function prevQuestion() { 
-        if(currentQIdx > 0) loadQuestion(currentSecIdx, currentQIdx - 1); 
-        else if(currentSecIdx > 0) loadQuestion(currentSecIdx - 1, testData[currentSecIdx-1].questions.length - 1);
+        if(currentQIdx > 0) {
+            loadQuestion(currentSecIdx, currentQIdx - 1); 
+        } else {
+            if (testMode === 'overall' && currentSecIdx > 0) {
+                let prevSec = currentSecIdx - 1;
+                loadQuestion(prevSec, testData[prevSec].questions.length - 1);
+            }
+        }
     }
 
     function toggleTcsPalette() { 
@@ -577,13 +663,34 @@
     }
     
     function toggleAcc(idx) {
+        if(testMode === 'sectional') return; // Do not open other accords in sectional
         let grid = document.getElementById(`acc-grid-${idx}`);
         let arr = document.getElementById(`arr-${idx}`);
         if(grid.classList.contains('open')) { grid.classList.remove('open'); arr.innerText = '▼'; }
         else { grid.classList.add('open'); arr.innerText = '▲'; }
     }
 
-    function jumpToQ(sIdx, qIdx) { toggleTcsPalette(); loadQuestion(sIdx, qIdx); }
+    function jumpToQ(sIdx, qIdx) { 
+        if (testMode === 'sectional' && sIdx !== currentSecIdx) {
+            alert("आप इस सेक्शन में जंप नहीं कर सकते।");
+            return;
+        }
+        toggleTcsPalette(); loadQuestion(sIdx, qIdx); 
+    }
+
+    function handleDynamicSubmit() {
+        if (testMode === 'sectional') {
+            if (confirm("क्या आप वाकई इस सेक्शन को सबमिट करना चाहते हैं? आप इसमें वापस नहीं आ पाएंगे।")) {
+                if (currentSecIdx < testData.length - 1) {
+                    loadSection(currentSecIdx + 1);
+                } else {
+                    prepareSubmit();
+                }
+            }
+        } else {
+            prepareSubmit();
+        }
+    }
 
     function prepareSubmit() {
         updateQuestionTime(); hideAllScreens(); document.getElementById('submit-screen').classList.remove('hidden');
@@ -674,7 +781,6 @@
             let iconStr = '', iconCls = '';
             if(q.state === 'correct') { iconStr = '✓'; iconCls = 'st-corr'; } else if(q.state === 'incorrect') { iconStr = '✕'; iconCls = 'st-wr'; } else { iconStr = '−'; iconCls = 'st-una'; }
             
-            // 🌟 SOLUTIONS LIST (TEXT + IMAGE SUPPORT) 🌟
             let solQText = q.text ? formatMathText(q.text) : '';
             let solQImg = q.image_link ? `<br><img src="${q.image_link}" style="max-width: 100%; max-height: 80px; display: block; margin-top: 5px; border-radius: 4px;">` : '';
             let displayContent = solQText + solQImg || "Image Question";
@@ -693,14 +799,12 @@
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
         
-        // 🌟 FULL SOLUTION QUESTION (TEXT + IMAGE SUPPORT) 🌟
         let fsQHtml = q.text ? formatMathText(q.text) : '';
         if (q.image_link) {
             fsQHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
         }
         document.getElementById('fs-q-txt').innerHTML = fsQHtml || 'Question';
         
-        // 🌟 FULL SOLUTION OPTIONS (TEXT OR IMAGE SUPPORT) 🌟
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => {
             let cls = '', rightTxt = '';
@@ -709,7 +813,7 @@
             
             let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height:80px; max-width:100%; display:block; border-radius:4px;">` : formatMathText(opt);
             
-            optHtml += `<div class="fs-opt ${cls}"><div style="display:flex; align-items:center;"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div>${optContent}</div></div> ${rightTxt}</div>`;
+            optHtml += `<div class="fs-opt ${cls}"><div style="display:flex; align-items:center;"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div style="flex:1;">${optContent}</div></div> ${rightTxt}</div>`;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
         document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
