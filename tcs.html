@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD TCS Mock Test (Smart Dual Mode)</title>
+    <title>SSC GD TCS Mock Test (Smart Dual Mode & Math Fixed)</title>
     
     <script>
-      MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+        startup: {
+          pageReady: () => {
+            return MathJax.startup.defaultPageReady();
+          }
+        }
       };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
@@ -386,7 +392,15 @@
 
     function formatMathText(text) {
         if (!text) return "";
+        // Clean double dollars and wrap fractions properly if needed
         return text.toString().replace(/\\frac{([^}]+)}{([^}]+)}/g, '\\(\\frac{$1}{$2}\\)');
+    }
+
+    // 🔥 AUTOMATIC MATHJAX TRIGGER FUNCTION 🔥
+    function triggerMathJax() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise().catch((err) => console.log('MathJax error: ' + err.message));
+        }
     }
 
     window.onload = async function() {
@@ -575,7 +589,7 @@
         });
         document.getElementById('tcs-options-container').innerHTML = optionsHtml;
 
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        triggerMathJax(); // 🔥 Render Math Equations Live 🔥
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
@@ -788,7 +802,8 @@
             html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${displayContent}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        
+        triggerMathJax(); // 🔥 Render Math Equations Live in Solutions List 🔥
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -816,9 +831,14 @@
             optHtml += `<div class="fs-opt ${cls}"><div style="display:flex; align-items:center;"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div style="flex:1;">${optContent}</div></div> ${rightTxt}</div>`;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
-        document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
+        
+        let expHtml = q.exp ? formatMathText(q.exp) : '';
+        if (q.exp_image_link) {
+            expHtml += `<br><img src="${q.exp_image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
+        }
+        document.getElementById('fs-exp-text').innerHTML = expHtml;
 
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        triggerMathJax(); // 🔥 Render Math Equations Live in Full Solution 🔥
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
