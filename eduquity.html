@@ -6,8 +6,14 @@
     <title>Mock Test Portal</title>
     
     <script>
-      MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+        startup: {
+          pageReady: () => {
+            return MathJax.startup.defaultPageReady();
+          }
+        }
       };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
@@ -39,7 +45,7 @@
         .tab-active { background: #1b5e20; }
         .tab-inactive { background: #1e88e5; }
 
-        .action-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; padding: 10px; background: #111; color: #fff; position: sticky; top: 60px; z-index: 10;}
+        .action-buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 10px; background: #111; color: #fff; position: sticky; top: 60px; z-index: 10;}
         .act-btn { background: #333; color: #fff; border: none; padding: 8px 4px; border-radius: 6px; font-size: 11px; text-align: center; cursor: pointer; font-weight: bold;}
         .marks-info { display: flex; justify-content: space-between; padding: 10px 16px; background: #fff; font-size: 12px; font-weight: 500; border-bottom: 1px solid #eee; }
         .marks-info .positive { color: #2e7d32; } .marks-info .negative { color: #c62828; }
@@ -195,6 +201,7 @@
         <div class="action-buttons">
             <button class="act-btn" onclick="prevQuestion()">Previous</button>
             <button class="act-btn" onclick="markForReview()">Mark for<br>Review</button>
+            <button class="act-btn" onclick="clearResponse()">Clear<br>Response</button>
             <button class="act-btn" onclick="saveAndNext()">Save &<br>Next</button>
             <button class="act-btn" style="background:#e53935;" onclick="prepareSubmit()">Submit<br>Test</button>
         </div>
@@ -333,6 +340,10 @@
     let timerInterval, timeRemaining = 15 * 60;
     let qStartTime = Date.now();
     let currentFilter = 'all', allQsFlat = [], currentFlatIdx = 0;
+    
+    // NEW VARS FOR SMART TIMINGS
+    let testMode = 'overall';
+    let isTimerActive = true;
 
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
@@ -348,6 +359,13 @@
     function isUrl(str) {
         if (!str || typeof str !== 'string') return false;
         return str.startsWith('http://') || str.startsWith('https://');
+    }
+
+    // NEW FUNCTION FOR MATH RENDERING
+    function triggerMathJax() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise().catch((err) => console.log('MathJax error: ' + err.message));
+        }
     }
 
     function buildQuestionHtml(qText, imageLink) {
@@ -378,17 +396,43 @@
             const data = await response.json();
             if (data.error) { alert("Test not found!"); if(startBtn) startBtn.innerText = "Not Found"; return; }
 
-            testData = data.questions;
+            testData = data.questions || data;
+            
             testData.forEach(sec => {
-                sec.questions.forEach(q => { q.userAns = null; q.status = 'not_visited'; q.time = 0; });
+                if(sec.questions) {
+                    sec.questions.forEach(q => { q.userAns = null; q.status = 'not_visited'; q.time = 0; });
+                }
             });
 
-            timeRemaining = (data.time || 15) * 60;
+            // SMART JSON DUAL MODE DETECTOR
+            testMode = testData[0].test_mode || data.test_mode || 'overall';
+
+            let totalQs = 0;
+            let totalTime = 0;
+
+            testData.forEach(sec => {
+                totalQs += sec.questions ? sec.questions.length : 0;
+                sec.time = sec.time !== undefined ? sec.time : 15; 
+                totalTime += sec.time;
+            });
+
+            // Set Initial Time Logic
+            if (testMode === 'overall') {
+                timeRemaining = data.time !== undefined ? data.time * 60 : totalTime * 60;
+            } else {
+                timeRemaining = testData[0].time * 60; 
+            }
+
+            // Check if user turned off timer
+            if ((data.time === 0) || (testData[0].time === 0 && testMode === 'overall')) {
+                isTimerActive = false;
+            }
+
             const startInfos = document.querySelectorAll('.start-info span:last-child');
             if(startInfos.length >= 3) {
-                startInfos[0].innerText = data.total_qs;
-                startInfos[1].innerText = data.time + " mins";
-                startInfos[2].innerText = data.max_marks;
+                startInfos[0].innerText = data.total_qs || totalQs;
+                startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
+                startInfos[2].innerText = data.max_marks || (totalQs * (data.pos || 2));
             }
             
             const posEl = document.querySelector('.positive'); const negEl = document.querySelector('.negative');
@@ -403,8 +447,47 @@
     };
 
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
-    function startTest() { hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); renderTabs(); startTimer(); loadQuestion(0, 0); }
-    function startTimer() { timerInterval = setInterval(() => { timeRemaining--; let m = Math.floor(timeRemaining/60), s = timeRemaining%60; document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if(timeRemaining <= 0) submitTest(); }, 1000); }
+    
+    // UPDATED START TEST FUNCTION
+    function startTest() { 
+        hideAllScreens(); 
+        document.getElementById('live-test-screen').classList.remove('hidden'); 
+        
+        // Hide timer if time limit is 0
+        if (!isTimerActive) {
+            document.querySelector('.timer-box').style.display = 'none';
+        }
+
+        renderTabs(); 
+        startTimer(); 
+        loadQuestion(0, 0); 
+    }
+
+    // UPDATED TIMER FUNCTION
+    function startTimer() { 
+        if (!isTimerActive) return;
+
+        timerInterval = setInterval(() => { 
+            timeRemaining--; 
+            let m = Math.floor(timeRemaining/60), s = timeRemaining%60; 
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
+            
+            if(timeRemaining <= 0) {
+                if (testMode === 'sectional') {
+                    alert("सेक्शन का समय समाप्त हुआ!");
+                    if (currentSecIdx < testData.length - 1) {
+                        currentSecIdx++;
+                        timeRemaining = (testData[currentSecIdx].time || 15) * 60;
+                        loadQuestion(currentSecIdx, 0);
+                    } else {
+                        prepareSubmit();
+                    }
+                } else {
+                    prepareSubmit(); 
+                }
+            }
+        }, 1000); 
+    }
 
     function renderTabs() {
         let html = ''; testData.forEach((sec, idx) => { html += `<button class="tab-btn tab-inactive" id="tab-${idx}" onclick="loadQuestion(${idx}, 0)">PART - ${String.fromCharCode(65+idx)}</button>`; });
@@ -432,13 +515,20 @@
 
         testData.forEach((s, i) => { let btn = document.getElementById(`tab-${i}`); if(i === secIdx) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } else { btn.classList.add('tab-inactive'); btn.classList.remove('tab-active'); } });
         
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        triggerMathJax(); // UPDATED MATH RENDERING
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
     function saveAndNext() { let q = testData[currentSecIdx].questions[currentQIdx]; q.status = (q.userAns !== null) ? 'answered' : 'not_answered'; if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1); }
     function markForReview() { testData[currentSecIdx].questions[currentQIdx].status = 'marked'; if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1); }
     function prevQuestion() { if(currentQIdx > 0) loadQuestion(currentSecIdx, currentQIdx - 1); }
+    
+    // NEW FUNCTION
+    function clearResponse() {
+        testData[currentSecIdx].questions[currentQIdx].userAns = null;
+        testData[currentSecIdx].questions[currentQIdx].status = 'not_answered';
+        loadQuestion(currentSecIdx, currentQIdx);
+    }
 
     function togglePalette() { let modal = document.getElementById('palette-modal'); if(modal.classList.contains('show')) modal.classList.remove('show'); else { renderPalette(); modal.classList.add('show'); } }
     
@@ -551,7 +641,7 @@
             html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${qContentHtml}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        triggerMathJax(); // UPDATED MATH RENDERING
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -575,7 +665,7 @@
         document.getElementById('fs-options-container').innerHTML = optHtml; 
         document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
 
-        if(window.MathJax) { MathJax.typesetPromise(); }
+        triggerMathJax(); // UPDATED MATH RENDERING
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 </script>
