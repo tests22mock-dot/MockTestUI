@@ -478,6 +478,7 @@
                     if (currentSecIdx < testData.length - 1) {
                         currentSecIdx++;
                         timeRemaining = (testData[currentSecIdx].time || 15) * 60;
+                        renderTabs();
                         loadQuestion(currentSecIdx, 0);
                     } else {
                         prepareSubmit();
@@ -490,8 +491,20 @@
     }
 
     function renderTabs() {
-        let html = ''; testData.forEach((sec, idx) => { html += `<button class="tab-btn tab-inactive" id="tab-${idx}" onclick="loadQuestion(${idx}, 0)">PART - ${String.fromCharCode(65+idx)}</button>`; });
+        let html = ''; 
+        testData.forEach((sec, idx) => { 
+            let lockStyle = (testMode === 'sectional' && idx !== currentSecIdx) ? 'opacity: 0.5; cursor: not-allowed;' : 'cursor: pointer;';
+            html += `<button class="tab-btn tab-inactive" id="tab-${idx}" style="${lockStyle}" onclick="changeSectionFromTab(${idx})">PART - ${String.fromCharCode(65+idx)}</button>`; 
+        });
         document.getElementById('section-tabs-container').innerHTML = html;
+    }
+
+    function changeSectionFromTab(idx) {
+        if (testMode === 'sectional' && idx !== currentSecIdx) {
+            alert("सेक्शनल टाइमिंग मोड में आप अपनी मर्जी से दूसरे सेक्शन में नहीं जा सकते!");
+            return;
+        }
+        loadQuestion(idx, 0);
     }
 
     function updateQuestionTime() { let elapsed = Math.floor((Date.now() - qStartTime) / 1000); if(testData[currentSecIdx] && testData[currentSecIdx].questions[currentQIdx]) { testData[currentSecIdx].questions[currentQIdx].time += elapsed; } qStartTime = Date.now(); }
