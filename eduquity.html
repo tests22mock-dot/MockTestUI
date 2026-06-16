@@ -361,7 +361,6 @@
         return str.startsWith('http://') || str.startsWith('https://');
     }
 
-    // NEW FUNCTION FOR MATH RENDERING
     function triggerMathJax() {
         if (window.MathJax && window.MathJax.typesetPromise) {
             MathJax.typesetPromise().catch((err) => console.log('MathJax error: ' + err.message));
@@ -428,16 +427,23 @@
                 isTimerActive = false;
             }
 
+            // --- SMART 0 (ZERO) MARKS FIX ---
+            let dbTotalQs = data.total_qs !== undefined && data.total_qs !== null ? data.total_qs : totalQs;
+            let dbPos = data.pos !== undefined && data.pos !== null ? Number(data.pos) : 2;
+            let dbNeg = data.neg !== undefined && data.neg !== null ? Number(data.neg) : 0.25;
+            let dbMaxMarks = data.max_marks !== undefined && data.max_marks !== null ? data.max_marks : (totalQs * dbPos);
+
             const startInfos = document.querySelectorAll('.start-info span:last-child');
             if(startInfos.length >= 3) {
-                startInfos[0].innerText = data.total_qs || totalQs;
+                startInfos[0].innerText = dbTotalQs;
                 startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
-                startInfos[2].innerText = data.max_marks || (totalQs * (data.pos || 2));
+                startInfos[2].innerText = dbMaxMarks;
             }
             
             const posEl = document.querySelector('.positive'); const negEl = document.querySelector('.negative');
-            if(posEl) posEl.innerText = "+" + (data.pos || 2);
-            if(negEl) negEl.innerText = "-" + (data.neg || 0.25);
+            if(posEl) posEl.innerText = "+" + dbPos;
+            if(negEl) negEl.innerText = "-" + dbNeg;
+            // --------------------------------
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
         } catch (err) {
@@ -448,7 +454,6 @@
 
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
     
-    // UPDATED START TEST FUNCTION
     function startTest() { 
         hideAllScreens(); 
         document.getElementById('live-test-screen').classList.remove('hidden'); 
@@ -463,7 +468,6 @@
         loadQuestion(0, 0); 
     }
 
-    // UPDATED TIMER FUNCTION
     function startTimer() { 
         if (!isTimerActive) return;
 
@@ -528,7 +532,7 @@
 
         testData.forEach((s, i) => { let btn = document.getElementById(`tab-${i}`); if(i === secIdx) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } else { btn.classList.add('tab-inactive'); btn.classList.remove('tab-active'); } });
         
-        triggerMathJax(); // UPDATED MATH RENDERING
+        triggerMathJax(); 
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
@@ -536,7 +540,6 @@
     function markForReview() { testData[currentSecIdx].questions[currentQIdx].status = 'marked'; if(currentQIdx < testData[currentSecIdx].questions.length - 1) loadQuestion(currentSecIdx, currentQIdx + 1); }
     function prevQuestion() { if(currentQIdx > 0) loadQuestion(currentSecIdx, currentQIdx - 1); }
     
-    // NEW FUNCTION
     function clearResponse() {
         testData[currentSecIdx].questions[currentQIdx].userAns = null;
         testData[currentSecIdx].questions[currentQIdx].status = 'not_answered';
@@ -581,8 +584,11 @@
         let tC = 0, tI = 0, tU = 0, secHtml = '';
         allQsFlat = []; let globalQNum = 1;
 
+        // --- SMART SUBMIT MARKS FIX ---
         let posMark = parseFloat(document.querySelector('.positive') ? document.querySelector('.positive').innerText.replace('+','') : 2);
         let negMark = parseFloat(document.querySelector('.negative') ? document.querySelector('.negative').innerText.replace('-','') : 0.25);
+        if (isNaN(posMark)) posMark = 2;
+        if (isNaN(negMark)) negMark = 0.25;
 
         testData.forEach((sec, sIdx) => {
             let c = 0, inc = 0, u = 0, cT = 0, incT = 0, uT = 0;
@@ -654,7 +660,7 @@
             html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${qContentHtml}</div><button class="btn-black" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
-        triggerMathJax(); // UPDATED MATH RENDERING
+        triggerMathJax(); 
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -678,7 +684,7 @@
         document.getElementById('fs-options-container').innerHTML = optHtml; 
         document.getElementById('fs-exp-text').innerHTML = formatMathText(q.exp);
 
-        triggerMathJax(); // UPDATED MATH RENDERING
+        triggerMathJax(); 
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 </script>
