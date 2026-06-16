@@ -455,18 +455,25 @@
             if ((data.time === 0) || (testData[0].time === 0 && testMode === 'overall')) {
                 isTimerActive = false;
             }
+
+            // --- SMART 0 (ZERO) MARKS FIX ---
+            let dbTotalQs = data.total_qs !== undefined && data.total_qs !== null ? data.total_qs : totalQs;
+            let dbPos = data.pos !== undefined && data.pos !== null ? Number(data.pos) : 2;
+            let dbNeg = data.neg !== undefined && data.neg !== null ? Number(data.neg) : 0.25;
+            let dbMaxMarks = data.max_marks !== undefined && data.max_marks !== null ? data.max_marks : (totalQs * dbPos);
             
             const startInfos = document.querySelectorAll('.start-info span:last-child');
             if(startInfos.length >= 3) {
-                startInfos[0].innerText = data.total_qs || totalQs;
+                startInfos[0].innerText = dbTotalQs;
                 startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
-                startInfos[2].innerText = data.max_marks || (totalQs * (data.pos || 2));
+                startInfos[2].innerText = dbMaxMarks;
             }
             
             const posEl = document.querySelector('.tcs-m-pos');
             const negEl = document.querySelector('.tcs-m-neg');
-            if(posEl) posEl.innerText = "+" + (data.pos || 2);
-            if(negEl) negEl.innerText = "-" + (data.neg || 0.25);
+            if(posEl) posEl.innerText = "+" + dbPos;
+            if(negEl) negEl.innerText = "-" + dbNeg;
+            // --------------------------------
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
         } catch (err) {
@@ -728,6 +735,8 @@
 
         let posMark = parseFloat(document.querySelector('.tcs-m-pos') ? document.querySelector('.tcs-m-pos').innerText.replace('+','') : 2);
         let negMark = parseFloat(document.querySelector('.tcs-m-neg') ? document.querySelector('.tcs-m-neg').innerText.replace('-','') : 0.25);
+        if (isNaN(posMark)) posMark = 2;
+        if (isNaN(negMark)) negMark = 0.25;
 
         testData.forEach((sec, sIdx) => {
             let c = 0, inc = 0, u = 0, cT = 0, incT = 0, uT = 0;
