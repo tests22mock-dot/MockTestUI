@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD TCS Mock Test (Smart Dual Mode, Math & Optional Subjects)</title>
+    <title>SSC GD TCS Mock Test (Smart UI & Optional Subjects)</title>
     
     <script>
       window.MathJax = {
@@ -27,12 +27,31 @@
         .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
         .backup-btn:active { transform: scale(0.95); }
 
-        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        /* --- START SCREEN NEW UI CSS --- */
+        #start-screen { background-color: rgba(85, 85, 85, 0.9); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
         .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; max-height: 90vh; overflow-y: auto;}
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
-        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
-        .start-info span:last-child { color: #888; font-weight: normal;}
+        
+        .sub-card { display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 12px 16px; border-radius: 8px; border: 1px solid #d9e2ec; margin-bottom: 8px; font-size: 14px; transition: 0.2s;}
+        .sub-card.fixed { border-left: 4px solid #1a237e; }
+        .sub-name { color: #102a43; font-weight: 600; display: flex; align-items: center;}
+        .sub-badge { background: #d9e2ec; color: #334e68; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+        
+        .opt-group-title { font-weight: bold; color: #e65100; margin: 16px 0 8px 0; font-size: 13px; }
+        .opt-card { cursor: pointer; border: 1px solid #ffcc80; background: #fff; border-left: 4px solid #ff9800; }
+        .opt-card:active { transform: scale(0.98); }
+        .opt-card.selected { background: #e8f5e9; border-color: #4caf50; border-left: 4px solid #4caf50; }
+        .opt-card.selected .sub-badge { background: #c8e6c9; color: #2e7d32; }
+        .check-icon { display: none; margin-right: 8px; font-weight: bold; font-size: 16px;}
+        .opt-card.selected .check-icon { display: inline-block; color: #4caf50; }
+        .fixed-icon { margin-right: 8px; color: #1a237e; }
+
+        .stats-box { background: #f8f9fa; padding: 16px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px;}
+        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: bold;}
+        .start-info span:last-child { color: #1a237e; font-weight: 800;}
+        .start-info:last-child { margin-bottom: 0; }
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        /* -------------------------------- */
 
         .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .tcs-timer { font-size: 18px; font-weight: bold; display: flex; align-items: center; }
@@ -183,12 +202,15 @@
 
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(TCS Pattern)</h2>
-            <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
-            <div class="start-info"><span>Total Time:</span> <span>--</span></div>
-            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
+            <h2 style="color: #1a237e; border-bottom: 1px solid #eee; padding-bottom: 12px;">(TCS Pattern) Mock Test</h2>
             
-            <div id="optional-subjects-container"></div>
+            <div id="subjects-selection-container"></div>
+            
+            <div class="stats-box">
+                <div class="start-info"><span>Total Questions:</span> <span id="stat-qs">--</span></div>
+                <div class="start-info"><span>Total Time:</span> <span id="stat-time">--</span></div>
+                <div class="start-info"><span>Maximum Marks:</span> <span id="stat-marks">--</span></div>
+            </div>
             
             <button class="start-btn" onclick="startTest()">Loading Test...</button>
         </div>
@@ -384,6 +406,9 @@
 
     let testMode = 'overall';
     let isTimerActive = true;
+    
+    // Global object to track selected optional subjects
+    window.selectedOptionalSubjects = {};
 
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
@@ -429,7 +454,7 @@
             originalTestData = data.questions || data; 
             testMode = originalTestData[0].test_mode || data.test_mode || 'overall';
             
-            // 🌟 SMART UI: LIST ALL FIXED SUBJECTS + OPTIONAL DROPDOWNS 🌟
+            // 🌟 SMART UI: LIST ALL FIXED SUBJECTS + OPTIONAL CARDS 🌟
             let optionalGroups = {};
             let compulsorySubjects = [];
 
@@ -443,47 +468,53 @@
                 }
             });
 
-            let subjectHtml = "";
+            let subjectHtml = `
+                <div style="font-weight:bold; color:#1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center;">
+                    📚 Subjects in this Test:
+                </div>
+                <div>
+            `;
 
             // 1. Render Compulsory Subjects List
             compulsorySubjects.forEach(sec => {
                 let qCount = sec.questions ? sec.questions.length : 0;
                 subjectHtml += `
-                <li style="margin-bottom: 8px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 10px 12px; border-radius: 8px; border: 1px solid #d9e2ec;">
-                    <span style="color: #102a43;">✅ <b>${sec.section}</b></span>
-                    <span style="background: #d9e2ec; color: #334e68; font-size: 12px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">${qCount} Qs</span>
-                </li>`;
+                <div class="sub-card fixed">
+                    <span class="sub-name"><span class="fixed-icon">✅</span> ${sec.section}</span>
+                    <span class="sub-badge">${qCount} Qs</span>
+                </div>`;
             });
 
-            // 2. Render Optional Subjects Dropdown
+            // 2. Render Optional Subjects as Clickable Cards
             for (let group in optionalGroups) {
-                subjectHtml += `
-                <li style="margin-bottom: 8px; font-size: 14px; background: #fff3e0; padding: 12px; border-radius: 8px; border: 1px dashed #ffb74d;">
-                    <div style="font-weight:bold; margin-bottom: 8px; color:#e65100; font-size: 13px;">📝 Select Optional Subject (${group}):</div>
-                    <select class="opt-selector" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ffcc80; background: #fff; font-size:14px; font-weight:bold; color:#333; outline:none; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">`;
+                // Select the first one by default in our global tracker
+                window.selectedOptionalSubjects[group] = optionalGroups[group][0].section;
                 
-                optionalGroups[group].forEach(sec => {
+                subjectHtml += `
+                <div class="opt-group">
+                    <div class="opt-group-title">📝 Select Any One Optional Subject (${group}):</div>
+                `;
+                
+                optionalGroups[group].forEach((sec, idx) => {
                     let qCount = sec.questions ? sec.questions.length : 0;
-                    subjectHtml += `<option value="${sec.section}">${sec.section} (${qCount} Qs)</option>`;
+                    let isSelectedClass = idx === 0 ? "selected" : "";
+                    
+                    subjectHtml += `
+                    <div class="sub-card opt-card ${isSelectedClass}" onclick="selectOptionalSubject(this, '${group}', '${sec.section}')">
+                        <span class="sub-name"><span class="check-icon">✓</span>${sec.section}</span>
+                        <span class="sub-badge">${qCount} Qs</span>
+                    </div>`;
                 });
                 
-                subjectHtml += `</select></li>`;
+                subjectHtml += `</div>`;
             }
 
+            subjectHtml += `</div>`;
+
             // Inject the dynamic list into the container
-            document.getElementById('optional-subjects-container').innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <span style="font-weight:bold; display:block; margin-bottom: 12px; color:#1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 6px; font-size: 15px;">📚 Subjects in this Test:</span>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        ${subjectHtml}
-                    </ul>
-                </div>
-            `;
+            document.getElementById('subjects-selection-container').innerHTML = subjectHtml;
 
-            // Add event listeners to Dropdowns to update marks/qs
-            document.querySelectorAll('.opt-selector').forEach(el => el.addEventListener('change', updateStartStatsUI));
-
-            // Calculate Initial Stats
+            // Calculate Initial Stats based on defaults
             updateStartStatsUI();
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
@@ -493,10 +524,26 @@
         }
     };
 
+    // 🔥 Function to handle Optional Subject Clicks 🔥
+    function selectOptionalSubject(element, group, secName) {
+        // Remove 'selected' class from all siblings in the same group
+        let groupContainer = element.parentElement;
+        let cards = groupContainer.querySelectorAll('.opt-card');
+        cards.forEach(c => c.classList.remove('selected'));
+        
+        // Add 'selected' class to the clicked card
+        element.classList.add('selected');
+        
+        // Update global selection tracker
+        window.selectedOptionalSubjects[group] = secName;
+        
+        // Update the stats immediately
+        updateStartStatsUI();
+    }
+
     // 🔥 SMART DYNAMIC STATS UPDATER 🔥
     function updateStartStatsUI() {
-        let selectedOptionals = [];
-        document.querySelectorAll('.opt-selector').forEach(sel => selectedOptionals.push(sel.value));
+        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
 
         let totalQs = 0;
         let totalTime = 0;
@@ -526,12 +573,9 @@
         let dbNeg = apiDataRef.neg !== undefined && apiDataRef.neg !== null ? Number(apiDataRef.neg) : 0.25;
         let dbMaxMarks = totalQs * dbPos; 
 
-        const startInfos = document.querySelectorAll('.start-info span:last-child');
-        if(startInfos.length >= 3) {
-            startInfos[0].innerText = totalQs;
-            startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(displayTime/60) + " mins" : "Sectional Timing") : "No Time Limit";
-            startInfos[2].innerText = dbMaxMarks;
-        }
+        document.getElementById('stat-qs').innerText = totalQs;
+        document.getElementById('stat-time').innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(displayTime/60) + " mins" : "Sectional Timing") : "No Time Limit";
+        document.getElementById('stat-marks').innerText = dbMaxMarks;
         
         const posEl = document.querySelector('.tcs-m-pos');
         const negEl = document.querySelector('.tcs-m-neg');
@@ -543,8 +587,7 @@
     
     function startTest() { 
         // 🚀 FILTER THE TEST DATA BASED ON SELECTION 🚀
-        let selectedOptionals = [];
-        document.querySelectorAll('.opt-selector').forEach(sel => selectedOptionals.push(sel.value));
+        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
 
         testData = [];
         let totalTime = 0;
