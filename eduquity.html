@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mock Test Portal</title>
+    <title>Mock Test Portal (Smart Optional Subjects)</title>
     
     <script>
       window.MathJax = {
@@ -27,12 +27,31 @@
         .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; }
         .backup-btn:active { transform: scale(0.95); }
 
-        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
+        /* --- START SCREEN NEW UI CSS --- */
+        #start-screen { background-color: rgba(85, 85, 85, 0.9); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; max-height: 90vh; overflow-y: auto;}
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
-        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
-        .start-info span:last-child { color: #888; font-weight: normal;}
-        .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; }
+        
+        .sub-card { display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 12px 16px; border-radius: 8px; border: 1px solid #d9e2ec; margin-bottom: 8px; font-size: 14px; transition: 0.2s;}
+        .sub-card.fixed { border-left: 4px solid #1a237e; }
+        .sub-name { color: #102a43; font-weight: 600; display: flex; align-items: center;}
+        .sub-badge { background: #d9e2ec; color: #334e68; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+        
+        .opt-group-title { font-weight: bold; color: #e65100; margin: 16px 0 8px 0; font-size: 13px; }
+        .opt-card { cursor: pointer; border: 1px solid #ffcc80; background: #fff; border-left: 4px solid #ff9800; }
+        .opt-card:active { transform: scale(0.98); }
+        .opt-card.selected { background: #e8f5e9; border-color: #4caf50; border-left: 4px solid #4caf50; }
+        .opt-card.selected .sub-badge { background: #c8e6c9; color: #2e7d32; }
+        .check-icon { display: none; margin-right: 8px; font-weight: bold; font-size: 16px;}
+        .opt-card.selected .check-icon { display: inline-block; color: #4caf50; }
+        .fixed-icon { margin-right: 8px; color: #1a237e; }
+
+        .stats-box { background: #f8f9fa; padding: 16px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px;}
+        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: bold;}
+        .start-info span:last-child { color: #1a237e; font-weight: 800;}
+        .start-info:last-child { margin-bottom: 0; }
+        .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        /* -------------------------------- */
 
         .top-header { background: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
         .timer-box { text-align: right; }
@@ -184,10 +203,16 @@
 <div class="app-container">
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(Eduquity Pattern)</h2>
-            <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
-            <div class="start-info"><span>Total Time:</span> <span>--</span></div>
-            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
+            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(Eduquity Pattern) Mock Test</h2>
+            
+            <div id="subjects-selection-container"></div>
+            
+            <div class="stats-box">
+                <div class="start-info"><span>Total Questions:</span> <span id="stat-qs">--</span></div>
+                <div class="start-info"><span>Total Time:</span> <span id="stat-time">--</span></div>
+                <div class="start-info" style="border-bottom:none;"><span>Maximum Marks:</span> <span id="stat-marks">--</span></div>
+            </div>
+            
             <button class="start-btn" onclick="startTest()">Loading Test...</button>
         </div>
     </div>
@@ -336,14 +361,18 @@
 
 <script>
     let testData = [];
+    let originalTestData = []; 
+    let apiDataRef = null;     
     let currentSecIdx = 0, currentQIdx = 0; 
     let timerInterval, timeRemaining = 15 * 60;
     let qStartTime = Date.now();
     let currentFilter = 'all', allQsFlat = [], currentFlatIdx = 0;
     
-    // NEW VARS FOR SMART TIMINGS
     let testMode = 'overall';
     let isTimerActive = true;
+
+    // Global object to track selected optional subjects
+    window.selectedOptionalSubjects = {};
 
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
@@ -393,57 +422,74 @@
         try {
             const response = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${testId}`);
             const data = await response.json();
+            apiDataRef = data;
+
             if (data.error) { alert("Test not found!"); if(startBtn) startBtn.innerText = "Not Found"; return; }
 
-            testData = data.questions || data;
+            originalTestData = data.questions || data;
+            testMode = originalTestData[0].test_mode || data.test_mode || 'overall';
             
-            testData.forEach(sec => {
-                if(sec.questions) {
-                    sec.questions.forEach(q => { q.userAns = null; q.status = 'not_visited'; q.time = 0; });
+            // 🌟 SMART UI: LIST ALL FIXED SUBJECTS + OPTIONAL CARDS 🌟
+            let optionalGroups = {};
+            let compulsorySubjects = [];
+
+            originalTestData.forEach(sec => {
+                if (sec.optional_group && sec.optional_group.trim() !== "") {
+                    let groupName = sec.optional_group.trim();
+                    if (!optionalGroups[groupName]) optionalGroups[groupName] = [];
+                    optionalGroups[groupName].push(sec);
+                } else {
+                    compulsorySubjects.push(sec);
                 }
             });
 
-            // SMART JSON DUAL MODE DETECTOR
-            testMode = testData[0].test_mode || data.test_mode || 'overall';
+            let subjectHtml = `
+                <div style="font-weight:bold; color:#1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center;">
+                    📚 Subjects in this Test:
+                </div>
+                <div>
+            `;
 
-            let totalQs = 0;
-            let totalTime = 0;
-
-            testData.forEach(sec => {
-                totalQs += sec.questions ? sec.questions.length : 0;
-                sec.time = sec.time !== undefined ? sec.time : 15; 
-                totalTime += sec.time;
+            // 1. Render Compulsory Subjects List
+            compulsorySubjects.forEach(sec => {
+                let qCount = sec.questions ? sec.questions.length : 0;
+                subjectHtml += `
+                <div class="sub-card fixed">
+                    <span class="sub-name"><span class="fixed-icon">✅</span> ${sec.section}</span>
+                    <span class="sub-badge">${qCount} Qs</span>
+                </div>`;
             });
 
-            // Set Initial Time Logic
-            if (testMode === 'overall') {
-                timeRemaining = data.time !== undefined ? data.time * 60 : totalTime * 60;
-            } else {
-                timeRemaining = testData[0].time * 60; 
+            // 2. Render Optional Subjects as Clickable Cards
+            for (let group in optionalGroups) {
+                // Select the first one by default
+                window.selectedOptionalSubjects[group] = optionalGroups[group][0].section;
+                
+                subjectHtml += `
+                <div class="opt-group">
+                    <div class="opt-group-title">📝 Select Any One Optional Subject (${group}):</div>
+                `;
+                
+                optionalGroups[group].forEach((sec, idx) => {
+                    let qCount = sec.questions ? sec.questions.length : 0;
+                    let isSelectedClass = idx === 0 ? "selected" : "";
+                    
+                    subjectHtml += `
+                    <div class="sub-card opt-card ${isSelectedClass}" onclick="selectOptionalSubject(this, '${group}', '${sec.section}')">
+                        <span class="sub-name"><span class="check-icon">✓</span>${sec.section}</span>
+                        <span class="sub-badge">${qCount} Qs</span>
+                    </div>`;
+                });
+                
+                subjectHtml += `</div>`;
             }
 
-            // Check if user turned off timer
-            if ((data.time === 0) || (testData[0].time === 0 && testMode === 'overall')) {
-                isTimerActive = false;
-            }
+            subjectHtml += `</div>`;
 
-            // --- SMART 0 (ZERO) MARKS FIX ---
-            let dbTotalQs = data.total_qs !== undefined && data.total_qs !== null ? data.total_qs : totalQs;
-            let dbPos = data.pos !== undefined && data.pos !== null ? Number(data.pos) : 2;
-            let dbNeg = data.neg !== undefined && data.neg !== null ? Number(data.neg) : 0.25;
-            let dbMaxMarks = data.max_marks !== undefined && data.max_marks !== null ? data.max_marks : (totalQs * dbPos);
+            document.getElementById('subjects-selection-container').innerHTML = subjectHtml;
 
-            const startInfos = document.querySelectorAll('.start-info span:last-child');
-            if(startInfos.length >= 3) {
-                startInfos[0].innerText = dbTotalQs;
-                startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
-                startInfos[2].innerText = dbMaxMarks;
-            }
-            
-            const posEl = document.querySelector('.positive'); const negEl = document.querySelector('.negative');
-            if(posEl) posEl.innerText = "+" + dbPos;
-            if(negEl) negEl.innerText = "-" + dbNeg;
-            // --------------------------------
+            // Calculate Initial Stats based on defaults
+            updateStartStatsUI();
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
         } catch (err) {
@@ -452,13 +498,88 @@
         }
     };
 
+    function selectOptionalSubject(element, group, secName) {
+        let groupContainer = element.parentElement;
+        let cards = groupContainer.querySelectorAll('.opt-card');
+        cards.forEach(c => c.classList.remove('selected'));
+        
+        element.classList.add('selected');
+        window.selectedOptionalSubjects[group] = secName;
+        updateStartStatsUI();
+    }
+
+    function updateStartStatsUI() {
+        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
+
+        let totalQs = 0;
+        let totalTime = 0;
+
+        originalTestData.forEach(sec => {
+            if (sec.optional_group && sec.optional_group.trim() !== "") {
+                if (!selectedOptionals.includes(sec.section)) return;
+            }
+            totalQs += sec.questions ? sec.questions.length : 0;
+            totalTime += sec.time !== undefined ? sec.time : 15;
+        });
+
+        let displayTime = 0;
+        if (testMode === 'overall') {
+            displayTime = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
+        }
+
+        isTimerActive = true;
+        if ((apiDataRef.time === 0) || (originalTestData[0].time === 0 && testMode === 'overall')) {
+            isTimerActive = false;
+        }
+
+        let dbPos = apiDataRef.pos !== undefined && apiDataRef.pos !== null ? Number(apiDataRef.pos) : 2;
+        let dbNeg = apiDataRef.neg !== undefined && apiDataRef.neg !== null ? Number(apiDataRef.neg) : 0.25;
+        let dbMaxMarks = totalQs * dbPos; 
+
+        document.getElementById('stat-qs').innerText = totalQs;
+        document.getElementById('stat-time').innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(displayTime/60) + " mins" : "Sectional Timing") : "No Time Limit";
+        document.getElementById('stat-marks').innerText = dbMaxMarks;
+        
+        const posEl = document.querySelector('.positive');
+        const negEl = document.querySelector('.negative');
+        if(posEl) posEl.innerText = "+" + dbPos;
+        if(negEl) negEl.innerText = "-" + dbNeg;
+    }
+
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
     
     function startTest() { 
+        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
+
+        testData = [];
+        let totalTime = 0;
+
+        originalTestData.forEach(sec => {
+            if (sec.optional_group && sec.optional_group.trim() !== "") {
+                if (!selectedOptionals.includes(sec.section)) return; 
+            }
+            
+            let secCopy = JSON.parse(JSON.stringify(sec)); 
+            if(secCopy.questions) {
+                secCopy.questions.forEach(q => {
+                    q.userAns = null;
+                    q.status = 'not_visited';
+                    q.time = 0;
+                });
+            }
+            testData.push(secCopy);
+            totalTime += secCopy.time !== undefined ? secCopy.time : 15;
+        });
+
+        if (testMode === 'overall') {
+            timeRemaining = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
+        } else {
+            timeRemaining = testData[0].time * 60; 
+        }
+
         hideAllScreens(); 
         document.getElementById('live-test-screen').classList.remove('hidden'); 
         
-        // Hide timer if time limit is 0
         if (!isTimerActive) {
             document.querySelector('.timer-box').style.display = 'none';
         }
@@ -584,7 +705,6 @@
         let tC = 0, tI = 0, tU = 0, secHtml = '';
         allQsFlat = []; let globalQNum = 1;
 
-        // --- SMART SUBMIT MARKS FIX ---
         let posMark = parseFloat(document.querySelector('.positive') ? document.querySelector('.positive').innerText.replace('+','') : 2);
         let negMark = parseFloat(document.querySelector('.negative') ? document.querySelector('.negative').innerText.replace('-','') : 0.25);
         if (isNaN(posMark)) posMark = 2;
