@@ -28,7 +28,7 @@
         .backup-btn:active { transform: scale(0.95); }
 
         #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
+        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; max-height: 90vh; overflow-y: auto;}
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
         .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
         .start-info span:last-child { color: #888; font-weight: normal;}
@@ -186,7 +186,7 @@
             <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(TCS Pattern)</h2>
             <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
             <div class="start-info"><span>Total Time:</span> <span>--</span></div>
-            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
+            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
             
             <div id="optional-subjects-container"></div>
             
@@ -375,8 +375,8 @@
 
 <script>
     let testData = [];
-    let originalTestData = []; // New variable for Optional Subjects handling
-    let apiDataRef = null;     // To hold raw API data
+    let originalTestData = []; 
+    let apiDataRef = null;     
     let currentSecIdx = 0, currentQIdx = 0; 
     let timerInterval, timeRemaining = 15 * 60;
     let qStartTime = Date.now();
@@ -429,35 +429,61 @@
             originalTestData = data.questions || data; 
             testMode = originalTestData[0].test_mode || data.test_mode || 'overall';
             
-            // 🌟 DETECT OPTIONAL GROUPS & RENDER DROPDOWNS 🌟
+            // 🌟 SMART UI: LIST ALL FIXED SUBJECTS + OPTIONAL DROPDOWNS 🌟
             let optionalGroups = {};
+            let compulsorySubjects = [];
+
             originalTestData.forEach(sec => {
                 if (sec.optional_group && sec.optional_group.trim() !== "") {
                     let groupName = sec.optional_group.trim();
                     if (!optionalGroups[groupName]) optionalGroups[groupName] = [];
-                    optionalGroups[groupName].push(sec.section);
+                    optionalGroups[groupName].push(sec);
+                } else {
+                    compulsorySubjects.push(sec);
                 }
             });
 
-            let optHtml = "";
+            let subjectHtml = "";
+
+            // 1. Render Compulsory Subjects List
+            compulsorySubjects.forEach(sec => {
+                let qCount = sec.questions ? sec.questions.length : 0;
+                subjectHtml += `
+                <li style="margin-bottom: 8px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 10px 12px; border-radius: 8px; border: 1px solid #d9e2ec;">
+                    <span style="color: #102a43;">✅ <b>${sec.section}</b></span>
+                    <span style="background: #d9e2ec; color: #334e68; font-size: 12px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">${qCount} Qs</span>
+                </li>`;
+            });
+
+            // 2. Render Optional Subjects Dropdown
             for (let group in optionalGroups) {
-                optHtml += `
-                <div class="start-info" style="flex-direction: column; align-items: flex-start; margin-bottom:15px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                    <span style="font-weight:bold; margin-bottom: 8px; color:#1a237e;">📝 Select Subject (${group}):</span>
-                    <select class="opt-selector" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #f9f9f9; font-size:14px; font-weight:bold; color:#333; outline:none; cursor:pointer;">`;
-                optionalGroups[group].forEach(secName => {
-                    optHtml += `<option value="${secName}">${secName}</option>`;
+                subjectHtml += `
+                <li style="margin-bottom: 8px; font-size: 14px; background: #fff3e0; padding: 12px; border-radius: 8px; border: 1px dashed #ffb74d;">
+                    <div style="font-weight:bold; margin-bottom: 8px; color:#e65100; font-size: 13px;">📝 Select Optional Subject (${group}):</div>
+                    <select class="opt-selector" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ffcc80; background: #fff; font-size:14px; font-weight:bold; color:#333; outline:none; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">`;
+                
+                optionalGroups[group].forEach(sec => {
+                    let qCount = sec.questions ? sec.questions.length : 0;
+                    subjectHtml += `<option value="${sec.section}">${sec.section} (${qCount} Qs)</option>`;
                 });
-                optHtml += `</select></div>`;
+                
+                subjectHtml += `</select></li>`;
             }
 
-            if (optHtml !== "") {
-                document.getElementById('optional-subjects-container').innerHTML = optHtml;
-                // Add event listeners to update stats automatically if changed
-                document.querySelectorAll('.opt-selector').forEach(el => el.addEventListener('change', updateStartStatsUI));
-            }
+            // Inject the dynamic list into the container
+            document.getElementById('optional-subjects-container').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <span style="font-weight:bold; display:block; margin-bottom: 12px; color:#1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 6px; font-size: 15px;">📚 Subjects in this Test:</span>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        ${subjectHtml}
+                    </ul>
+                </div>
+            `;
 
-            // Calculate Initial Stats based on active selections
+            // Add event listeners to Dropdowns to update marks/qs
+            document.querySelectorAll('.opt-selector').forEach(el => el.addEventListener('change', updateStartStatsUI));
+
+            // Calculate Initial Stats
             updateStartStatsUI();
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
@@ -498,7 +524,7 @@
         // Marks logic
         let dbPos = apiDataRef.pos !== undefined && apiDataRef.pos !== null ? Number(apiDataRef.pos) : 2;
         let dbNeg = apiDataRef.neg !== undefined && apiDataRef.neg !== null ? Number(apiDataRef.neg) : 0.25;
-        let dbMaxMarks = totalQs * dbPos; // Dynamically recalculate based on selected subject
+        let dbMaxMarks = totalQs * dbPos; 
 
         const startInfos = document.querySelectorAll('.start-info span:last-child');
         if(startInfos.length >= 3) {
@@ -525,10 +551,10 @@
 
         originalTestData.forEach(sec => {
             if (sec.optional_group && sec.optional_group.trim() !== "") {
-                if (!selectedOptionals.includes(sec.section)) return; // Skip non-selected subjects
+                if (!selectedOptionals.includes(sec.section)) return; 
             }
             
-            let secCopy = JSON.parse(JSON.stringify(sec)); // Deep Copy
+            let secCopy = JSON.parse(JSON.stringify(sec)); 
             if(secCopy.questions) {
                 secCopy.questions.forEach(q => {
                     q.userAns = null;
@@ -540,7 +566,6 @@
             totalTime += secCopy.time !== undefined ? secCopy.time : 15;
         });
 
-        // Set Final Time
         if (testMode === 'overall') {
             timeRemaining = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
         } else {
