@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD TCS Mock Test (Smart UI & Optional Subjects)</title>
+    <title>SSC GD TCS Mock Test (Anti-Cheat & Smart Mode)</title>
     
     <script>
       window.MathJax = {
@@ -27,31 +27,19 @@
         .backup-btn { background: #e53935; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
         .backup-btn:active { transform: scale(0.95); }
 
-        /* --- START SCREEN NEW UI CSS --- */
-        #start-screen { background-color: rgba(85, 85, 85, 0.9); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
-        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; max-height: 90vh; overflow-y: auto;}
+        #start-screen { background-color: rgba(85, 85, 85, 0.9); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .start-card { background: #fff; width: 90%; border-radius: 20px; padding: 24px; }
         .start-card h2 { font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-weight: bold; text-align: center;}
-        
-        .sub-card { display: flex; justify-content: space-between; align-items: center; background: #f0f4f8; padding: 12px 16px; border-radius: 8px; border: 1px solid #d9e2ec; margin-bottom: 8px; font-size: 14px; transition: 0.2s;}
-        .sub-card.fixed { border-left: 4px solid #1a237e; }
-        .sub-name { color: #102a43; font-weight: 600; display: flex; align-items: center;}
-        .sub-badge { background: #d9e2ec; color: #334e68; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
-        
-        .opt-group-title { font-weight: bold; color: #e65100; margin: 16px 0 8px 0; font-size: 13px; }
-        .opt-card { cursor: pointer; border: 1px solid #ffcc80; background: #fff; border-left: 4px solid #ff9800; }
-        .opt-card:active { transform: scale(0.98); }
-        .opt-card.selected { background: #e8f5e9; border-color: #4caf50; border-left: 4px solid #4caf50; }
-        .opt-card.selected .sub-badge { background: #c8e6c9; color: #2e7d32; }
-        .check-icon { display: none; margin-right: 8px; font-weight: bold; font-size: 16px;}
-        .opt-card.selected .check-icon { display: inline-block; color: #4caf50; }
-        .fixed-icon { margin-right: 8px; color: #1a237e; }
-
-        .stats-box { background: #f8f9fa; padding: 16px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px;}
-        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: bold;}
-        .start-info span:last-child { color: #1a237e; font-weight: 800;}
-        .start-info:last-child { margin-bottom: 0; }
+        .start-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #333; font-weight: 500;}
+        .start-info span:last-child { color: #888; font-weight: normal;}
         .start-btn { width: 100%; background: #222; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-        /* -------------------------------- */
+
+        /* ANTI-CHEAT OVERLAY */
+        #anti-cheat-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.95); color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .cheat-icon { font-size: 60px; margin-bottom: 10px; }
+        .cheat-title { color: #ff5252; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+        .cheat-msg { font-size: 16px; margin-bottom: 25px; line-height: 1.5; color: #ccc; }
+        .btn-return-fs { background: #1a237e; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         .tcs-header { background: #1a237e; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .tcs-timer { font-size: 18px; font-weight: bold; display: flex; align-items: center; }
@@ -70,9 +58,7 @@
         .tcs-m-neg { color: #e53935; }
 
         .tcs-question-area { background: #fff; padding: 16px; padding-bottom: 140px; min-height: calc(100vh - 200px); }
-        
         .tcs-q-text, .fs-q-txt, .fs-exp-text, .sol-q-txt { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
-        
         .tcs-q-text { font-size: 16px; color: #111; margin-bottom: 24px; }
         .tcs-option { border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
         .tcs-option.selected { border-color: #1a237e; background: #e8eaf6; }
@@ -202,18 +188,22 @@
 
     <div id="start-screen">
         <div class="start-card">
-            <h2 style="color: #1a237e; border-bottom: 1px solid #eee; padding-bottom: 12px;">(TCS Pattern) Mock Test</h2>
-            
-            <div id="subjects-selection-container"></div>
-            
-            <div class="stats-box">
-                <div class="start-info"><span>Total Questions:</span> <span id="stat-qs">--</span></div>
-                <div class="start-info"><span>Total Time:</span> <span id="stat-time">--</span></div>
-                <div class="start-info"><span>Maximum Marks:</span> <span id="stat-marks">--</span></div>
-            </div>
-            
+            <h2 style="text-align: center; color: #1a237e; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">(TCS Pattern)</h2>
+            <div class="start-info"><span>Total Questions:</span> <span>--</span></div>
+            <div class="start-info"><span>Total Time:</span> <span>--</span></div>
+            <div class="start-info" style="border-bottom: 1px solid #eee; padding-bottom: 16px;"><span>Maximum Marks:</span> <span>--</span></div>
             <button class="start-btn" onclick="startTest()">Loading Test...</button>
         </div>
+    </div>
+
+    <div id="anti-cheat-screen" class="hidden">
+        <div class="cheat-icon">⚠️</div>
+        <div class="cheat-title">WARNING!</div>
+        <div class="cheat-msg" id="anti-cheat-msg">
+            आपने Full-Screen से बाहर जाने की या टैब बदलने की कोशिश की है!<br><br>
+            अगर आप ऐसा बार-बार करेंगे, तो आपका टेस्ट <b>अपने आप सबमिट</b> कर दिया जाएगा।
+        </div>
+        <button class="btn-return-fs" onclick="returnToFullScreen()">Return to Test (Full Screen)</button>
     </div>
 
     <div id="live-test-screen" class="hidden">
@@ -340,32 +330,9 @@
             <button class="tcs-btn tcs-btn-submit" style="width: 100%; padding: 14px; font-size: 16px; background: #1a237e; border-color: #1a237e; border-radius: 8px;" onclick="openSolutions()">📊 Full Analysis</button>
             
             <div style="background: #fff3e0; padding: 16px; border-radius: 12px; border: 1px solid #ffcc80; text-align: center; margin-top: 5px;">
-                <h3 style="font-size: 16px; color: #e65100; font-weight: bold; margin-bottom: 8px;">
-                    📥 इस टेस्ट की PDF कहाँ मिलेगी?
-                </h3>
-                <p style="font-size: 14px; color: #333; line-height: 1.5; margin-bottom: 12px;">
-                    इस टेस्ट के सभी सवालों और सही जवाबों की PDF उसी <b>टेलीग्राम मैसेज के ठीक नीचे</b> भेज दी गई है, जहाँ से आपने यह टेस्ट शुरू किया था!
-                </p>
-                <button class="tcs-btn" style="width: 100%; padding: 12px; font-size: 15px; background: #e65100; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="window.location.href='https://t.me/+N9ijRyP-zYtjNTg1'">
-                    🔙 Telegram पर वापस जाएँ
-                </button>
-            </div>
-
-            <div style="background: #e8eaf6; padding: 16px; border-radius: 12px; border: 1px solid #c5cae9; text-align: left;">
-                <h3 style="font-size: 16px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
-                    🔥 आज ही हमारा चैनल जॉइन करें!
-                </h3>
-                <ul style="list-style: none; padding: 0; font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 12px;">
-                    <li style="margin-bottom: 6px;">📚 <b>PYQ Papers:</b> पिछले सालों के 100% असली पेपर्स!</li>
-                    <li style="margin-bottom: 6px;">💎 <b>Premium Mocks:</b> बड़ी कोचिंग्स की पेड टेस्ट सीरीज!</li>
-                    <li style="margin-bottom: 6px;">⏱️ <b>Mini Mocks:</b> रोज़ाना अपनी SPEED बढ़ाने का मौका!</li>
-                    <li style="margin-bottom: 6px;">🖥️ <b>Real Exam UI:</b> TCS और Eduquity दोनों शानदार इंटरफ़ेस!</li>
-                </ul>
-                <p style="font-size: 13px; color: #1a237e; font-weight: bold; text-align: center; margin-bottom: 12px;">
-                    👇 नीचे दिए गए बटन्स पर अभी क्लिक करें!
-                </p>
-                <button class="tcs-btn" style="width: 100%; padding: 12px; font-size: 15px; background: #1e88e5; color: white; border: none; margin-bottom: 8px; border-radius: 8px;" onclick="window.open('https://t.me/+N9ijRyP-zYtjNTg1', '_blank')">📢 Join Test Updates Channel</button>
-                <button class="tcs-btn" style="width: 100%; padding: 12px; font-size: 15px; background: #0288d1; color: white; border: none; border-radius: 8px;" onclick="window.open('https://t.me/+RQjBgn9IBrs1MDNl', '_blank')">🔗 Join Backup Channel</button>
+                <h3 style="font-size: 16px; color: #e65100; font-weight: bold; margin-bottom: 8px;">📥 इस टेस्ट की PDF कहाँ मिलेगी?</h3>
+                <p style="font-size: 14px; color: #333; line-height: 1.5; margin-bottom: 12px;">इस टेस्ट के सभी सवालों और सही जवाबों की PDF उसी <b>टेलीग्राम मैसेज के ठीक नीचे</b> भेज दी गई है, जहाँ से आपने यह टेस्ट शुरू किया था!</p>
+                <button class="tcs-btn" style="width: 100%; padding: 12px; font-size: 15px; background: #e65100; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="window.location.href='https://t.me/+N9ijRyP-zYtjNTg1'">🔙 Telegram पर वापस जाएँ</button>
             </div>
         </div>
     </div>
@@ -397,18 +364,18 @@
 
 <script>
     let testData = [];
-    let originalTestData = []; 
-    let apiDataRef = null;     
     let currentSecIdx = 0, currentQIdx = 0; 
     let timerInterval, timeRemaining = 15 * 60;
     let qStartTime = Date.now();
     let currentFilter = 'all', allQsFlat = [], currentFlatIdx = 0;
 
+    // SMART JSON DETECTION VARS
     let testMode = 'overall';
     let isTimerActive = true;
     
-    // Global object to track selected optional subjects
-    window.selectedOptionalSubjects = {};
+    // ANTI-CHEAT VARS
+    let cheatWarnings = 0;
+    let isTestRunning = false;
 
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('id');
@@ -443,7 +410,6 @@
         try {
             const response = await fetch(`https://tests-k15b.onrender.com/api/get_test?id=${testId}`);
             const data = await response.json();
-            apiDataRef = data;
 
             if (data.error) { 
                 alert("Test not found!"); 
@@ -451,71 +417,37 @@
                 return; 
             }
 
-            originalTestData = data.questions || data; 
-            testMode = originalTestData[0].test_mode || data.test_mode || 'overall';
+            testData = data.questions || data; 
+            testMode = testData[0].test_mode || data.test_mode || 'overall';
             
-            // 🌟 SMART UI: LIST ALL FIXED SUBJECTS + OPTIONAL CARDS 🌟
-            let optionalGroups = {};
-            let compulsorySubjects = [];
-
-            originalTestData.forEach(sec => {
-                if (sec.optional_group && sec.optional_group.trim() !== "") {
-                    let groupName = sec.optional_group.trim();
-                    if (!optionalGroups[groupName]) optionalGroups[groupName] = [];
-                    optionalGroups[groupName].push(sec);
-                } else {
-                    compulsorySubjects.push(sec);
-                }
+            let totalQs = 0, totalTime = 0;
+            testData.forEach(sec => {
+                totalQs += sec.questions ? sec.questions.length : 0;
+                sec.time = sec.time !== undefined ? sec.time : 15; 
+                totalTime += sec.time;
+                if(sec.questions) { sec.questions.forEach(q => { q.userAns = null; q.status = 'not_visited'; q.time = 0; }); }
             });
 
-            let subjectHtml = `
-                <div style="font-weight:bold; color:#1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px; margin-bottom: 12px; font-size: 15px; display: flex; align-items: center;">
-                    📚 Subjects in this Test:
-                </div>
-                <div>
-            `;
+            if (testMode === 'overall') { timeRemaining = data.time !== undefined ? data.time * 60 : totalTime * 60; } 
+            else { timeRemaining = testData[0].time * 60; }
 
-            // 1. Render Compulsory Subjects List
-            compulsorySubjects.forEach(sec => {
-                let qCount = sec.questions ? sec.questions.length : 0;
-                subjectHtml += `
-                <div class="sub-card fixed">
-                    <span class="sub-name"><span class="fixed-icon">✅</span> ${sec.section}</span>
-                    <span class="sub-badge">${qCount} Qs</span>
-                </div>`;
-            });
+            if ((data.time === 0) || (testData[0].time === 0 && testMode === 'overall')) { isTimerActive = false; }
 
-            // 2. Render Optional Subjects as Clickable Cards
-            for (let group in optionalGroups) {
-                // Select the first one by default in our global tracker
-                window.selectedOptionalSubjects[group] = optionalGroups[group][0].section;
-                
-                subjectHtml += `
-                <div class="opt-group">
-                    <div class="opt-group-title">📝 Select Any One Optional Subject (${group}):</div>
-                `;
-                
-                optionalGroups[group].forEach((sec, idx) => {
-                    let qCount = sec.questions ? sec.questions.length : 0;
-                    let isSelectedClass = idx === 0 ? "selected" : "";
-                    
-                    subjectHtml += `
-                    <div class="sub-card opt-card ${isSelectedClass}" onclick="selectOptionalSubject(this, '${group}', '${sec.section}')">
-                        <span class="sub-name"><span class="check-icon">✓</span>${sec.section}</span>
-                        <span class="sub-badge">${qCount} Qs</span>
-                    </div>`;
-                });
-                
-                subjectHtml += `</div>`;
+            let dbTotalQs = data.total_qs !== undefined && data.total_qs !== null ? data.total_qs : totalQs;
+            let dbPos = data.pos !== undefined && data.pos !== null ? Number(data.pos) : 2;
+            let dbNeg = data.neg !== undefined && data.neg !== null ? Number(data.neg) : 0.25;
+            let dbMaxMarks = data.max_marks !== undefined && data.max_marks !== null ? data.max_marks : (totalQs * dbPos);
+            
+            const startInfos = document.querySelectorAll('.start-info span:last-child');
+            if(startInfos.length >= 3) {
+                startInfos[0].innerText = dbTotalQs;
+                startInfos[1].innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(timeRemaining/60) + " mins" : "Sectional Timing") : "No Time Limit";
+                startInfos[2].innerText = dbMaxMarks;
             }
-
-            subjectHtml += `</div>`;
-
-            // Inject the dynamic list into the container
-            document.getElementById('subjects-selection-container').innerHTML = subjectHtml;
-
-            // Calculate Initial Stats based on defaults
-            updateStartStatsUI();
+            
+            const posEl = document.querySelector('.tcs-m-pos'); const negEl = document.querySelector('.tcs-m-neg');
+            if(posEl) posEl.innerText = "+" + dbPos;
+            if(negEl) negEl.innerText = "-" + dbNeg;
 
             if(startBtn) { startBtn.innerText = "Start Test"; startBtn.disabled = false; }
         } catch (err) {
@@ -524,102 +456,21 @@
         }
     };
 
-    // 🔥 Function to handle Optional Subject Clicks 🔥
-    function selectOptionalSubject(element, group, secName) {
-        // Remove 'selected' class from all siblings in the same group
-        let groupContainer = element.parentElement;
-        let cards = groupContainer.querySelectorAll('.opt-card');
-        cards.forEach(c => c.classList.remove('selected'));
-        
-        // Add 'selected' class to the clicked card
-        element.classList.add('selected');
-        
-        // Update global selection tracker
-        window.selectedOptionalSubjects[group] = secName;
-        
-        // Update the stats immediately
-        updateStartStatsUI();
-    }
-
-    // 🔥 SMART DYNAMIC STATS UPDATER 🔥
-    function updateStartStatsUI() {
-        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
-
-        let totalQs = 0;
-        let totalTime = 0;
-
-        originalTestData.forEach(sec => {
-            // Ignore sections that are optional but NOT selected
-            if (sec.optional_group && sec.optional_group.trim() !== "") {
-                if (!selectedOptionals.includes(sec.section)) return;
-            }
-            totalQs += sec.questions ? sec.questions.length : 0;
-            totalTime += sec.time !== undefined ? sec.time : 15;
-        });
-
-        // Smart Time Handling
-        let displayTime = 0;
-        if (testMode === 'overall') {
-            displayTime = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
-        }
-
-        isTimerActive = true;
-        if ((apiDataRef.time === 0) || (originalTestData[0].time === 0 && testMode === 'overall')) {
-            isTimerActive = false;
-        }
-
-        // Marks logic
-        let dbPos = apiDataRef.pos !== undefined && apiDataRef.pos !== null ? Number(apiDataRef.pos) : 2;
-        let dbNeg = apiDataRef.neg !== undefined && apiDataRef.neg !== null ? Number(apiDataRef.neg) : 0.25;
-        let dbMaxMarks = totalQs * dbPos; 
-
-        document.getElementById('stat-qs').innerText = totalQs;
-        document.getElementById('stat-time').innerText = isTimerActive ? (testMode === 'overall' ? Math.floor(displayTime/60) + " mins" : "Sectional Timing") : "No Time Limit";
-        document.getElementById('stat-marks').innerText = dbMaxMarks;
-        
-        const posEl = document.querySelector('.tcs-m-pos');
-        const negEl = document.querySelector('.tcs-m-neg');
-        if(posEl) posEl.innerText = "+" + dbPos;
-        if(negEl) negEl.innerText = "-" + dbNeg;
-    }
-
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
     
+    // --- NEW: FULL SCREEN & ANTI CHEAT LOGIC ---
     function startTest() { 
-        // 🚀 FILTER THE TEST DATA BASED ON SELECTION 🚀
-        let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
-
-        testData = [];
-        let totalTime = 0;
-
-        originalTestData.forEach(sec => {
-            if (sec.optional_group && sec.optional_group.trim() !== "") {
-                if (!selectedOptionals.includes(sec.section)) return; 
-            }
-            
-            let secCopy = JSON.parse(JSON.stringify(sec)); 
-            if(secCopy.questions) {
-                secCopy.questions.forEach(q => {
-                    q.userAns = null;
-                    q.status = 'not_visited';
-                    q.time = 0;
-                });
-            }
-            testData.push(secCopy);
-            totalTime += secCopy.time !== undefined ? secCopy.time : 15;
-        });
-
-        if (testMode === 'overall') {
-            timeRemaining = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
-        } else {
-            timeRemaining = testData[0].time * 60; 
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => { console.log("Fullscreen failed:", err); });
         }
-
-        hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); 
         
-        if (!isTimerActive) {
-            document.getElementById('tcs-timer-display').parentElement.style.display = 'none';
-        } else if (testMode === 'sectional') {
+        isTestRunning = true;
+        hideAllScreens(); 
+        document.getElementById('live-test-screen').classList.remove('hidden'); 
+        
+        if (!isTimerActive) { document.getElementById('tcs-timer-display').parentElement.style.display = 'none'; } 
+        else if (testMode === 'sectional') {
             document.getElementById('timer-lbl').innerText = "Sec Time";
             document.getElementById('btn-submit-dynamic').innerText = "Submit Sec";
         }
@@ -628,22 +479,50 @@
         startTimer(); 
     }
 
-    function loadSection(sIdx) {
-        currentSecIdx = sIdx;
-        currentQIdx = 0;
-        
-        if (testMode === 'sectional') {
-            timeRemaining = (testData[sIdx].time || 15) * 60;
+    document.addEventListener('fullscreenchange', (event) => {
+        if (!document.fullscreenElement && isTestRunning) {
+            triggerAntiCheat("आपने Full-Screen से बाहर जाने की कोशिश की है!");
         }
-        
-        renderTabs();
-        loadQuestion(sIdx, 0);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isTestRunning) {
+            triggerAntiCheat("आपने टैब या विंडो बदलने की कोशिश की है!");
+        }
+    });
+
+    function triggerAntiCheat(msg) {
+        cheatWarnings++;
+        if(cheatWarnings > 3) {
+            alert("आपने बहुत बार नियम तोड़े हैं। आपका टेस्ट ऑटो-सबमिट किया जा रहा है!");
+            document.getElementById('anti-cheat-screen').classList.add('hidden');
+            submitTest();
+        } else {
+            document.getElementById('anti-cheat-msg').innerHTML = `${msg}<br><br>Warning: <b>${cheatWarnings}/3</b><br>अगर आप ऐसा बार-बार करेंगे, तो आपका टेस्ट <b>अपने आप सबमिट</b> कर दिया जाएगा।`;
+            document.getElementById('anti-cheat-screen').classList.remove('hidden');
+        }
+    }
+
+    function returnToFullScreen() {
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().then(() => {
+                document.getElementById('anti-cheat-screen').classList.add('hidden');
+            }).catch(err => { alert("Please allow full screen to continue."); });
+        } else {
+            document.getElementById('anti-cheat-screen').classList.add('hidden');
+        }
+    }
+    // -------------------------------------------
+
+    function loadSection(sIdx) {
+        currentSecIdx = sIdx; currentQIdx = 0;
+        if (testMode === 'sectional') { timeRemaining = (testData[sIdx].time || 15) * 60; }
+        renderTabs(); loadQuestion(sIdx, 0);
     }
     
     function formatTcsTimer(totalSecs) {
-        let h = Math.floor(totalSecs / 3600);
-        let m = Math.floor((totalSecs % 3600) / 60);
-        let s = totalSecs % 60;
+        let h = Math.floor(totalSecs / 3600); let m = Math.floor((totalSecs % 3600) / 60); let s = totalSecs % 60;
         return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
     }
 
@@ -654,11 +533,8 @@
             let display = document.getElementById('tcs-timer-display');
             display.innerText = formatTcsTimer(timeRemaining); 
             
-            if (timeRemaining < 60) {
-                display.style.color = "#ff5252";
-            } else {
-                display.style.color = "#ffffff";
-            }
+            if (timeRemaining < 60) display.style.color = "#ff5252";
+            else display.style.color = "#ffffff";
 
             let elapsed = Math.floor((Date.now() - qStartTime) / 1000);
             let m = Math.floor(elapsed/60), s = elapsed%60;
@@ -667,14 +543,9 @@
             if(timeRemaining <= 0) {
                 if (testMode === 'sectional') {
                     alert("सेक्शन का समय समाप्त हुआ!");
-                    if (currentSecIdx < testData.length - 1) {
-                        loadSection(currentSecIdx + 1);
-                    } else {
-                        prepareSubmit();
-                    }
-                } else {
-                    prepareSubmit(); 
-                }
+                    if (currentSecIdx < testData.length - 1) loadSection(currentSecIdx + 1);
+                    else prepareSubmit();
+                } else { prepareSubmit(); }
             }
         }, 1000); 
     }
@@ -691,11 +562,7 @@
             }
         });
         document.getElementById('tcs-tabs-container').innerHTML = html;
-        
-        setTimeout(() => {
-            let activeTab = document.getElementById(`tab-${currentSecIdx}`);
-            if(activeTab) activeTab.scrollIntoView({behavior: "smooth", inline: "center"});
-        }, 100);
+        setTimeout(() => { let activeTab = document.getElementById(`tab-${currentSecIdx}`); if(activeTab) activeTab.scrollIntoView({behavior: "smooth", inline: "center"}); }, 100);
     }
 
     function updateQuestionTime() { 
@@ -712,21 +579,17 @@
         document.getElementById('tcs-q-num').innerText = qIdx + 1;
         
         let qHtml = q.text ? formatMathText(q.text) : '';
-        if (q.image_link) {
-            qHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
-        }
+        if (q.image_link) { qHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`; }
         document.getElementById('tcs-q-text').innerHTML = qHtml || 'Question';
 
-        let optionsHtml = '';
-        let optPrefix = ['A', 'B', 'C', 'D'];
+        let optionsHtml = ''; let optPrefix = ['A', 'B', 'C', 'D'];
         q.options.forEach((opt, i) => { 
             let isSel = (q.userAns === i) ? 'selected' : ''; 
             let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height:100px; max-width:100%; display:block; margin:4px 0; border-radius:4px;">` : formatMathText(opt);
             optionsHtml += `<div class="tcs-option ${isSel}" onclick="selectOption(${i})"><span class="tcs-opt-lbl">${optPrefix[i]}.</span> <div style="flex:1;">${optContent}</div></div>`; 
         });
         document.getElementById('tcs-options-container').innerHTML = optionsHtml;
-
-        triggerMathJax(); // 🔥 Render Math Equations Live 🔥
+        triggerMathJax(); 
     }
 
     function selectOption(optIndex) { testData[currentSecIdx].questions[currentQIdx].userAns = optIndex; loadQuestion(currentSecIdx, currentQIdx); }
@@ -738,10 +601,7 @@
         nextQuestion();
     }
     
-    function markForReview() { 
-        testData[currentSecIdx].questions[currentQIdx].status = 'marked'; 
-        nextQuestion();
-    }
+    function markForReview() { testData[currentSecIdx].questions[currentQIdx].status = 'marked'; nextQuestion(); }
     
     function clearResponse() {
         testData[currentSecIdx].questions[currentQIdx].userAns = null;
@@ -750,21 +610,16 @@
     }
 
     function nextQuestion() {
-        if(currentQIdx < testData[currentSecIdx].questions.length - 1) {
-            loadQuestion(currentSecIdx, currentQIdx + 1);
-        } else {
-            if (testMode === 'overall') {
-                if(currentSecIdx < testData.length - 1) loadSection(currentSecIdx + 1);
-            } else {
-                alert("यह इस सेक्शन का आखिरी प्रश्न है। कृपया 'Submit Sec' पर क्लिक करें।");
-            }
+        if(currentQIdx < testData[currentSecIdx].questions.length - 1) { loadQuestion(currentSecIdx, currentQIdx + 1); } 
+        else {
+            if (testMode === 'overall') { if(currentSecIdx < testData.length - 1) loadSection(currentSecIdx + 1); } 
+            else { alert("यह इस सेक्शन का आखिरी प्रश्न है। कृपया 'Submit Sec' पर क्लिक करें।"); }
         }
     }
     
     function prevQuestion() { 
-        if(currentQIdx > 0) {
-            loadQuestion(currentSecIdx, currentQIdx - 1); 
-        } else {
+        if(currentQIdx > 0) { loadQuestion(currentSecIdx, currentQIdx - 1); } 
+        else {
             if (testMode === 'overall' && currentSecIdx > 0) {
                 let prevSec = currentSecIdx - 1;
                 loadQuestion(prevSec, testData[prevSec].questions.length - 1);
@@ -814,7 +669,7 @@
     }
     
     function toggleAcc(idx) {
-        if(testMode === 'sectional') return; // Do not open other accords in sectional
+        if(testMode === 'sectional') return; 
         let grid = document.getElementById(`acc-grid-${idx}`);
         let arr = document.getElementById(`arr-${idx}`);
         if(grid.classList.contains('open')) { grid.classList.remove('open'); arr.innerText = '▼'; }
@@ -822,25 +677,17 @@
     }
 
     function jumpToQ(sIdx, qIdx) { 
-        if (testMode === 'sectional' && sIdx !== currentSecIdx) {
-            alert("आप इस सेक्शन में जंप नहीं कर सकते।");
-            return;
-        }
+        if (testMode === 'sectional' && sIdx !== currentSecIdx) { alert("आप इस सेक्शन में जंप नहीं कर सकते।"); return; }
         toggleTcsPalette(); loadQuestion(sIdx, qIdx); 
     }
 
     function handleDynamicSubmit() {
         if (testMode === 'sectional') {
             if (confirm("क्या आप वाकई इस सेक्शन को सबमिट करना चाहते हैं? आप इसमें वापस नहीं आ पाएंगे।")) {
-                if (currentSecIdx < testData.length - 1) {
-                    loadSection(currentSecIdx + 1);
-                } else {
-                    prepareSubmit();
-                }
+                if (currentSecIdx < testData.length - 1) loadSection(currentSecIdx + 1);
+                else prepareSubmit();
             }
-        } else {
-            prepareSubmit();
-        }
+        } else { prepareSubmit(); }
     }
 
     function prepareSubmit() {
@@ -853,11 +700,15 @@
         });
         document.getElementById('submit-summary-container').innerHTML = html;
     }
+    
     function closeSubmit() { hideAllScreens(); document.getElementById('live-test-screen').classList.remove('hidden'); }
 
     function formatTime(sec) { if(sec === 0) return "0 sec"; let m = Math.floor(sec/60), s = sec%60; return m > 0 ? `${m}m ${s}s` : `${s}s`; }
 
     function submitTest() {
+        isTestRunning = false; // Disable anti-cheat
+        if (document.fullscreenElement) { document.exitFullscreen().catch(err => console.log(err)); }
+
         clearInterval(timerInterval); hideAllScreens(); document.getElementById('analysis-screen').classList.remove('hidden');
 
         let tC = 0, tI = 0, tU = 0, secHtml = '';
@@ -941,8 +792,7 @@
             html += `<div class="sol-item"><div class="sol-num-col"><div class="sol-num">${q.globalNum}<div class="sol-status-icon ${iconCls}">${iconStr}</div></div><div class="sol-line"></div></div><div class="sol-card"><div class="sol-sec-badge">${q.secName}</div><div class="sol-q-txt">${displayContent}</div><button class="tcs-btn tcs-btn-submit" style="padding:10px; border-radius:8px; background: #1a237e; border-color: #1a237e;" onclick="openFullSolution(${idx})">See Full Solution</button></div></div>`;
         });
         document.getElementById('sol-list-container').innerHTML = html;
-        
-        triggerMathJax(); // 🔥 Render Math Equations Live in Solutions List 🔥
+        triggerMathJax(); 
     }
 
     function openFullSolution(flatIdx) { currentFlatIdx = flatIdx; hideAllScreens(); document.getElementById('full-sol-screen').classList.remove('hidden'); renderFullSolution(); }
@@ -954,9 +804,7 @@
         document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
         
         let fsQHtml = q.text ? formatMathText(q.text) : '';
-        if (q.image_link) {
-            fsQHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
-        }
+        if (q.image_link) { fsQHtml += `<br><img src="${q.image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`; }
         document.getElementById('fs-q-txt').innerHTML = fsQHtml || 'Question';
         
         let optHtml = '', optPrefix = ['A', 'B', 'C', 'D'];
@@ -966,18 +814,15 @@
             else if (i === q.userAns && q.userAns !== q.correct) { cls = 'wrong'; }
             
             let optContent = isImageUrl(opt) ? `<img src="${opt}" style="max-height:80px; max-width:100%; display:block; border-radius:4px;">` : formatMathText(opt);
-            
-            optHtml += `<div class="fs-opt ${cls}"><div style="display:flex; align-items:center;"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div style="flex:1;">${optContent}</div></div> ${rightTxt}</div>`;
+            optHtml += `<div class="fs-opt ${cls}"><div style=\"display:flex; align-items:center;\"><span>${optPrefix[i]}. &nbsp;&nbsp;</span> <div style=\"flex:1;\">${optContent}</div></div> ${rightTxt}</div>`;
         });
         document.getElementById('fs-options-container').innerHTML = optHtml; 
         
         let expHtml = q.exp ? formatMathText(q.exp) : '';
-        if (q.exp_image_link) {
-            expHtml += `<br><img src="${q.exp_image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`;
-        }
+        if (q.exp_image_link) { expHtml += `<br><img src="${q.exp_image_link}" style="max-width:100%; margin-top:10px; display:block; border-radius:4px;">`; }
         document.getElementById('fs-exp-text').innerHTML = expHtml;
 
-        triggerMathJax(); // 🔥 Render Math Equations Live in Full Solution 🔥
+        triggerMathJax(); 
     }
     function nextFullSol() { if(currentFlatIdx < allQsFlat.length - 1) { currentFlatIdx++; renderFullSolution(); } else { closeFullSol(); } }
 
