@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC GD TCS Mock Test (Smart UI & Optional Subjects)</title>
+    <title>SSC GD TCS Mock Test</title>
     
     <script>
       window.MathJax = {
@@ -116,6 +116,14 @@
 
         #analysis-screen { background: #f5f5f5; min-height: 100vh; padding-bottom: 40px;}
         .analysis-header { background: #111; color: white; padding: 16px; display: flex; align-items: center; position: sticky; top: 0; z-index: 10;}
+        
+        /* 🔥 New Score Remark Banner & Weak Areas CSS 🔥 */
+        .remark-banner { text-align: center; padding: 14px; margin: 16px 16px 0 16px; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .rem-excellent { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .rem-great { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .rem-good { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
+        .rem-poor { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
         .a-card { background: #fff; border-radius: 16px; padding: 20px; margin: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; text-align: center; }
         .sc-item { display: flex; flex-direction: column; align-items: center; }
@@ -180,7 +188,14 @@
         .fs-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;}
         .fs-q-info { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee;}
         .fs-q-pill { background: #e0e0e0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
-        .fs-time { font-size: 13px; color: #888; }
+        
+        /* 🔥 New Topper vs You Time Badge CSS 🔥 */
+        .time-compare-badge { display: inline-flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; border: 1px solid #ddd; }
+        .tc-you { color: #111; }
+        .tc-topper { color: #1565c0; }
+        .tc-alert { color: #d32f2f; }
+        .tc-good { color: #2e7d32; }
+
         .fs-content { padding: 16px; }
         .fs-q-txt { font-size: 16px; color: #111; margin-bottom: 24px;}
         .fs-opt { border: 1px solid #ccc; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;}
@@ -289,6 +304,9 @@
 
     <div id="analysis-screen" class="hidden">
         <div class="analysis-header"><h1 style="font-size: 18px; margin: 0 auto;">Analysis</h1></div>
+        
+        <div id="dynamic-remark" class="remark-banner" style="display:none;"></div>
+
         <div class="a-card" style="margin-top: 20px;">
             <div class="sc-grid">
                 <div class="sc-item"><div class="sc-icon ic-score">🏅</div><div class="sc-val" id="res-score">0/40</div><div class="sc-lbl">Your Score</div></div>
@@ -329,6 +347,12 @@
                 <div class="ts-right"><div class="ts-rt-top">Unattempted</div><div class="ts-rt-bot">Incorrect</div></div>
             </div>
         </div>
+
+        <div class="a-card" id="weak-areas-card" style="display:none; background:#ffebee; border: 1px solid #ffcdd2;">
+            <h3 style="color:#c62828; margin-bottom:10px; text-align:center;">⚠️ Weak Subjects to Improve</h3>
+            <ul id="weak-areas-list" style="color:#b71c1c; font-size:14px; padding-left:20px; line-height:1.6;"></ul>
+        </div>
+
         <div class="sec-title">Section Wise Stats</div>
         <div id="analysis-sections-container"></div>
         
@@ -350,7 +374,10 @@
 
     <div id="full-sol-screen" class="hidden">
         <div class="fs-header"><span style="cursor: pointer;" onclick="closeFullSol()">←</span> Full Solution <span style="font-size: 24px;">A/अ</span></div>
-        <div class="fs-q-info"><div class="fs-q-pill" id="fs-q-num">Question 1</div><div class="fs-time" id="fs-q-time">Time taken: 0 secs</div></div>
+        <div class="fs-q-info">
+            <div class="fs-q-pill" id="fs-q-num">Question 1</div>
+            <div id="fs-q-time-compare"></div>
+        </div>
         <div class="fs-content">
             <div class="fs-q-txt" id="fs-q-txt">Q Text</div>
             <div id="fs-options-container"></div>
@@ -491,24 +518,17 @@
         }
     };
 
-    // 🔥 Function to handle Optional Subject Clicks 🔥
     function selectOptionalSubject(element, group, secName) {
-        // Remove 'selected' class from all siblings in the same group
         let groupContainer = element.parentElement;
         let cards = groupContainer.querySelectorAll('.opt-card');
         cards.forEach(c => c.classList.remove('selected'));
         
-        // Add 'selected' class to the clicked card
         element.classList.add('selected');
-        
-        // Update global selection tracker
         window.selectedOptionalSubjects[group] = secName;
         
-        // Update the stats immediately
         updateStartStatsUI();
     }
 
-    // 🔥 SMART DYNAMIC STATS UPDATER 🔥
     function updateStartStatsUI() {
         let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
 
@@ -516,7 +536,6 @@
         let totalTime = 0;
 
         originalTestData.forEach(sec => {
-            // Ignore sections that are optional but NOT selected
             if (sec.optional_group && sec.optional_group.trim() !== "") {
                 if (!selectedOptionals.includes(sec.section)) return;
             }
@@ -524,7 +543,6 @@
             totalTime += sec.time !== undefined ? sec.time : 15;
         });
 
-        // Smart Time Handling
         let displayTime = 0;
         if (testMode === 'overall') {
             displayTime = apiDataRef.time !== undefined ? apiDataRef.time * 60 : totalTime * 60;
@@ -535,7 +553,6 @@
             isTimerActive = false;
         }
 
-        // Marks logic
         let dbPos = apiDataRef.pos !== undefined && apiDataRef.pos !== null ? Number(apiDataRef.pos) : 2;
         let dbNeg = apiDataRef.neg !== undefined && apiDataRef.neg !== null ? Number(apiDataRef.neg) : 0.25;
         let dbMaxMarks = totalQs * dbPos; 
@@ -553,7 +570,6 @@
     function hideAllScreens() { document.querySelectorAll('.app-container > div').forEach(el => el.classList.add('hidden')); }
     
     function startTest() { 
-        // 🚀 FULL SCREEN LOGIC ADDED HERE 🚀
         let elem = document.documentElement;
         if (elem.requestFullscreen) {
             elem.requestFullscreen().catch(err => console.log(err));
@@ -563,7 +579,6 @@
             elem.msRequestFullscreen();
         }
 
-        // 🚀 FILTER THE TEST DATA BASED ON SELECTION 🚀
         let selectedOptionals = Object.values(window.selectedOptionalSubjects || {});
 
         testData = [];
@@ -844,6 +859,7 @@
 
         let tC = 0, tI = 0, tU = 0, secHtml = '';
         allQsFlat = []; let globalQNum = 1;
+        let weakAreas = []; 
 
         let posMark = parseFloat(document.querySelector('.tcs-m-pos') ? document.querySelector('.tcs-m-pos').innerText.replace('+','') : 2);
         let negMark = parseFloat(document.querySelector('.tcs-m-neg') ? document.querySelector('.tcs-m-neg').innerText.replace('-','') : 0.25);
@@ -857,19 +873,51 @@
                 if(q.userAns === null) { u++; uT += q.time; }
                 else if(q.userAns === q.correct) { c++; cT += q.time; state = 'correct'; }
                 else { inc++; incT += q.time; state = 'incorrect'; }
-                allQsFlat.push({ ...q, secName: sec.section, globalNum: globalQNum++, state: state, secIdx: sIdx, qIdx: qIdx });
+                
+                // 🔥 Simulated Topper Time 🔥
+                let simTopperTime = Math.max(5, Math.floor(Math.random() * 21) + 10);
+                
+                allQsFlat.push({ ...q, secName: sec.section, globalNum: globalQNum++, state: state, secIdx: sIdx, qIdx: qIdx, topperTime: simTopperTime });
             });
 
             tC += c; tI += inc; tU += u;
             let secMarks = Math.max(0, (c * posMark) - (inc * negMark));
 
             secHtml += `<div class="a-card"><div class="subj-header"><div class="subj-name">${sec.section}</div><div class="black-circle"><span>Marks</span><span>${secMarks.toFixed(2)}</span></div></div><div class="subj-q-stats">Section Question Stats</div><div class="time-split"><div class="col"><div class="c-green">Correct</div><div class="val-num c-green">${c.toFixed(1)}</div><div class="val-time">In ${formatTime(cT)}</div></div><div class="col"><div class="c-red">Incorrect</div><div class="val-num c-red">${inc.toFixed(1)}</div><div class="val-time">In ${formatTime(incT)}</div></div><div class="col"><div class="c-grey">Unattempted</div><div class="val-num c-grey">${u.toFixed(1)}</div><div class="val-time">In ${formatTime(uT)}</div></div></div></div>`;
+            
+            let totalSecQs = c + inc + u;
+            let secAcc = totalSecQs > 0 ? (c / totalSecQs) * 100 : 0;
+            if (secAcc < 50) {
+                weakAreas.push(`${sec.section} (Accuracy: ${secAcc.toFixed(1)}%)`);
+            }
         });
+
+        let weakCard = document.getElementById('weak-areas-card');
+        let weakList = document.getElementById('weak-areas-list');
+        if (weakAreas.length > 0) {
+            weakCard.style.display = 'block';
+            weakList.innerHTML = weakAreas.map(w => `<li>${w}</li>`).join('');
+        } else {
+            weakCard.style.display = 'block';
+            weakCard.style.background = '#e8f5e9';
+            weakCard.style.borderColor = '#c8e6c9';
+            weakCard.querySelector('h3').innerText = '🌟 Excellent Work!';
+            weakCard.querySelector('h3').style.color = '#2e7d32';
+            weakList.innerHTML = '<li style="color:#1b5e20;">You have strong accuracy across all subjects! Keep it up!</li>';
+        }
 
         let totalQs = tC + tI + tU; 
         let totalMarks = Math.max(0, (tC * posMark) - (tI * negMark));
         let maxMarks = totalQs * posMark;
         let acc = (tC+tI) > 0 ? ((tC / (tC+tI)) * 100).toFixed(2) : 0;
+        
+        let percentage = maxMarks <= 0 ? 0 : (totalMarks / maxMarks) * 100;
+        let remarkBox = document.getElementById('dynamic-remark');
+        remarkBox.style.display = 'block';
+        if(percentage >= 85) { remarkBox.className = 'remark-banner rem-excellent'; remarkBox.innerHTML = '🏆 Exceptional! Topper Material'; }
+        else if(percentage >= 70) { remarkBox.className = 'remark-banner rem-great'; remarkBox.innerHTML = '🔥 Great Going! Keep it up'; }
+        else if(percentage >= 50) { remarkBox.className = 'remark-banner rem-good'; remarkBox.innerHTML = '👍 Good, but needs improvement'; }
+        else { remarkBox.className = 'remark-banner rem-poor'; remarkBox.innerHTML = '⚠️ Needs Serious Practice! Don\'t give up'; }
 
         let topperScore = (maxMarks * 0.90).toFixed(2);
         if(totalMarks > parseFloat(topperScore)) topperScore = totalMarks.toFixed(2);
@@ -933,7 +981,10 @@
     function renderFullSolution() {
         let q = allQsFlat[currentFlatIdx];
         document.getElementById('fs-q-num').innerText = `Question ${q.globalNum}`; 
-        document.getElementById('fs-q-time').innerText = `Time taken: ${q.time} secs`; 
+        
+        // 🔥 Apply Topper Time Badge 🔥
+        let youTimeColor = q.time > q.topperTime ? 'tc-alert' : 'tc-good';
+        document.getElementById('fs-q-time-compare').innerHTML = `<div class="time-compare-badge"><span class="tc-you ${youTimeColor}">⏱️ You: ${q.time}s</span> <span style="color:#ccc;">|</span> <span class="tc-topper">👑 Topper: ${q.topperTime}s</span></div>`;
         
         let fsQHtml = q.text ? formatMathText(q.text) : '';
         if (q.image_link) {
