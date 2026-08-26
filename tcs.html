@@ -970,25 +970,59 @@
     }
 
     // ===== SCORECARD API ONLY =====
+    // ===== SCORECARD API ONLY: Permanent Unique User ID + MongoDB save =====
+    async function getOrCreateUniqueUserId() {
+        const STORAGE_KEY = 'uniqueUserId';
+
+        let userId =
+            localStorage.getItem(STORAGE_KEY) ||
+            localStorage.getItem('userId') ||
+            localStorage.getItem('userNum') ||
+            urlParams.get('uid') ||
+            '';
+
+        if (!userId) {
+            let randomPart = '';
+            try {
+                if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                    randomPart = window.crypto.randomUUID().replace(/-/g, '').toUpperCase();
+                }
+            } catch (e) {}
+
+            if (!randomPart) {
+                randomPart = (Date.now().toString(36) + Math.random().toString(36).slice(2)).toUpperCase();
+            }
+
+            userId = 'USR_' + randomPart;
+        }
+
+        localStorage.setItem(STORAGE_KEY, userId);
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('userNum', userId);
+
+        return userId;
+    }
+
     async function saveScorecardToAPI(scorecard) {
         try {
-            const userId =
-                urlParams.get('uid') ||
-                localStorage.getItem('userNum') ||
-                localStorage.getItem('userId') ||
-                '';
+            const userId = await getOrCreateUniqueUserId();
 
-            if (!userId || !scorecard.testId) return;
+            if (!userId || !scorecard || !scorecard.testId) return;
+
+            const payload = {
+                ...scorecard,
+                userId: String(userId),
+                uid: String(userId),
+                testId: String(scorecard.testId),
+                test: String(scorecard.testId)
+            };
 
             const response = await fetch('https://scorecard-t8d7.onrender.com/api/submit-score', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    userId: String(userId),
-                    ...scorecard
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
@@ -996,7 +1030,7 @@
                 return;
             }
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
             console.log('Scorecard saved:', result);
         } catch (error) {
             console.error('Scorecard API error:', error);
